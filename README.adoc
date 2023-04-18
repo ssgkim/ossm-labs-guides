@@ -1,0 +1,19 @@
+# OSSM Lab Guides
+
+## Local development
+
+[source,bash]
+----
+podman build -t localhost/summit-ossm-labs-guides .
+podman run --rm -d -p 4000:8080 localhost/summit-ossm-labs-guides
+----
+
+## Deploy to OpenShift
+
+[source,bash]
+----
+oc new-app https://github.com/skoussou/summit-ossm-labs-guides.git --strategy=docker
+ oc create route edge summit-ossm-labs-guides --service=summit-ossm-labs-guides
+# To rebuild after changes pushed to git
+oc start-build summit-ossm-labs-guides --follow
+----

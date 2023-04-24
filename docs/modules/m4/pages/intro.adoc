@@ -1,0 +1,20 @@
+# Securing (Authn & Authz) Gateways with MTLS and valid JWT Token
+# Red Hat Summit 2023
+
+
+[IMPORTANT]
+====
+Before moving forward you should have fully completed *Lab Scenario-3*. If you have not done so, please do so now using if preferred the script `lab-3/complete-lab-3.sh`.
+====
+
+## ABOUT THIS LAB
+
+The Travel Agency company have their applications now running in a development and production environment and within Openshift Service Mesh. Now there is a new business opportunity for the Travel Agency, as a new Business partner wants to integrate the Travel API services with their own Solutions. The Travel Agency company needs to establish a secure way to expose the API Services for external partners.
+
+== Requirements and constraints on integrating the new Business Partner
+
+1. The new partner _Global Travel Organization(GTO)_ will source travel offers via _Travel Services Domain_ APIs.
+2. The Travel Agency _Security Team_ requires all communications with the external client to be performed over `MUTUAL TLS`.
+3. The Travel Agency _Platform Team_ wishes to enable further `authentication` with a valid JWT token in order to exercise possible `authorization` policies in the future.
+
+image::04-gto.png[300,700]

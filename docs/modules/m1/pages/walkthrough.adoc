@@ -1,7 +1,127 @@
-# Title
+# Designing Service Mesh Perimeter and Operating Model
 # Red Hat Summit 2023
 
-## LAB WALKTHROUGH
+## Lab Walkthrough
 
+ifdef::env-github[]
+image:https://img.youtube.com/vi/qSAa4iY3Xa0/maxresdefault.jpg[link=https://youtu.be/qSAa4iY3Xa0]
+endif::[]
 
-### Module One
+.A walkthrough of the labs use case
+ifndef::env-github[]
+video::qSAa4iY3Xa0[youtube,list=PLZjCciga0z5w6PiJKl2P8UJKdG0cEXKcz]
+endif::[]
+
+== Motivation
+
+The existing Travel Demo system is based on an architecture of microservices split into two domains, developed and operated by several teams and personas.
+
+A service mesh is a design pattern that can be applied to a microservice-based system to manage communication between services and address common concerns of running a service, like monitoring, networking, and security.
+
+Developers and operators can focus on creating and managing applications for their users instead of worrying about implementing specific features to address challenges for every service.
+
+This is one of the reasons why the company has decided to introduce OpenShift Service Mesh.
+
+== Service Mesh Requirements
+
+As part of a Kick-Off meeting the Travel Agency stakeholders have stated the capabilities they would like to benefit from with the introduction of Service Mesh:
+
+. The _Development Team_ wants to be able to trace (every) request during development, and a sample of 20% of traffic in Production
+. The _Product Team_ wants to see metrics around performance/usage and storing them for up to 1 week
+. The _Security_ team wishes to enable mTLS in all service-to-service communications
+. The _Platform Team_ wants to centrally manage all security aspects
+. The _Development Teams_ wants to implement some resiliency to make the overall application more stable and reliable.
+
+== User Governance Model
+
+*The personas, roles and responsibilities are greatly affected by certain organizational, operational and governance choices around the cloud application platforms.* The Travel Agency company considered in the KickOff meeting the following aspects:
+
+_Type of cluster_::
+
+Is it multi tenant cluster running/operating several application domains or is it a dedicated cluster for one app domain? And the topology of the Service Mesh (multi-tenant mesh vs. a single cluster mesh).
+
+_Choices of automation_::
+
+What kind of automation to use to configure apps, the mesh configuration and the cloud platform? (Using i.e. CI/CD Pipelines, GitOps, Ansible, Scripting, ACM or none).
+
+_Platform (Service Mesh) Operating Model_::
+
+Is it a producer-consumer platform  where admins/ops deploy all configurations and developers consume or is it a self-service platform?
+
+_Dev(Sec)Ops Methodology_::
+
+Whether the team have adopted link:https://www.redhat.com/en/topics/security/devsecops/approach[DevSecOps approaches] for application and cloud configuration delivery. DevSecOps approaches bring together development, security, and operations into a collaborative shared-responsibility paradigm. The goal is to break down barriers between roles, disciplines, and teams across an organization to encourage collaboration and work toward common goals. A DevSecOps approach encompasses people, processes, technology, and governance.
+
+For the purpose of the provided scenarios the Travel Agency has selected the following options determining the _Model of Operation_.
+
+[cols="2,4,4"]
+.Model of Operation
+|===
+|# |Strategy |Option
+
+| 1 | Cluster Type | Dedicated Cluster
+
+| 2 | Automation | Scripting (Step2 is GitOps)
+
+| 3 | Platform Operating Model | <<sidenote2,Self-Service platform (restricted)>>
+
+| 4 | Dev(Sec)Ops Methodology | not covered by the Labs
+
+|===
+
+[[sidenote2]]
+*Self-service (restricted):* In this Model of Operation the teams will be able to create `Service Mesh` configurations in a self-service manner with the exception of `Gateway` resources which will be handled by the `Service Mesh` operating admin.
+
+== Travel Agency Personas & Roles
+
+The following Travel Agency enterprise personas that will interact with the Service Mesh (OSSM) have been identified. Typically these are the most common ones in customer organizations (albeit with possible different names).
+
+Upstream Istio, and so OpenShift Service Mesh, do not define standard or default user roles it is up to each project/implementation to define the appropriate permissions and roles for the required personas in order to access the necessary Service Mesh resources.
+We have defined those based on the _Model of Operation_ and expected User Governance.
+
+In the following table you’ll see the Persona / Role mappings for the Travel Agency personas:
+
+|===
+|*Persona*|*Role*|*Responsibilities*
+
+|Platform Admin|Cluster Admin (Default OpenShift cluster-admin role)|Owner of multiple OpenShift clusters, deploys operators and sets organizational policies.
+|Mesh Operator|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-operator.yaml[<BROKEN FIX>Mesh Operator]|Operates parts of the cluster and the domain based service mesh for the hosted services. Creates and operates Service Mesh tenants.
+|Domain Owner (Tech Lead)|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-developer.yaml[<BROKEN FIX>Mesh Developer]|Responsible for an Application Domain. Onboards developers in the team and understands inter/intra service dependencies. Creates and configures Service Mesh resources (`VirtualService`, `DestinationRule` etc.) in their domain.
+|Developer|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-app-viewer.yaml[<BROKEN FIX>Mesh Application Viewer]|Develops services in his Application Domain. Needs to be kept aware of the health, performance and functional correctness of the solution.
+|Application Ops Team|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-developer.yaml[<BROKEN FIX>Mesh Developer]|The _Application Ops_ team monitors and maintains the running applications in the deployed cluster and within the domain hosted mesh (OSSM tenant), including extracting logs, executing commands to verify state, and troubleshooting in higher (non-development) environments
+|Product Owner|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-app-viewer.yaml[<BROKEN FIX>Mesh Application Viewer]|The Product Owner needs to be aware of the health, usage, cost as well as other metrics around the business domain of the solution.
+|===
+
+[NOTE]
+====
+The `Mesh Operator`, `Mesh Application Viewer` and `Mesh Developer` Roles have been pre created for this Lab! Later you can review the link:<BROKEN FIX>/setup/run-setup-scenario-1.sh#L76[<BROKEN FIX>OCP role resources] and link:<BROKEN FIX>/setup/run-setup-scenario-1.sh#L129[<BROKEN FIX>role bindings] for each user.
+====
+
+== User/Role/Persona Mapping for the DEV environment
+
+[NOTE]
+====
+For this Lab we have also pre created all the required OpenShift users for the identified personas and mapped the corresponding roles.
+====
+
+The table below shows the User/Role/Persona Mapping for the Travel Agency DEV environment:
+
+[cols="1,4,3,2"]
+.Users created in `DEV` Environment
+|===
+|Name |Enterprise Persona |Role Bindings |Namespace
+
+| emma | Mesh Operator |  link:../setup/scripts/users/create-mesh-operator-roles.sh[<BROKEN FIX>`Mesh Operator`] | `dev-istio-system`
+
+| cristina | Travel Portal Domain Owner (Tech Lead)  | link:../setup/scripts/users/create-mesh-dev-roles.sh[<BROKEN FIX>`Mesh Developer`] | `dev-travel-portal`, `dev-travel-control`
+
+| farid | Travel Services Domain Owner (Tech Lead)  | link:../setup/scripts/users/create-mesh-dev-roles.sh[<BROKEN FIX>`Mesh Developer`] | `dev-travel-agency`
+
+| john | Developer (TP) | link:../setup/scripts/users/create-mesh-viewer-roles.sh[<BROKEN FIX>`Mesh Application Viewer`] | `dev-travel-portal`, `dev-travel-control`
+
+| mia | Developer (TS) | link:../setup/scripts/users/create-mesh-viewer-roles.sh[<BROKEN FIX>`Mesh Application Viewer`] | `dev-travel-agency`
+
+| mus | Product Owner | link:../setup/scripts/users/create-mesh-viewer-roles.sh[<BROKEN FIX>`Mesh Application Viewer`] | `dev-travel-portal`, `dev-travel-control`, `dev-travel-agency`
+
+|===
+

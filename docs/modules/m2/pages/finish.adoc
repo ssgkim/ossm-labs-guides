@@ -1,5 +1,7 @@
-# Title I
+# # Service Mesh Development Environment & Observability Stack
 # Red Hat Summit 2023
 
 ## Congratulations on completing this module!
 
+Congratulations! You have completed Scenario 2.
+Now that you have verified the Development environment with the different users and roles, you will proceed to install the production environment.

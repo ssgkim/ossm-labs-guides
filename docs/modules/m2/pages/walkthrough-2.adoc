@@ -1,0 +1,159 @@
+# Service Mesh Observability Stack
+# Red Hat Summit 2023
+
+== Part II:  Development Environment Verification & Observability Usage
+
+[IMPORTANT]
+====
+Export the following in a terminal of your choice)
+
+* export CLUSTER_API=https://api.<CLUSTER_NAME>.<DOMAIN_NAME>:6443/
+* export LAB_PARTICIPANT_ID=$LAB_PARTICIPANT_ID
+* export OCP_DOMAIN=apps.<CLUSTER_NAME>.<DOMAIN_NAME>
+* export SSO_CLIENT_SECRET=bcd06d5bdd1dbaaf81853d10a66aeb989a38dd51
+====
+
+=== Task 1: Access the Travel Control Dashboard
+* Log in via CLI with user `emma` who has access to `$LAB_PARTICIPANT_ID-dev-istio-system` and get the URL to the application business dashboard. Paste the URL in a Browser to verify that you can reach the *Travel Control Dashboard* .
+
+[source, shell]
+----
+./lab-3/login-as.sh emma
+echo "http://$(oc get route istio-ingressgateway -o jsonpath='{.spec.host}' -n $LAB_PARTICIPANT_ID-dev-istio-system)"
+----
+
+* The result should look like
+
+image::01-travels-dashboard.png[]
+
+=== Task 2: Access the Observability Stack
+
+In this task you will learn how you can find the URLs to the Observability Stack components of the Service Mesh.
+
+* Logged in via CLI (we have used user `cristina`/`cristina`) execute the following to retrieve the URLs of the `OSSM` Observability Stack (`Kiali`, `Jaeger`, `Prometheus`, `Grafana`) components. Open the links on a browser and use the preceeding `cristina`'s credentials to login.
++
+[source, shell]
+----
+./lab-3/login-as.sh cristina
+echo "http://$(oc get route kiali -o jsonpath='{.spec.host}' -n $LAB_PARTICIPANT_ID-dev-istio-system)"
+echo "https://$(oc get route jaeger -o jsonpath='{.spec.host}' -n $LAB_PARTICIPANT_ID-dev-istio-system)"
+echo "https://$(oc get route prometheus -o jsonpath='{.spec.host}' -n $LAB_PARTICIPANT_ID-dev-istio-system)"
+echo "https://$(oc get route grafana -o jsonpath='{.spec.host}' -n $LAB_PARTICIPANT_ID-dev-istio-system)"
+----
+
+* An alternate method to access some of the components is once you have logged into `Kiali` you can access the `Grafana` and `Jaeger` URLs by clicking on *?* next to your name (top-right KIALI corner), then *About* and you should have the URLs presented.
+
+image::02-about.png[200,200]
+
+=== Task 3: Test the Observability stack as Product Owner for the Travel Demo Solution
+
+Access the `Kiali` URL (see the CLI output) and login with username/password *`mus`*/*`mus`* (role: `Application Viewer`)
+
+Follow the menu to the left to _Graph_ and as the `Product Owner` you have *view* access to all 3 _data plane_ namespaces and the _control plane_ namespace.
+
+image::02-mus-kiali-view.png[]
+
+You are allowed to:
+
+1. See traces for the overall solution. From the `Kiali` menu on the left go to `Distributed Tracing` and login with your Openshift credentials (`mus/mus`) to view the tracing console (Authorize Access). Finally, select from the Service drop-down list `istio-ingressgateway`.
+2. See metrics for the overall solution. Go to `Workloads` in `Kiali` and select `cars-v1` application workload. Use the `inbound` or `outbound` metrics.
++
+image::02-mus-kiali-metrics.png[]
++
+image::02-mus-kiali-inbound-metrics.png[]
+
+3. *Alternatively*, go to `Prometheus` (URL identified above) and login with your credentials (*`mus`*/*`mus`*). Apply on the `Graph` view ONE of the following metrics:
+*** `istio_requests_total{destination_workload="discounts-v1", app="discounts"}` to visualize requests towards `discounts-v1`
+*** `istio_request_duration_milliseconds_count{app="discounts"}`
+*** `istio_response_bytes_bucket`
+4. See the dashboards in grafana for the solution. Access the `Grafana` URL log with credentials *`mus`*/*`mus`* (role: `Application Viewer`, See above on how to find the URL)
+*** Check the 'status' of the overall Travel Agency solution *Dashboards -> Manage -> Istio -> Istio Mesh Dashboard*
++
+image::02-grafana-istio-mesh-dashboard.png[]
+
+*** Check the 'performance' of the overall Travel Agency solution *Dashboards -> Manage -> Istio -> Istio Performance Dashboard*
++
+image::02-grafana-performance.png[]
+
+==== Verifying that RBAC restrictions for the `Product Owner` are in place
+[WARNING]
+====
+As `Product Owner` You are not allowed to modify the Istio Configurations and view the Istio logs
+====
+
+* You should not be able to modify configs via `Kiali` as user *`mus`*. If you select in the menu to the left `Istio Config`, select from the top drop-down namespace `userx-istio-system`, filter by _Istio Type_ `Gateway` and enter the `control-gateway` config you will notice the config cannot be modified by the user.
++
+image::02-mus-view-config.png[]
+
+* In Kiali as *`mus`* you cannot access the logs of any workload, neither for `istio-proxy` nor for the main workload container. In the menu, to the left, go to `Workloads`, click on `cars-v1` workload and then go to tab `logs`, no logs are displayed. Instead, a similar message to the following is displayed:
++
+`Failed to fetch workload logs: pods "cars-v1-7b85d9b99b-l4hjg" is forbidden: User "mus" cannot get resource "pods/log" in API group "" in the namespace "userx-dev-travel-agency"`
+
+=== Task 4 (Optional): Test the Observability stack as an App/Domain Owner for the Travel-Portal or Travel-Services Domain
+
+1. Access `Kiali` URL with username/password *`farid`*/*`farid`* (role: `Mesh Developer`)
+
+* As the `Domain Owner` of the _Travel Services_ domain you have *view* access to
+** _data plane_ namespace `$LAB_PARTICIPANT_ID-dev-travel-agency` and the
+** _control plane_ `$LAB_PARTICIPANT_ID-dev-istio-system` namespace.
++
+image::02-travel-services-domain.png[]
+
+* You are also allowed to:
+2. See traces for the overall solution. From `Kiali` menu, on the left, go to `Distributed Tracing` and login with *`farid`* credentials to view the tracing console (select `istio-ingressgateway.$LAB_PARTICIPANT_ID-dev-istio-system` from the service drop down menu).
++
+image::02-jaege-traces.png[]
+
+3. See metrics. Go to `Prometheus` URL (identified above) and login with your credentials. Apply on the `Graph` view the appropriate metrics required (eg. `istio_request_duration_milliseconds_count{app="hotels"}`).
++
+image::02-hotels-prometheus-metrics.png[]
+
+4. See logs for the workloads in your domain. In `Kiali`, from the namespaces drop-down list select `$LAB_PARTICIPANT_ID-dev-travel-agency`, in the menu to the left go to `Workloads` and access one of the workloads, the tab `Logs` has both proxy and pod logs available
++
+image::02-workloads.png[]
++
+5. See and modify Istio Configs for your domain. From the `Kiali` menu, in the left, go to `Istio Config`.
+** As *`farid`*/*`farid`* you will be able to see in `$LAB_PARTICIPANT_ID-dev-istio-system` the configs but if you try to modify them you will not be able to as you don't have _write_ access in that namespace.
++
+image::02-view-config-but-no-modify.png[]
++
+** If you login in `Kiali` as *`cristina`*/*`cristina`* you should be able to access the configs for the control `VirtualService` and `DestinationRule` in `$LAB_PARTICIPANT_ID-dev-travel-control` and apply some modification as those namespaces are part of your domain (*Warning:* Don't save any changes).
++
+image::02-cristina-configs-change-1.png[]
++
+image::02-cristina-configs-change-2.png[]
+
+
+6. Optionally (skip to save time) see Grafana Dashboards (See above on how to find the URL)
+*** Check the 'status' of the services and workloads in the `dev-travel-portal` or `dev-travel-agency` by viewing
+*** *Dashboards -> Manage-> Istio -> Istio Service Dashboard* dashboard
++
+image::02-grafana-cars-istio-service-dashboard.png[]
+
+*** *Dashboards -> Manage-> Istio -> Istio Workloads Dashboard*  dashboards
++
+image::02-grafana-cars-workload-outbound-dashboard.png[400,1000]
+
+=== Task 5 (Optional): Test the Observability stack as Developer for the Travel-Portal or Travel-Services Domain
+
+Note: you can skip this section to save time
+
+1. Access `Kiali` URL with username/password *`mia`*/*`mia`* (role: `Application Viewer`)
+
+* As a `Developer` for the _Travel Services_ domain *mia* is interested in viewing functional, performance or configuration issues with the workloads in the `dev-travel-agency`. Therefore, access is given to that service mesh namespace while the _Travel Portal_ domain namespaces and the service mesh control plane namespace are restricted (padlock icon).
++
+image::02-mia-graph-restricted-view.png[]
+
+
+=== Task 6 (Optional): Test the Observability stack as Mesh Operator
+
+Note: you can skip this section to save time
+
+1. Access `Kiali` URL with username/password *`emma`*/*`emma`* (role: `Mesh Operator`)
+* As the `Mesh Operator` you have *full* access to all 3 _data plane_ namespaces and the _control plane_.
+** In `Kiali` go to *Graphs -> App Graph*, select from *Display* `Request Distribution`, `Namespace Boxes`, `Traffic Animation`, `Security` and see the Mesh Operator view
+** In addition from the `Kiali` menu on the left to go to `Istio Config`. You should be able to access or modify any config as the administrator of this mesh
+** You can in addition access logs of the workloads. From the `Kiali` menu on the left go to `Workloads` and access one of the workloads, it has both proxy and pod logs available
+** Finally, you can like the previous users access `prometheus`, `jaeger` and `grafana`. On the latter there is a dashboard to visualize the state of the service mesh _control plane_
+*** *Dashboards -> Manage-> Istio -> Istio Control Plane Dashboard*  dashboards
+

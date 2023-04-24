@@ -1,0 +1,27 @@
+# Heading to Production Lab Scenario
+# Red Hat Summit 2023
+
+## ABOUT THIS LAB
+
+This lab will take you through the use case of the _Travel Agency_ organization which intends to utilize Service Mesh for its _Travel Demo_ application. You will be introduced to techniques of designing a mesh based on real stakeholder requirements and delivering against those from development all the way to production. In addition, it introduces a set of corporate personas with responsibilities and permissions to create and operate the mesh.
+
+
+## LAB ASSETS
+
+Before you start, clone the Lab assets which you will use during the session to execute the necessary activities:
+
+[source,shell]
+----
+git clone https://github.com/skoussou/ossm-labs ossm-labs
+cd ossm-labs
+----
+
+## Use of correct Openshift Namespaces
+
+[IMPORTANT]
+====
+You will be using a shared cluster and the Service Mesh users are also common with access to multiple namespaces. Therefore, it is very important each participant uses their allocated namespaces. In order to make use of the correct *namespaces* make sure you are accessing those with the allocate user id *$LAB_PARTICIPANT_ID*
+====
+
+
+

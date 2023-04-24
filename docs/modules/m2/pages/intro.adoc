@@ -1,11 +1,29 @@
-# Title I
+# Service Mesh Development Environment & Observability Stack
 # Red Hat Summit 2023
 
 ## ABOUT THIS LAB
 
-## LAB ASSETS
+The _Travel Agency_ company has decided to setup a development as well as a production environment for the Travel Demo application.
 
+In this lab scenario you will look at the development environment in two parts:
 
-## INTRODUCTION
+1. _The first_ part of the scenario (already pre-delivered) is setting up the development environment, creating the users, roles and rolebindings as well as installing the Service Mesh in the DEV environment.
+2. _The second part_ of the scenario is about verifying that everything has been correctly installed, familiarize with the Service Mesh observability stack and ensure all roles/permissions are working as expected.
 
-In progress
+== Development User credentials
+[cols="3,3,4"]
+.Users credentials
+|===
+|username |password |Enterprise Persona
+
+| emma | emma | Mesh Operator
+
+| cristina | cristina | Travel Portal Domain Owner (Tech Lead)
+
+| farid | farid | Travel Services Domain Owner (Tech Lead)
+
+| john | john | Developer (TP)
+
+| mia | mia | Developer (TS)
+
+| mus | mus | Product Owner

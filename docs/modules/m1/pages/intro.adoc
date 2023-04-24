@@ -1,11 +1,7 @@
-# Title I
+# Designing Service Mesh Perimeter and Operating Model
 # Red Hat Summit 2023
 
 ## ABOUT THIS LAB
 
-## LAB ASSETS
+In this first lab scenario we will understand how requirements affect considerations for the introduction of a Service Mesh as well as the involved personas and their responsibilities from the fictive Travel Agency company.
 
-
-## INTRODUCTION
-
-In progress

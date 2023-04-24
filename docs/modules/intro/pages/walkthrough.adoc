@@ -1,0 +1,52 @@
+# Heading to Production Lab Scenario
+# Red Hat Summit 2023
+
+## Travel Demo Use Case
+
+Throughout the following labs we will use a Fictive Use Case of a _Travel Agency_ company introducing a Service Mesh for their existing Travel Demo application and heading to production. Lets walk through the use case:
+
+ifdef::env-github[]
+image:https://img.youtube.com/vi/j9ONtiZjiac/maxresdefault.jpg[link=https://youtu.be/j9ONtiZjiac]
+endif::[]
+
+.A walkthrough of the labs use case
+ifndef::env-github[]
+video::j9ONtiZjiac[youtube,list=PLZjCciga0z5w6PiJKl2P8UJKdG0cEXKcz]
+endif::[]
+
+== Understanding the existing application
+
+(Note: The sample application we use in this Lab is the _Kiali Travel Demo Tutorial_: https://kiali.io/docs/tutorials/travels/[https://kiali.io/docs/tutorials/travels/])
+
+=== Travel Portal Domain namespace
+
+The Travel Demo application simulates two business domains organized in different namespaces.
+In a first namespace called `travel-portal` there will be deployed several travel shops, where users can search for and book flights, hotels, cars or insurance. The shop applications can behave differently based on request characteristics like channel (web or mobile) or user (new or existing). +
+These workloads may generate different types of traffic to imitate different real scenarios. All the portals consume a service called `travels` deployed in the `travel-agency` namespace.
+
+=== Travel Agency Services Domain namespace
+
+A second namespace called `travel-agency` will host a set of services created to provide quotes for travel. +
+A main `travels` service will be the business entry point for the travel agency. It receives a destination city and a user as parameters and it calculates all elements that compose a travel budget: airfare, lodging, car reservation and travel insurance. +
+Each service can provide an independent quote and the `travels` service must then aggregate them into a single response. Additionally, some users, like _registered_ users, can have access to special discounts, managed as well by an external service. +
+Service relations between namespaces can be described in the following diagram:
+
+image::01-travels-demo-design.png[]
+
+=== Travel Portal and Travel Agency flow
+
+A typical flow consists of the following steps:
+
+. A portal queries the `travels` service for available destinations,
+. `travels` service queries the available `hotels` and returns to the portal shop,
+. A user selects a destination and a type of travel, which may include a `flight` and/or a `car`, `hotel` and `insurance`,
+.  `Cars`, `Hotels` and `Flights` may have available discounts depending on user type.
+
+=== Travel Control namespace
+
+The `travel-control` namespace runs a _business dashboard_ with two key features:
+
+* Allow setting changes for every travel shop simulator (traffic ratio, device, user and type of travel).
+* Provide a _business_ view of the total requests generated from the `travel-portal` namespace to the `travel-agency` services, organized by business criteria as grouped per shop, per type of traffic and per city.
+
+image::01-travels-dashboard.png[]

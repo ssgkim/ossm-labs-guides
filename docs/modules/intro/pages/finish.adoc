@@ -1,0 +1,6 @@
+# Heading to Production Lab Scenario
+# Red Hat Summit 2023
+
+## Congratulations on completing this module!
+
+Continue now to _Designing Service Mesh Perimeter and Operating Model_ for the Travel Demo application.

@@ -1,0 +1,8 @@
+# Securing (Authn & Authz) Gateways with MTLS and valid JWT Token
+# Red Hat Summit 2023
+
+## Congratulations on completing this module!
+
+You have setup Authn and Authz in the production environment. You are on a roll!
+
+

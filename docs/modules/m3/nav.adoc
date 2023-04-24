@@ -1,4 +1,4 @@
 .Module Three
-* xref:intro.adoc[Introduction]
+* xref:intro.adoc[Setup Travel Demo `ServiceMeshControlPlane` for Production]
 * xref:walkthrough.adoc[Walkthrough]
 * xref:finish.adoc[Finish]

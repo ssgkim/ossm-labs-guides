@@ -1,4 +1,4 @@
 .Module One
-* xref:intro.adoc[Introduction]
+* xref:intro.adoc[Designing Service Mesh Perimeter and Operating Model]
 * xref:walkthrough.adoc[Walkthrough]
 * xref:finish.adoc[Finish]

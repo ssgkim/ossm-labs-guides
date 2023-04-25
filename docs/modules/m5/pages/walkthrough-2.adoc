@@ -74,7 +74,7 @@ oc create secret generic cacerts -n $LAB_PARTICIPANT_ID-prod-istio-system \
 --from-file=cert-chain.pem=certs-resources/intermediate/certs/ca-chain.cert.pem
 ----
 
-* Remove the `istio-system-ca` secret created as default CA by OSSM as we have found it interferes with the istiod correctly picking the enterprise certificates from the newly created `cacerts` secret
+* Remove the `istio-system-ca` secret created as default CA by OSSM as it interferes with the istiod correctly picking the enterprise certificates from the newly created `cacerts` secret
 +
 ----
 oc get  secret istio-ca-secret -n $LAB_PARTICIPANT_ID-prod-istio-system -o yaml > istio-ca-secret-default.yaml

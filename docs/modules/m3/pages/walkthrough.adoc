@@ -25,7 +25,7 @@ cd lab-3
 
 == Task 2: Install a basic Service Mesh Control Plane with an external Jaeger configuration
 
-You are going to create a basic Service Mesh Control Plane for production. Regarding the Tracing configuration, `Red Hat Openshift Service Mesh (OSSM)` makes the following 2 suggestions on setting up tracing for the production environment. We will select `Option 2`, the _fully customized_ option for the production setup.
+You are going to create a basic Service Mesh Control Plane for production. Regarding the Tracing configuration, `Red Hat Openshift Service Mesh (OSSM)` makes the following 2 suggestions on setting up tracing for the production environment. `Option 2`, the _fully customized_ option, has been selected for the production setup.
 
 - Option 1: link:https://docs.openshift.com/container-platform/4.12/service_mesh/v2x/ossm-deploy-production.html#ossm-smcp-prod_ossm-architecture[Production distributed tracing platform deployment (minimal) -  via SMCP Resource]
 - Option 2: link:https://docs.openshift.com/container-platform/4.12/service_mesh/v2x/ossm-reference-jaeger.html#ossm-deploying-jaeger-production_jaeger-config-reference[Production distributed tracing platform deployment (fully customized)]
@@ -149,7 +149,7 @@ NOTE: The configs came from link:https://github.com/skoussou/summit-2023-ossm-la
 In this task you will add the application namespaces to our newly created Service Mesh by specifying `ServiceMeshMember` resources and deploying the corresponding applications for production. You will also configure the applications for the usage within the Service Mesh by specifying two `sidecar` containers:
 
 1. `istio-proxy` sidecar container: used to proxy all communications in/out of the main application container and apply `Service Mesh` configurations
-2. `jaeger-agent` sidecar container: The `Service Mesh` documentation link:https://docs.openshift.com/container-platform/4.11/service_mesh/v2x/ossm-reference-jaeger.html#distr-tracing-deployment-best-practices_jaeger-config-reference[Jaeger Agent Deployment Best Practices] mentions the options of deploying `jaeger-agent` as sidecar or as `DaemonSet`. We have selected the former in order to allow `multi-tenancy` in the Openshift cluster.
+2. `jaeger-agent` sidecar container: The `Service Mesh` documentation link:https://docs.openshift.com/container-platform/4.11/service_mesh/v2x/ossm-reference-jaeger.html#distr-tracing-deployment-best-practices_jaeger-config-reference[Jaeger Agent Deployment Best Practices] mentions the options of deploying `jaeger-agent` as sidecar or as `DaemonSet`. In order to allow `multi-tenancy` in this Openshift cluster the former has been selected.
 
 All application `Deployment`(s) will be patched as follows to include the sidecars (*Warning:* Don't apply as the script `deploy-travel-services-domain.sh` further down will do so):
 ----
@@ -253,8 +253,7 @@ image::03-travel-portal-expected-3-container-pods.png[]
 
 == Task 4: Expose the Travel Portal Dashboard via TLS
 
-Now after the deployment of the applications, we want to make them accessible outside of the cluster for the Travel Agency customers.
-We also want to expose the services with a custom TLS cert.
+After the deployment of the applications you will make them accessible outside of the cluster for the Travel Agency customers exposing the services with a custom TLS cert.
 In order to achieve that,
 
 * you are going to create a TLS certificate
@@ -283,7 +282,7 @@ image::03-Travel-Control-Dashboard-https.png[Travel Control Dashboard]
 
 == Task 5: Configure Prometheus for Production
 
-In order to configure Prometheus for production, we have several options:
+In order to configure Prometheus for production there are several options:
 
 Option 1: Create a `PersistenceVolume` for the `SMCP` created `Prometheus` resource::
 With this option the `mesh operator` will enhance the `SMCP` managed `Prometheus Deployment` resource in order to
@@ -302,7 +301,7 @@ This option assumes that another tool like Datadog is used by the Operations tea
 a. For `controlplane` components metrics collection, the tool needs to be part of the control plane namespace or a `NetworkPolicy` to allow it visibility to those components is required.
 b. For `dataplane` metrics the same approach described, previously, in _Option 3_ is to be followed.
 
-For the purpose of this lab we will deliver *Option 1* in the production setup. Login as `Mesh Operator` (credentials `emma/emma`), the script below will help you create a `PVC` for Prometheus and update the Prometheus configuration to utilize it and extend metrics retention to `168h`.
+For the purpose of this lab you will deliver *Option 1* in the production setup. Login as `Mesh Operator` (credentials `emma/emma`), the script below will help you create a `PVC` for Prometheus and update the Prometheus configuration to utilize it and extend metrics retention to `168h`.
 
 [source,shell]
 ----
@@ -328,9 +327,9 @@ The following *Purpose* and *Principals* have been finalized with the `Travel Ag
 ** All components will be configured with High Availability in mind.
 ** Observability is to be used for verification of system "sound operation", not auditing.
 
-Therefore, based on these rules and guidelines we will apply to the final `PROD` setup the following:
+Therefore, based on these purpose and principals the final `PROD` setup will apply the following:
 
-* _Tracing:_ used only for debug purposes (rather than as sensitive -auditing- information), so we choose to sample *5%* of all traces, whilst these are going to be stored for *7 Days*. Elastic Search cluster will be used for this long-term storage.
+* _Tracing:_ used only for debug purposes (rather than as sensitive -auditing- information), a sample *5%* of all traces will only be collected, whilst these are going to be stored for *7 Days*. Elastic Search cluster will be used for this long-term storage.
 * _Metrics:_ will have long-term storage (**7 Days**) with further archiving of the metrics beyond this period in order to assist historical comparisons
 * _Grafana:_ will have persistance storage
 * _Istio Ingress/Egress Gateways:_  (scale up to 2 instances)

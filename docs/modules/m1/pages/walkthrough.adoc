@@ -101,7 +101,7 @@ The `Mesh Operator`, `Mesh Application Viewer` and `Mesh Developer` Roles have b
 
 [NOTE]
 ====
-For this Lab we have also pre created all the required OpenShift users for the identified personas and mapped the corresponding roles.
+For this Lab all the required OpenShift users for the identified personas have been pre-created and mapped to the corresponding roles.
 ====
 
 The table below shows the User/Role/Persona Mapping for the Travel Agency DEV environment:

@@ -67,7 +67,7 @@ cd lab-5
 
 In the previous lab xref:m4:walkthrough.adoc#_step_1__define_authentication_and_authorization_with_valid_rhsso_jwt_token[Step 1 - Define Authentication and Authorization with valid RHSSO JWT Token] you applied an `AuthorizationPolicy` resource which allowed requests via the `gto-$LAB_PARTICIPANT_ID-ingressgateway`. Now, you will utilize the `default-deny` pattern to DENY requests unless there is a specific `AuthorizationPolicy` allowing it.
 
-As Mesh Operator with `emma/emma`  we apply the `default-deny` pattern to the prod-travel-agency namespace
+As Mesh Operator with `emma/emma`  apply the `default-deny` pattern to the prod-travel-agency namespace
 
 [source,shell]
 ----

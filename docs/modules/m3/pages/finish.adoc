@@ -3,6 +3,6 @@
 
 ## Congratulations on completing this module!
 
-Congratulations! You have helped the Travel Agency setup a production environment.
+Congratulations! You have helped the _Travel Agency_ to setup a production grade Service Mesh environment and introduced the _Travel Demo_ applications within the mesh.
 
 

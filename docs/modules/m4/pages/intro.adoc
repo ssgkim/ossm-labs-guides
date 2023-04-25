@@ -9,7 +9,7 @@ Before moving forward you should have fully completed *Lab Scenario-3*. If you h
 
 ## ABOUT THIS LAB
 
-The Travel Agency company have their applications now running in a development and production environment and within Openshift Service Mesh. Now there is a new business opportunity for the Travel Agency, as a new Business partner wants to integrate the Travel API services with their own Solutions. The Travel Agency company needs to establish a secure way to expose the API Services for external partners.
+The _Travel Agency_ company have their _Travel Demo_ applications now running in a development and production environment operating within an Openshift Service Mesh. Now there is a new business opportunity for the Travel Agency, as a new Business partner wants to integrate the Travel API services with their own Solutions. The Travel Agency company needs to establish a secure way to expose the API Services for external partners.
 
 == Requirements and constraints on integrating the new Business Partner
 

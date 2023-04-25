@@ -28,8 +28,8 @@ cd lab-4
 In this task we are going to create:
 
 * An additional ingress gateway for the Travel Agency API Services
-* An Istio `VirtualService` configuration for traffic to flow via the gto gateway
-* Certificates for our `curl` GTO client to connect with MTLS to the gto gateway
+* An Istio `VirtualService` configuration for traffic to flow via the _gto_ gateway
+* Certificates for our `curl` GTO client to connect with MTLS to the _gto_ gateway
 * Verify the MTLS connection
 
 === Step 1 - Create additionalIngress Gateway in SMCP
@@ -43,7 +43,7 @@ cd lab-4
 oc edit smcp/$LAB_PARTICIPANT_ID-production -n $LAB_PARTICIPANT_ID-prod-istio-system
 ----
 
-Navigate to the gateway section and add an additional gateway as follows:
+Navigate to the `gateways` section and add an additional gateway as follows:
 
 ====
   gateways:
@@ -105,7 +105,11 @@ ls -ltr
 -rw-r--r--@ 1 oschneid  staff  1497 Dec 19 11:04 curl-client.crt
 ----
 
-To verify what has been applied you can navigate in Kiali to `Istio Config` and check the `travel-api-gateway` resource.
+To verify what has been applied you can navigate in Kiali to `Istio Config` and check the `travel-api-gateway` `Gateway` resource. The resource will now:
+
+* Expose host `gto-$LAB_PARTICIPANT_ID.$OCP_DOMAIN` over https
+* TLS mode for this host will be `MUTUAL`
+* Certificates will be used from `Secret` resource gto-$LAB_PARTICIPANT_ID-secret`
 
 image::04-Kiali-Gateway.png[300,700]
 
@@ -162,7 +166,7 @@ The intended final authentication workflow (in addition to the mTLS handshake) f
 
 === Step 1 - Define Authentication and Authorization with valid RHSSO JWT Token
 
-As the communications between RHSSO and `istiod` are secured with a router certificate the Mesh Operator first have to load the certificate to `istiod`. This is performed by the following script:
+As the communications between RHSSO and `istiod` are secured with a router certificate the `Mesh Operator` has to perform a one-time operation first to load the certificate to `istiod`. This is performed by the following script:
 
 [source, shell]
 ----
@@ -170,7 +174,7 @@ As the communications between RHSSO and `istiod` are secured with a router certi
 ./mount-rhsso-cert-to-istiod.sh $LAB_PARTICIPANT_ID-prod-istio-system $LAB_PARTICIPANT_ID-production $OCP_DOMAIN
 ----
 
-The `RequestAuthentication` enables JWT validation on the Istio ingress gateway so that the validated JWT claims can later be used in i.e. the `VirtualService` for routing purposes. The request authentication is applied on the ingress gateway because the JWT claim based routing is *only* supported on ingress gateways.
+The `RequestAuthentication` enables JWT validation on the Istio ingress gateway so that the validated JWT claims can later be used (i.e. in a `VirtualService`) for routing purposes. The request authentication is applied on the ingress gateway because the JWT claim based routing is *only* supported on ingress gateways.
 
 As the current Travel Agency decision is to have a producer/consumer model for their Service Mesh these changes are performed as Mesh Operator (`emma/emma`) in the controlplane namespace based gateway `gto-$LAB_PARTICIPANT_ID-ingressgateway`.
 
@@ -233,10 +237,12 @@ spec:
 
 export GATEWAY_URL=$(oc -n $LAB_PARTICIPANT_ID-prod-istio-system get route gto-$LAB_PARTICIPANT_ID -o jsonpath='{.spec.host}')
 echo $GATEWAY_URL
-
-curl -v -X GET --cacert ca-root.crt --key curl-client.key --cert curl-client.crt https://$GATEWAY_URL/cars/Tallinn |jq
-
-curl -v -X GET --cacert ca-root.crt --key curl-client.key --cert curl-client.crt https://$GATEWAY_URL/travels/Tallinn |jq
+echo "------------------------------------------------------------"
+curl -v --cacert ca-root.crt --key curl-client.key --cert curl-client.crt https://$GATEWAY_URL/cars/Tallinn
+echo
+echo "------------------------------------------------------------"
+curl -v --cacert ca-root.crt --key curl-client.key --cert curl-client.crt https://$GATEWAY_URL/travels/Tallinn
+echo
 ----
 
 * Next, Authenticate against the RH-SSO instance and retrieve a JWT Access Token:

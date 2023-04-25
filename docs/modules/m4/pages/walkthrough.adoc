@@ -113,7 +113,7 @@ To verify what has been applied you can navigate in Kiali to `Istio Config` and 
 
 image::04-Kiali-Gateway.png[300,700]
 
-NOTE: The configs came from link:../lab-4/create-external-mtls-https-ingress-gateway.sh[<BROKEN FIX>create-external-mtls-https-ingress-gateway.sh] script which you can inspect for details.
+NOTE: The configs came from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-4/create-external-mtls-https-ingress-gateway.sh[create-external-mtls-https-ingress-gateway.sh] script which you can inspect for details.
 
 
 === Step 3 - Configuration to allow Traffic flow via new Gateway
@@ -134,7 +134,7 @@ You can now go to the Kiali Dashboard (Graph section) and observe the traffic en
 
 image::04-gto-external-ingressgateway.png[300,700]
 
-NOTE: The configs came from link:../lab-4/deploy-external-travel-api-mtls-vs.sh[<BROKEN FIX>deploy-external-travel-api-mtls-vs.sh] script which you can inspect for details.
+NOTE: The configs came from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-4/deploy-external-travel-api-mtls-vs.sh[deploy-external-travel-api-mtls-vs.sh] script which you can inspect for details.
 
 
 == Task 3: Configure Authn and Authz with JWT Tokens

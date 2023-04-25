@@ -142,7 +142,7 @@ Login to the Openshift console with Mesh Operator credentials `emma/emma` and na
 
 image::03-prod-istio-system.png[]
 
-NOTE: The configs came from link:../lab-3/create-prod-smcp-1-tracing.sh[<BROKEN FIX>create-prod-smcp-1-tracing.sh] script which you can inspect for details.
+NOTE: The configs came from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-3/create-prod-smcp-1-tracing.sh[create-prod-smcp-1-tracing.sh] script which you can inspect for details.
 
 == Task 3: Add the Application Namespaces to the Production Mesh and create the Deployments
 
@@ -274,7 +274,7 @@ Login as Mesh Operator (credentials `emma/emma`) and execute the following scrip
 ./create-https-ingress-gateway.sh prod-istio-system $OCP_DOMAIN $LAB_PARTICIPANT_ID
 ----
 
-NOTE: The configs come from link:../lab-3/create-https-ingress-gateway.sh[<BROKEN FIX> create-https-ingress-gateway.sh] script which you can inspect for details.
+NOTE: The configs come from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-3/create-https-ingress-gateway.sh[create-https-ingress-gateway.sh] script which you can inspect for details.
 
 After finishing, the script above, you'll get the exposed URL Route and the `Travel Control Dashboard` should be accessible (look at the end of the script log for the URL) eg.:
 https://travel-$LAB_PARTICIPANT_ID.apps.cluster-vjzhs.vjzhs.sandbox1672.opentlc.com and the `Kiali` error on the `VirtualService` resource `control` should now have been resolved.
@@ -310,7 +310,7 @@ For the purpose of this lab we will deliver *Option 1* in the production setup. 
 ./update-prod-smcp-2-prometheus.sh $LAB_PARTICIPANT_ID-prod-istio-system
 ----
 
-NOTE: The configs come from link:../lab-3/update-prod-smcp-2-prometheus.sh[<BROKEN FIX> update-prod-smcp-2-prometheus.sh] script which you can inspect for details.
+NOTE: The configs come from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-3/update-prod-smcp-2-prometheus.sh[update-prod-smcp-2-prometheus.sh] script which you can inspect for details.
 
 
 == Task 6: Final Production Configuration
@@ -344,4 +344,4 @@ To apply the final production `SMCP` tuning, login as Mesh operator (credentials
 ./update-prod-smcp-3-final.sh $LAB_PARTICIPANT_ID-prod-istio-system $LAB_PARTICIPANT_ID-production
 ----
 
-NOTE: The configs come from link:../lab-3/update-prod-smcp-3-final.sh[<BROKEN FIX> update-prod-smcp-3-final.sh] script which you can inspect for details.
+NOTE: The configs come from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-3/update-prod-smcp-3-final.sh[update-prod-smcp-3-final.sh] script which you can inspect for details.

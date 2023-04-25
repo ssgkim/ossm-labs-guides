@@ -12,7 +12,7 @@ Before you start, clone the Lab assets which you will use during the session to 
 
 [source,shell]
 ----
-git clone https://github.com/skoussou/ossm-labs ossm-labs
+git clone https://github.com/skoussou/summit-2023-ossm-labs ossm-labs
 cd ossm-labs
 ----
 

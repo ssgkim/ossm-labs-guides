@@ -81,7 +81,7 @@ oc get  secret istio-ca-secret -n $LAB_PARTICIPANT_ID-prod-istio-system -o yaml 
 oc delete secret istio-ca-secret -n $LAB_PARTICIPANT_ID-prod-istio-system
 ----
 
-* Logged in as `Mesh Operator` (credentials `emma`/`emma`) add to the `ServiceMeshControlPlane` resource `production` under `certificateAuthority` field as shown in the following example. Service Mesh reads the certificates and key from the secret-mount files.
+* Logged in as `Mesh Operator` (credentials `emma`/`emma`) add to the `ServiceMeshControlPlane` resource `$LAB_PARTICIPANT_ID-production` under `security` section the `certificateAuthority` properties as shown in the following example (make sure the indentation is correct). Service Mesh reads the certificates and key from the secret-mount files.
 +
 ----
 ./login-as.sh emma
@@ -103,7 +103,7 @@ oc edit smcp/$LAB_PARTICIPANT_ID-production -n $LAB_PARTICIPANT_ID-prod-istio-sy
 +
 ----
 oc -n $LAB_PARTICIPANT_ID-prod-istio-system delete pods -l "app in (istiod,istio-ingressgateway, istio-egressgateway,gto-$LAB_PARTICIPANT_ID-ingressgateway)"
-oc -n $LAB_PARTICIPANT_ID-prod-istio-system get -w pods
+oc -n $LAB_PARTICIPANT_ID-prod-istio-system get pods
 ----
 ** Restart the _dataplane_ pods to expedite the sidecar proxies picking up the secret changes.
 
@@ -113,7 +113,7 @@ oc -n $LAB_PARTICIPANT_ID-prod-istio-system get -w pods
 
 
 * Finally, perform some verifications of the new certificates being in effect
-** Identify the `cacerts` Issuer (it should be `Issuer: C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Travel Agency Ltd Certificate Authority, CN = Travel Agency Ltd Root CA`)
+** Identify the `cacerts` Issuer (it should be `C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Certificate Authority, CN = www.travelagency.com, emailAddress = ca@www.travelagency.com`)
 +
 ----
 oc get -o yaml secret cacerts -n $LAB_PARTICIPANT_ID-prod-istio-system | grep ca-cert | awk '{print $2}' | base64 -d | openssl x509 -noout -text
@@ -129,20 +129,19 @@ oc get -o yaml secret cacerts -n $LAB_PARTICIPANT_ID-prod-istio-system | grep ca
  CERTS CHECK ON DATAPLANE
 ###########################
 
-1. Sleep 20 seconds for the mTLS policy to take effect before retrieving the certificate chain of cars POD. As the CA certificate used in this example is self-signed, the verify error:num=19:self signed certificate in certificate chain error returned by the openssl command is expected.
+1. Wait 20 seconds for the mTLS policy to take effect before retrieving the certificate chain of cars POD. As the CA certificate used in this example is self-signed, the verify error:num=19:self signed certificate in certificate chain error returned by the openssl command is expected.
 ------------------------------------------------------
 Can't use SSL_get_servername
-depth=2 C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Travel Agency Ltd Certificate Authority, CN = Travel Agency Ltd Root CA
+depth=2 C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Certificate Authority, CN = www.travelagency.com, emailAddress = ca@www.travelagency.com
 verify error:num=19:self signed certificate in certificate chain
 verify return:1
-depth=2 C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Travel Agency Ltd Certificate Authority, CN = Travel Agency Ltd Root CA
+depth=2 C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Certificate Authority, CN = www.travelagency.com, emailAddress = ca@www.travelagency.com
 verify return:1
-depth=1 C = GB, ST = England, O = Travel Agency Ltd, OU = Travel Agency Ltd Certificate Authority, CN = Travel Agency Ltd Intermediate CA
+depth=1 C = GB, ST = England, O = Travel Agency Ltd, OU = Intermediate Certificate Authority, CN = www.travelagency.com, emailAddress = ca@www.travelagency.com
 verify return:1
 depth=0
 verify return:1
 DONE
-
 
 2. Parse the certificates on the certificate chain.
 ------------------------------------------------------
@@ -171,12 +170,12 @@ CERTS CHECK ON CONTROLPLANE
 
 1. Get the ceritificates used between istio-ingressgateway and istiod
 Can't use SSL_get_servername
-depth=2 C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Travel Agency Ltd Certificate Authority, CN = Travel Agency Ltd Root CA
+depth=2 C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Certificate Authority, CN = www.travelagency.com, emailAddress = ca@www.travelagency.com
 verify error:num=19:self signed certificate in certificate chain
 verify return:1
-depth=2 C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Travel Agency Ltd Certificate Authority, CN = Travel Agency Ltd Root CA
+depth=2 C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Certificate Authority, CN = www.travelagency.com, emailAddress = ca@www.travelagency.com
 verify return:1
-depth=1 C = GB, ST = England, O = Travel Agency Ltd, OU = Travel Agency Ltd Certificate Authority, CN = Travel Agency Ltd Intermediate CA
+depth=1 C = GB, ST = England, O = Travel Agency Ltd, OU = Intermediate Certificate Authority, CN = www.travelagency.com, emailAddress = ca@www.travelagency.com
 verify return:1
 depth=0
 verify return:1

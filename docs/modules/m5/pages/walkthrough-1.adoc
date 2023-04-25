@@ -57,6 +57,7 @@ Verify the default communication paths described in the table above. Login as Me
 
 [source,shell]
 ----
+cd lab-5
 ./login-as.sh emma
 
 ./check-authz-all.sh ALLOW $LAB_PARTICIPANT_ID-prod-istio-system $OCP_DOMAIN $SSO_CLIENT_SECRET $LAB_PARTICIPANT_ID

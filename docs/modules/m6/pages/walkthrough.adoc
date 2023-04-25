@@ -1,0 +1,15 @@
+# Service Mesh Day 2 Operations
+
+== Red Hat Openshift Service Mesh e-book
+
+We have created an ebook resource which walks through the Day 2 Operations. You can download the link:https://www.redhat.com/en/resources/getting-started-with-openshift-service-mesh-ebook[Getting started with Red Hat OpenShift Service Mesh]
+
+== Day 2 Operations
+
+You will find in the associated github repository link:https://github.com/redhat-developer-demos/ossm-heading-to-production-and-day-2[ossm-heading-to-production-and-day-2] instructions are the Day 2 Operations:
+
+* link:https://github.com/redhat-developer-demos/ossm-heading-to-production-and-day-2/tree/main/scenario-7-mesh-troubleshooting[Troubleshooting the Mesh]
+
+* link:https://github.com/redhat-developer-demos/ossm-heading-to-production-and-day-2/tree/main/scenario-8-mesh-tuning[Tuning the Mesh]
+
+* link:https://github.com/redhat-developer-demos/ossm-heading-to-production-and-day-2/tree/main/scenario-9-mesh-upgrade[Upgrade Mesh to a New Version]

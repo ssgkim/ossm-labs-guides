@@ -1,0 +1,4 @@
+.Module Six - Day 2 Operations
+* xref:intro.adoc[Day 2 Operations]
+* xref:walkthrough.adoc[Walkthrough]
+* xref:finish.adoc[Finish]

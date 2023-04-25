@@ -1,0 +1,7 @@
+# Service Mesh Day 2 Operations
+# Red Hat Summit 2023
+
+
+## ABOUT THIS LAB
+
+Day 2 Operations such as debugging the mesh, testing and tuning for performance as well as maintainenace and upgrade of components are important aspects to be aware of.

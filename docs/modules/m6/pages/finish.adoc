@@ -1,0 +1,8 @@
+# Service Mesh Day 2 Operations
+# Red Hat Summit 2023
+
+## Congratulations on completing the labs!
+
+You have now successfully completed the Red Hat Openshift Service Mesh labs!
+
+

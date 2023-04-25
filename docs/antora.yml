@@ -8,4 +8,5 @@ nav:
   - modules/m3/nav.adoc
   - modules/m4/nav.adoc
   - modules/m5/nav.adoc
+  - modules/m6/nav.adoc
 start_page: intro:intro.adoc

@@ -3,10 +3,9 @@
 
 ## Congratulations on completing this module!
 
-
-== Next Steps
-
 Congratulations!!
-You have completed Scenario the Heading to Production labs
+You have successfully completed taking the _Travel Agency_ application _Travel Demo_ to production with Service Mesh.
+
+As next steps you can review in the next section the Day 2 operations with Service Mesh.
 
 

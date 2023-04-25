@@ -5,9 +5,9 @@
 
 [IMPORTANT]
 ====
-*You do not have to execute anything in this part of the lab* as lab instructors have *pre-setup all the required assets for the Travel Agency development environment*, including users, roles, namespaces, apps, service mesh etc. You will create the PROD environment step-by-step in the next scenario. You can inspect at the end of the lab the installation of the development environment by exploring the link:../setup/run-setup-scenario-1.sh[<BROKEN FIX>Install Script]
+*You do not have to execute anything in this part of the lab* as lab instructors have *pre-setup all the required assets for the Travel Agency development environment*, including users, roles, namespaces, apps, service mesh etc. You will create the PROD environment step-by-step in the next scenario. You can inspect at the end of the lab the installation of the development environment by exploring the `ArgoCD` resources used to link:https://github.com/skoussou/summit-2023-ossm-labs/tree/helm/helm/ossm/templates/dev[Install & Setup the Development Environment]
 
-Reading the following is totally optional and you are urged to move to _Part II_ as soon as possible as we briefly, below, describe the steps the link:/lab-instructions/scenario-1.adoc#userrolepersona-mapping-for-the-dev-environment[<BROKEN FIX>_Travel Agency Enterprise Personas_] would have had to follow in order to deliver such a development environment:
+Reading the following is totally optional (you are urged to move to _Part II_ as soon as possible) as we only briefly describe the steps the xref:m1:walkthrough.adoc#_travel_agency_personas_roles[Travel Agency Personas] would have had to follow in order to deliver such a development environment:
 ====
 
 === Actions with role Cluster Admin
@@ -35,4 +35,4 @@ Reading the following is totally optional and you are urged to move to _Part II_
 
 1. As *emma* (role: `Mesh Operator`) create the Istio `Gateway` resource
 
-IMPORTANT: `OSSM` -like Istio- now offers the ability for the injection of an  *_ingress Gateway_* in the dataplane however for the _Travel Agency_ use case the Architects have selected a *_Self-Service(Restricted)_*  link:/lab-instructions/scenario-1.adoc#user-governance-model[<BROKEN FIX>Model of Operation] where the `Mesh Operator` will be responsible for ingress/egress resource configurations.
+IMPORTANT: `OSSM` -like Istio- now offers the ability for the injection of an  *_ingress Gateway_* in the dataplane however for the _Travel Agency_ use case the Architects have selected a *_Self-Service(Restricted)_*  xref:m1:walkthrough.adoc#_user_governance_model[User Governance Model] where the `Mesh Operator` will be responsible for ingress/egress resource configurations.

@@ -85,16 +85,16 @@ In the following table you’ll see the Persona / Role mappings for the Travel A
 |*Persona*|*Role*|*Responsibilities*
 
 |Platform Admin|Cluster Admin (Default OpenShift cluster-admin role)|Owner of multiple OpenShift clusters, deploys operators and sets organizational policies.
-|Mesh Operator|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-operator.yaml[<BROKEN FIX>Mesh Operator]|Operates parts of the cluster and the domain based service mesh for the hosted services. Creates and operates Service Mesh tenants.
-|Domain Owner (Tech Lead)|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-developer.yaml[<BROKEN FIX>Mesh Developer]|Responsible for an Application Domain. Onboards developers in the team and understands inter/intra service dependencies. Creates and configures Service Mesh resources (`VirtualService`, `DestinationRule` etc.) in their domain.
-|Developer|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-app-viewer.yaml[<BROKEN FIX>Mesh Application Viewer]|Develops services in his Application Domain. Needs to be kept aware of the health, performance and functional correctness of the solution.
-|Application Ops Team|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-developer.yaml[<BROKEN FIX>Mesh Developer]|The _Application Ops_ team monitors and maintains the running applications in the deployed cluster and within the domain hosted mesh (OSSM tenant), including extracting logs, executing commands to verify state, and troubleshooting in higher (non-development) environments
-|Product Owner|https://github.com/skoussou/rhte-ossm-labs/blob/main/setup/resources/roles-resources/mesh-app-viewer.yaml[<BROKEN FIX>Mesh Application Viewer]|The Product Owner needs to be aware of the health, usage, cost as well as other metrics around the business domain of the solution.
+|Mesh Operator|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L5[Mesh Operator Role YAML]|Operates parts of the cluster and the domain based service mesh for the hosted services. Creates and operates Service Mesh tenants.
+|Domain Owner (Tech Lead)|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML]|Responsible for an Application Domain. Onboards developers in the team and understands inter/intra service dependencies. Creates and configures Service Mesh resources (`VirtualService`, `DestinationRule` etc.) in their domain.
+|Developer|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML]|Develops services in his Application Domain. Needs to be kept aware of the health, performance and functional correctness of the solution.
+|Application Ops Team|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML]|The _Application Ops_ team monitors and maintains the running applications in the deployed cluster and within the domain hosted mesh (OSSM tenant), including extracting logs, executing commands to verify state, and troubleshooting in higher (non-development) environments
+|Product Owner|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML]|The Product Owner needs to be aware of the health, usage, cost as well as other metrics around the business domain of the solution.
 |===
 
 [NOTE]
 ====
-The `Mesh Operator`, `Mesh Application Viewer` and `Mesh Developer` Roles have been pre created for this Lab! Later you can review the link:<BROKEN FIX>/setup/run-setup-scenario-1.sh#L76[<BROKEN FIX>OCP role resources] and link:<BROKEN FIX>/setup/run-setup-scenario-1.sh#L129[<BROKEN FIX>role bindings] for each user.
+The `Mesh Operator`, `Mesh Application Viewer` and `Mesh Developer` Roles have been pre created for this Lab and `Rolebinding` has been added for each user (see links on the table below).
 ====
 
 == User/Role/Persona Mapping for the DEV environment
@@ -106,22 +106,22 @@ For this Lab we have also pre created all the required OpenShift users for the i
 
 The table below shows the User/Role/Persona Mapping for the Travel Agency DEV environment:
 
-[cols="1,4,3,2"]
+[cols="1,4,2,3"]
 .Users created in `DEV` Environment
 |===
 |Name |Enterprise Persona |Role Bindings |Namespace
 
-| emma | Mesh Operator |  link:../setup/scripts/users/create-mesh-operator-roles.sh[<BROKEN FIX>`Mesh Operator`] | `dev-istio-system`
+| emma | Mesh Operator |  link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-emma.yaml[Rolebindings] | `dev-istio-system`
 
-| cristina | Travel Portal Domain Owner (Tech Lead)  | link:../setup/scripts/users/create-mesh-dev-roles.sh[<BROKEN FIX>`Mesh Developer`] | `dev-travel-portal`, `dev-travel-control`
+| cristina | Travel Portal Domain Owner (Tech Lead)  | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-cristina.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`
 
-| farid | Travel Services Domain Owner (Tech Lead)  | link:../setup/scripts/users/create-mesh-dev-roles.sh[<BROKEN FIX>`Mesh Developer`] | `dev-travel-agency`
+| farid | Travel Services Domain Owner (Tech Lead)  | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-farid.yaml[Rolebindings] | `dev-travel-agency`
 
-| john | Developer (TP) | link:../setup/scripts/users/create-mesh-viewer-roles.sh[<BROKEN FIX>`Mesh Application Viewer`] | `dev-travel-portal`, `dev-travel-control`
+| john | Developer (TP) | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-john.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`
 
-| mia | Developer (TS) | link:../setup/scripts/users/create-mesh-viewer-roles.sh[<BROKEN FIX>`Mesh Application Viewer`] | `dev-travel-agency`
+| mia | Developer (TS) | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mia.yaml[Rolebindings] | `dev-travel-agency`
 
-| mus | Product Owner | link:../setup/scripts/users/create-mesh-viewer-roles.sh[<BROKEN FIX>`Mesh Application Viewer`] | `dev-travel-portal`, `dev-travel-control`, `dev-travel-agency`
+| mus | Product Owner | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mus.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`, `dev-travel-agency`
 
 |===
 

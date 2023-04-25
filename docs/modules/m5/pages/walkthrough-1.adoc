@@ -65,7 +65,7 @@ cd lab-5
 
 === Step 2 - Apply best practice security pattern to `DENY` all
 
-In the previous link:scenario-4.adoc[<BROKEN FIX>scenario-4] we applied an `AuthorizationPolicy` resource which allowed requests via the `gto-$LAB_PARTICIPANT_ID-ingressgateway`. Now, we will utilize the `default-deny` pattern to DENY requests unless there is a specific `AuthorizationPolicy` allowing it.
+In the previous lab xref:m4:walkthrough.adoc#_step_1__define_authentication_and_authorization_with_valid_rhsso_jwt_token[Step 1 - Define Authentication and Authorization with valid RHSSO JWT Token] you applied an `AuthorizationPolicy` resource which allowed requests via the `gto-$LAB_PARTICIPANT_ID-ingressgateway`. Now, you will utilize the `default-deny` pattern to DENY requests unless there is a specific `AuthorizationPolicy` allowing it.
 
 As Mesh Operator with `emma/emma`  we apply the `default-deny` pattern to the prod-travel-agency namespace
 
@@ -95,7 +95,7 @@ spec:
 
 === Step 3 - Verify `DENY` all is applied
 
-Now we can verify that no communications from the _Service Mesh_ are authorizated towards the _Travel Agency API_ Services or the _Travel Portal_.
+Now you can verify that no communications from the _Service Mesh_ are authorizated towards the _Travel Agency API_ Services or the _Travel Portal_.
 
 [cols="1,2,1,3"]
 .DENY ALL policy
@@ -121,15 +121,15 @@ Let us check the communication paths again:
 ./check-authz-all.sh DENY $LAB_PARTICIPANT_ID-prod-istio-system $OCP_DOMAIN $SSO_CLIENT_SECRET $LAB_PARTICIPANT_ID
 ----
 
-We can also login to Kiali and verify the traffic in the Dashboard:
+You can also login to Kiali and verify the traffic in the Dashboard:
 
 image::05-DENY-ALL-KIALI.png[300,700]
 
 === Step 4 - Authz policy to allow Travel Dashboard UI access
 
-Now after applying the DENY ALL policies, we open up only the required communication paths to make the applications work again.
+After applying the DENY ALL policies, authorize access only to the required paths to make the applications work again.
 
-Let us first login as Mesh Operator with `emma/emma` and check if we can access the Travel Dashboard. This should return a RBAC Access Denied error.
+Let us first login as Mesh Operator with `emma/emma` and check if you can access the Travel Dashboard. This should return a RBAC Access Denied error.
 
 [source,shell]
 ----
@@ -252,11 +252,11 @@ In addition if the SMCP configuration doesn't actually enforce mTLS, this can be
 A `PeerAuthentication` resource defines how traffic will be tunneled (or not) to the sidecar proxy.
 ====
 
-Although, it is not necessary for our use case to do so if at the end of the lab there is still time left you can try to `DISABLE`/`RE-ENABLE` the MTLS setting in the mesh for the `cars` service by following the instruction at link:scenario-5-optional.adoc[<BROKEN FIX>scenario-5-optional] in order to become familiar with this capability.
+Although, it is not necessary for our use case to do so if at the end of the lab there is still time left you can try to `DISABLE`/`RE-ENABLE` the MTLS setting in the mesh for the `cars` service by following the instruction below in order to become familiar with this capability.
 
 === Step 1 - Verify Production `ServiceMeshControlPlane` strict MTLS setting
 
-First we login as Mesh Developer with `farid/farid` and check the global mTLS configurations in the control plane namespace:
+First login as Mesh Developer with `farid/farid` and check the global mTLS configurations in the control plane namespace:
 
 [source,shell]
 ----
@@ -274,7 +274,7 @@ grafana-ports-mtls-disabled     PERMISSIVE   4d1h
 
 === Step 2 - How to disable strict MTLS for a service?
 
-Then we disable strict MTLS for the cars service by applying a PeerAuthentication resource in the applications namespace:
+Then disable strict _MTLS_ for the cars service by applying a PeerAuthentication resource in the applications namespace:
 
 [source,shell]
 ----

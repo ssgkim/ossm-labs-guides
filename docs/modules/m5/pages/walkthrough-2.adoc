@@ -15,7 +15,7 @@ Firstly you will create a custom CA and then with it an Intermediate CA (normall
 ./create-corporate-intermediate-certs.sh /<YOUR-PATH>/lab-5
 ----
 
-* In the verification parts. Verify that:
+* Follow the above scripts output and in the _verification_ parts verify that:
 ** a) The 2 `openssl.cnf` files have been created correctly with *`dir`* variable the path you provided:
 ** b) `4a-index.txt` has content
 +

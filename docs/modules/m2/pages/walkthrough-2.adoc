@@ -7,7 +7,7 @@
 ====
 Export the following in a terminal of your choice)
 
-* export CLUSTER_API=%APIURL%
+* export CLUSTER_API=%API_URL%
 * export LAB_PARTICIPANT_ID=%LAB_PARTICIPANT_ID%
 * export OCP_DOMAIN=%OCP_DOMAIN%
 * export SSO_CLIENT_SECRET=bcd06d5bdd1dbaaf81853d10a66aeb989a38dd51

@@ -172,7 +172,7 @@ The result of this command should look similar to this:
 [source,shell]
 ----
 {
-  "kubernetes.io/metadata.name": "user-5-prod-travel-agency"
+  "kubernetes.io/metadata.name": "%LAB_PARTICIPANT_ID%-prod-travel-agency"
 }
 ----
 
@@ -190,9 +190,9 @@ The result of this command should look similar to this (you may need to retry a 
 [source,shell]
 ----
 {
-  "kiali.io/member-of": "user-5-prod-istio-system",
-  "kubernetes.io/metadata.name": "user-5-prod-travel-agency",
-  "maistra.io/member-of": "user-5-prod-istio-system"
+  "kiali.io/member-of": "%LAB_PARTICIPANT_ID%-prod-istio-system",
+  "kubernetes.io/metadata.name": "%LAB_PARTICIPANT_ID%-prod-travel-agency",
+  "maistra.io/member-of": "%LAB_PARTICIPANT_ID%-prod-istio-system"
 }
 ----
 
@@ -276,7 +276,7 @@ Login as Mesh Operator (credentials `emma/emma`) and execute the following scrip
 NOTE: The configs come from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-3/create-https-ingress-gateway.sh[create-https-ingress-gateway.sh] script which you can inspect for details.
 
 After finishing, the script above, you'll get the exposed URL Route and the `Travel Control Dashboard` should be accessible (look at the end of the script log for the URL) eg.:
-https://travel-%LAB_PARTICIPANT_ID%.apps.cluster-vjzhs.vjzhs.sandbox1672.opentlc.com and the `Kiali` error on the `VirtualService` resource `control` should now have been resolved.
+https://travel-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN% and the `Kiali` error on the `VirtualService` resource `control` should now have been resolved.
 
 image::03-Travel-Control-Dashboard-https.png[Travel Control Dashboard]
 
@@ -298,7 +298,7 @@ With this option only the `dataplane` metrics (`istio-proxy` and business contai
 Option 4: Integrate with an external `Monitoring` Tool::
 This option assumes that another tool like Datadog is used by the Operations team to collect metrics. In order to achieve this:
 
-a. For `controlplane` components metrics collection, the tool needs to be part of the control plane namespace or a `NetworkPolicy` to allow it visibility to those components is required.
+a. For `controlplane` components metrics collection, the tool needs to be part of the control plane namespace or a `NetworkPolicy` to allow it visibility to those components is required.g
 b. For `dataplane` metrics the same approach described, previously, in _Option 3_ is to be followed.
 
 For the purpose of this lab you will deliver *Option 1* in the production setup. Login as `Mesh Operator` (credentials `emma/emma`), the script below will help you create a `PVC` for Prometheus and update the Prometheus configuration to utilize it and extend metrics retention to `168h`.

@@ -8,7 +8,7 @@ As this is a multi-tenant cluster you should restrict use for this lab to the fo
 
 Export the following in a terminal of your choice and proceed to the location of the `ossm-labs` assets repository which you have cloned earlier.
 
-* export CLUSTER_API=https://api.<CLUSTER_NAME>.<DOMAIN_NAME>:6443/
+* export CLUSTER_API=%APIURL%
 * export LAB_PARTICIPANT_ID=%LAB_PARTICIPANT_ID%
 * export OCP_DOMAIN=%OCP_DOMAIN%
 * export SSO_CLIENT_SECRET=bcd06d5bdd1dbaaf81853d10a66aeb989a38dd51

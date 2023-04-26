@@ -2,8 +2,8 @@
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
       const urlParams = new URLSearchParams(window.location.search);
-      const userId = urlParams.get('USERID');
-      const subDomain = urlParams.get('SUBDOMAIN');
+      const userId = urlParams.get('LAB_PARTICIPANT_ID');
+      const subDomain = urlParams.get('OCP_DOMAIN');
       const tomcatIP = urlParams.get('TOMCATIP');
       if (userId) {
         showUserId( userId );
@@ -33,7 +33,7 @@
       elSubDomainInput = document.getElementById('subDomain');
       elTomcatIPInput = document.getElementById('tomcatIP');
 
-      window.location.search = ('&USERID=' + elUserIdInput.value + '&SUBDOMAIN=' + elSubDomainInput.value + '&TOMCATIP=' + elTomcatIPInput.value);
+      window.location.search = ('&LAB_PARTICIPANT_ID=' + elUserIdInput.value + '&OCP_DOMAIN=' + elSubDomainInput.value + '&TOMCATIP=' + elTomcatIPInput.value);
     }
 
   </script>

@@ -109,7 +109,7 @@ To verify what has been applied you can navigate in Kiali to `Istio Config` and 
 
 * Expose host `gto-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%` over https
 * TLS mode for this host will be `MUTUAL`
-* Certificates will be used from `Secret` resource gto-%LAB_PARTICIPANT_ID%-secret`
+* Certificates will be used from `Secret` resource `gto-%LAB_PARTICIPANT_ID%-secret`
 
 image::04-Kiali-Gateway.png[300,700]
 
@@ -153,7 +153,7 @@ The Lab Instructors have created an RH-SSO Identity Provider, a `Realm` for Serv
 The intended final authentication workflow (in addition to the mTLS handshake) for external requests with a `JWT` token is as follows:
 
 1. The external user authenticates to RHSSO and gets a JWT token
-2. The user performs a HTTP request to `https://<route>/travels` (or one of `cars`, `hotels`, `insurances`, `flights`) and passes along this request the JWT token
+2. The user performs a HTTP request to `link:https://gto-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%/travels/Brussels[/travels]` (or one of `cars`, `hotels`, `insurances`, `flights`) and passes along this request the JWT token
 3. The `istio-proxy` container of the Istio Ingress Gateway checks the validity of the JWT token based on the `RequestAuthentication` and `AuthorizationPolicy` objects
 4. If the JWT token is valid and the `AuthorizationPolicy` matches, the external user is allowed to access the `/PATH` - otherwise, an error message is returned to the user (code `403`, message `RBAC: access denied` or others).
 

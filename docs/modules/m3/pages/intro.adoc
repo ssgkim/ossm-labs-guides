@@ -24,15 +24,15 @@ For the purpose of managing, monitoring and troubleshooting the Production envir
 |===
 | Username | Password | Enterprise Persona |  Responsible for Namespace
 
-| emma | emma | Mesh Operator | `$LAB_PARTICIPAN_ID-prod-istio-system`
+| emma | emma | Mesh Operator | `%LAB_PARTICIPANT_ID%-prod-istio-system`
 
-| cristina | cristina | Travel Portal Domain Owner (Tech Lead)  | `$LAB_PARTICIPAN_ID-prod-travel-portal`, `$LAB_PARTICIPAN_ID-prod-travel-control`
+| cristina | cristina | Travel Portal Domain Owner (Tech Lead)  | `%LAB_PARTICIPANT_ID%-prod-travel-portal`, `%LAB_PARTICIPANT_ID%-prod-travel-control`
 
-| farid | farid | Travel Services Domain Owner (Tech Lead)  | `$LAB_PARTICIPAN_ID-prod-travel-agency`
+| farid | farid | Travel Services Domain Owner (Tech Lead)  | `%LAB_PARTICIPANT_ID%-prod-travel-agency`
 
-| craig | craig | Platform (Application Ops) Team  | `$LAB_PARTICIPAN_ID-prod-travel-portal`, `$LAB_PARTICIPAN_ID-prod-travel-control`, `$LAB_PARTICIPAN_ID-prod-travel-agency`
+| craig | craig | Platform (Application Ops) Team  | `%LAB_PARTICIPANT_ID%-prod-travel-portal`, `%LAB_PARTICIPANT_ID%-prod-travel-control`, `%LAB_PARTICIPANT_ID%-prod-travel-agency`
 
-| mus | mus | Product Owner | `$LAB_PARTICIPAN_ID-prod-travel-portal`, `$LAB_PARTICIPAN_ID-prod-travel-control`, `$LAB_PARTICIPAN_ID-prod-travel-agency`
+| mus | mus | Product Owner | `%LAB_PARTICIPANT_ID%-prod-travel-portal`, `%LAB_PARTICIPANT_ID%-prod-travel-control`, `%LAB_PARTICIPANT_ID%-prod-travel-agency`
 
 |===
 

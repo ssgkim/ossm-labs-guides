@@ -42,19 +42,19 @@ The current _controlplane_ and _dataplane_ certificates are issued by default `I
 +
 ----
 ./login-as.sh emma
-oc get -o yaml secret istio-ca-secret -n $LAB_PARTICIPANT_ID-prod-istio-system | grep ca-cert | awk '{print $2}' | base64 -d | openssl x509 -noout -text
+oc get -o yaml secret istio-ca-secret -n %LAB_PARTICIPANT_ID%-prod-istio-system | grep ca-cert | awk '{print $2}' | base64 -d | openssl x509 -noout -text
 ----
 
 * Check the certificates used in the communication with `istiod`, the Issuer is again `Issuer=O = cluster.local`
 +
 ----
-oc exec "$(oc get pod -l app=istio-ingressgateway -n $LAB_PARTICIPANT_ID-prod-istio-system -o jsonpath={.items..metadata.name} | awk '{print $1}')" -c istio-proxy -n $LAB_PARTICIPANT_ID-prod-istio-system -- openssl s_client -showcerts -connect $(oc get svc istiod-$LAB_PARTICIPANT_ID-production -o jsonpath={.spec.clusterIP}):15012
+oc exec "$(oc get pod -l app=istio-ingressgateway -n %LAB_PARTICIPANT_ID%-prod-istio-system -o jsonpath={.items..metadata.name} | awk '{print $1}')" -c istio-proxy -n %LAB_PARTICIPANT_ID%-prod-istio-system -- openssl s_client -showcerts -connect $(oc get svc istiod-%LAB_PARTICIPANT_ID%-production -o jsonpath={.spec.clusterIP}):15012
 ----
 
 * Checking the certificates used in the POD to POD communications, the Issuer is again `Issuer=O = cluster.local`
 +
 ----
-oc exec "$(oc get pod -l app=travels -n $LAB_PARTICIPANT_ID-prod-travel-agency -o jsonpath={.items..metadata.name})" -c istio-proxy -n $LAB_PARTICIPANT_ID-prod-travel-agency -- openssl s_client -showcerts -connect $(oc -n $LAB_PARTICIPANT_ID-prod-travel-agency get svc cars -o jsonpath={.spec.clusterIP}):8000
+oc exec "$(oc get pod -l app=travels -n %LAB_PARTICIPANT_ID%-prod-travel-agency -o jsonpath={.items..metadata.name})" -c istio-proxy -n %LAB_PARTICIPANT_ID%-prod-travel-agency -- openssl s_client -showcerts -connect $(oc -n %LAB_PARTICIPANT_ID%-prod-travel-agency get svc cars -o jsonpath={.spec.clusterIP}):8000
 ----
 
 === Step 3: Modify the `production` SMCP tenant to use the corporate based CA, Intermediate CA and chain certificates
@@ -67,7 +67,7 @@ The link:https://docs.openshift.com/container-platform/4.12/service_mesh/v2x/oss
 * `ca-chain.cert.pem` (`cert-chain.pem`)the certificate chain that includes both certificates
 +
 ----
-oc create secret generic cacerts -n $LAB_PARTICIPANT_ID-prod-istio-system \
+oc create secret generic cacerts -n %LAB_PARTICIPANT_ID%-prod-istio-system \
 --from-file=ca-cert.pem=certs-resources/intermediate/certs/intermediate.cert.pem \
 --from-file=ca-key.pem=certs-resources/intermediate/private/intermediate.key.pem \
 --from-file=root-cert.pem=certs-resources/certs/ca.cert.pem \
@@ -77,15 +77,15 @@ oc create secret generic cacerts -n $LAB_PARTICIPANT_ID-prod-istio-system \
 * Remove the `istio-system-ca` secret created as default CA by OSSM as it interferes with the istiod correctly picking the enterprise certificates from the newly created `cacerts` secret
 +
 ----
-oc get  secret istio-ca-secret -n $LAB_PARTICIPANT_ID-prod-istio-system -o yaml > istio-ca-secret-default.yaml
-oc delete secret istio-ca-secret -n $LAB_PARTICIPANT_ID-prod-istio-system
+oc get  secret istio-ca-secret -n %LAB_PARTICIPANT_ID%-prod-istio-system -o yaml > istio-ca-secret-default.yaml
+oc delete secret istio-ca-secret -n %LAB_PARTICIPANT_ID%-prod-istio-system
 ----
 
-* Logged in as `Mesh Operator` (credentials `emma`/`emma`) add to the `ServiceMeshControlPlane` resource `$LAB_PARTICIPANT_ID-production` under `security` section the `certificateAuthority` properties as shown in the following example (make sure the indentation is correct). Service Mesh reads the certificates and key from the secret-mount files.
+* Logged in as `Mesh Operator` (credentials `emma`/`emma`) add to the `ServiceMeshControlPlane` resource `%LAB_PARTICIPANT_ID%-production` under `security` section the `certificateAuthority` properties as shown in the following example (make sure the indentation is correct). Service Mesh reads the certificates and key from the secret-mount files.
 +
 ----
 ./login-as.sh emma
-oc edit smcp/$LAB_PARTICIPANT_ID-production -n $LAB_PARTICIPANT_ID-prod-istio-system
+oc edit smcp/%LAB_PARTICIPANT_ID%-production -n %LAB_PARTICIPANT_ID%-prod-istio-system
 
 # Add in production SMCP under the existing _security_ section the followng:
 
@@ -102,27 +102,27 @@ oc edit smcp/$LAB_PARTICIPANT_ID-production -n $LAB_PARTICIPANT_ID-prod-istio-sy
 ** After adding the corporate the certificates, the control plane istiod and gateway pods must be restarted so the changes go into effect. Use the following command to restart the pods(The Operator will automatically recreate the pods after they have been deleted):
 +
 ----
-oc -n $LAB_PARTICIPANT_ID-prod-istio-system delete pods -l "app in (istiod,istio-ingressgateway, istio-egressgateway,gto-$LAB_PARTICIPANT_ID-ingressgateway)"
-oc -n $LAB_PARTICIPANT_ID-prod-istio-system get pods
+oc -n %LAB_PARTICIPANT_ID%-prod-istio-system delete pods -l "app in (istiod,istio-ingressgateway, istio-egressgateway,gto-%LAB_PARTICIPANT_ID%-ingressgateway)"
+oc -n %LAB_PARTICIPANT_ID%-prod-istio-system get pods
 ----
 ** Restart the _dataplane_ pods to expedite the sidecar proxies picking up the secret changes.
 
-    oc -n $LAB_PARTICIPANT_ID-prod-travel-control delete pods --all
-    oc -n $LAB_PARTICIPANT_ID-prod-travel-agency delete pods --all
-    oc -n $LAB_PARTICIPANT_ID-prod-travel-portal delete pods --all
+    oc -n %LAB_PARTICIPANT_ID%-prod-travel-control delete pods --all
+    oc -n %LAB_PARTICIPANT_ID%-prod-travel-agency delete pods --all
+    oc -n %LAB_PARTICIPANT_ID%-prod-travel-portal delete pods --all
 
 
 * Finally, perform some verifications of the new certificates being in effect
 ** Identify the `cacerts` Issuer (it should be `C = GB, ST = England, L = London, O = Travel Agency Ltd, OU = Certificate Authority, CN = www.travelagency.com, emailAddress = ca@www.travelagency.com`)
 +
 ----
-oc get -o yaml secret cacerts -n $LAB_PARTICIPANT_ID-prod-istio-system | grep ca-cert | awk '{print $2}' | base64 -d | openssl x509 -noout -text
+oc get -o yaml secret cacerts -n %LAB_PARTICIPANT_ID%-prod-istio-system | grep ca-cert | awk '{print $2}' | base64 -d | openssl x509 -noout -text
 ----
 ** Verify the _dataplane_ communications are secured with the new corporate certificates
 +
 ----
 ./login-as.sh emma
-./verify-dataplane-certs.sh $LAB_PARTICIPANT_ID
+./verify-dataplane-certs.sh %LAB_PARTICIPANT_ID%
 
 
 ###########################
@@ -161,7 +161,7 @@ Files /tmp/ca-cert.crt.txt and /tmp/pod-cert-chain-ca.crt.txt are identical
 ** Verify the _controlplane_ communications are secured with the new corporate certificates
 +
 ----
-./verify-controlplane-certs.sh $LAB_PARTICIPANT_ID
+./verify-controlplane-certs.sh %LAB_PARTICIPANT_ID%
 
 
 ###########################

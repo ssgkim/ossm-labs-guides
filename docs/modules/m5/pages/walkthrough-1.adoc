@@ -5,13 +5,13 @@
 
 [IMPORTANT]
 ====
-As this is a multi-tenant cluster you should restrict use for this lab to the following namespaces associated with your user *`$LAB_PARTICIPANT_ID-prod-istio-system`*, *`$LAB_PARTICIPANT_ID-prod-travel-control`*, *`$LAB_PARTICIPANT_ID-prod-travel-portal`*, *`$LAB_PARTICIPANT_ID-prod-travel-agency`*
+As this is a multi-tenant cluster you should restrict use for this lab to the following namespaces associated with your user *`%LAB_PARTICIPANT_ID%-prod-istio-system`*, *`%LAB_PARTICIPANT_ID%-prod-travel-control`*, *`%LAB_PARTICIPANT_ID%-prod-travel-portal`*, *`%LAB_PARTICIPANT_ID%-prod-travel-agency`*
 
 Export the following in the terminal of your choice
 
 * export CLUSTER_API=https://api.<CLUSTER_NAME>.<DOMAIN_NAME>:6443/
-* export LAB_PARTICIPANT_ID=$LAB_PARTICIPANT_ID
-* export OCP_DOMAIN=apps.<CLUSTER_NAME>.<DOMAIN_NAME>
+* export LAB_PARTICIPANT_ID=%LAB_PARTICIPANT_ID%
+* export OCP_DOMAIN=%OCP_DOMAIN%
 * export SSO_CLIENT_SECRET=bcd06d5bdd1dbaaf81853d10a66aeb989a38dd51
 ====
 
@@ -21,7 +21,7 @@ Export the following in the terminal of your choice
 If you are running out of time and wish to complete the following lab sections in a single step execute
 ----
 cd lab-5
-./complete-lab-5.sh $SSO_CLIENT_SECRET $OCP_DOMAIN $LAB_PARTICIPANT_ID
+./complete-lab-5.sh $SSO_CLIENT_SECRET %OCP_DOMAIN% %LAB_PARTICIPANT_ID%
 ----
 ====
 
@@ -43,7 +43,7 @@ First lets verify that by default the _Service Mesh_ authorization policies allo
 
 | ALLOW all | `prod-istio-system` -> `prod-travel-control` | Browser | `control.prod-travel-control`
 
-| ALLOW all | `prod-istio-system` -> `prod-travel-agency` | `gto-$LAB_PARTICIPANT_ID-ingressgateway` | `travels.prod-travel-agency`, `flights.prod-travel-agency`, `hotels.prod-travel-agency`, `insurances.prod-travel-agency`, `cars.prod-travel-agency`
+| ALLOW all | `prod-istio-system` -> `prod-travel-agency` | `gto-%LAB_PARTICIPANT_ID%-ingressgateway` | `travels.prod-travel-agency`, `flights.prod-travel-agency`, `hotels.prod-travel-agency`, `insurances.prod-travel-agency`, `cars.prod-travel-agency`
 
 | ALLOW all | `prod-travel-control` -> `prod-travel-agency` | `control.prod-travel-control` | `travels.prod-travel-agency`, `flights.prod-travel-agency`, `hotels.prod-travel-agency`, `insurances.prod-travel-agency`, `cars.prod-travel-agency`
 
@@ -60,12 +60,12 @@ Verify the default communication paths described in the table above. Login as Me
 cd lab-5
 ./login-as.sh emma
 
-./check-authz-all.sh ALLOW $LAB_PARTICIPANT_ID-prod-istio-system $OCP_DOMAIN $SSO_CLIENT_SECRET $LAB_PARTICIPANT_ID
+./check-authz-all.sh ALLOW %LAB_PARTICIPANT_ID%-prod-istio-system %OCP_DOMAIN% $SSO_CLIENT_SECRET %LAB_PARTICIPANT_ID%
 ----
 
 === Step 2 - Apply best practice security pattern to `DENY` all
 
-In the previous lab xref:m4:walkthrough.adoc#_step_1__define_authentication_and_authorization_with_valid_rhsso_jwt_token[Step 1 - Define Authentication and Authorization with valid RHSSO JWT Token] you applied an `AuthorizationPolicy` resource which allowed requests via the `gto-$LAB_PARTICIPANT_ID-ingressgateway`. Now, you will utilize the `default-deny` pattern to DENY requests unless there is a specific `AuthorizationPolicy` allowing it.
+In the previous lab xref:m4:walkthrough.adoc#_step_1__define_authentication_and_authorization_with_valid_rhsso_jwt_token[Step 1 - Define Authentication and Authorization with valid RHSSO JWT Token] you applied an `AuthorizationPolicy` resource which allowed requests via the `gto-%LAB_PARTICIPANT_ID%-ingressgateway`. Now, you will utilize the `default-deny` pattern to DENY requests unless there is a specific `AuthorizationPolicy` allowing it.
 
 As Mesh Operator with `emma/emma`  apply the `default-deny` pattern to the prod-travel-agency namespace
 
@@ -75,7 +75,7 @@ echo "apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: allow-nothing
-  namespace: $LAB_PARTICIPANT_ID-prod-travel-agency
+  namespace: %LAB_PARTICIPANT_ID%-prod-travel-agency
 spec:
   {}" | oc apply -f -
 ----
@@ -88,7 +88,7 @@ echo "apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: allow-nothing
-  namespace: $LAB_PARTICIPANT_ID-prod-travel-control
+  namespace: %LAB_PARTICIPANT_ID%-prod-travel-control
 spec:
   {}  " | oc apply -f -
 ----
@@ -102,9 +102,9 @@ Now you can verify that no communications from the _Service Mesh_ are authorizat
 |===
 | Type of Policy | Namespaces | Client | Target
 
-| DENY all | `prod-istio-system` -> `prod-travel-control` | Browser | `https://travel-$LAB_PARTICIPANT_ID.$OCP_DOMAIN/`
+| DENY all | `prod-istio-system` -> `prod-travel-control` | Browser | `https://travel-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%/`
 
-| DENY all | `prod-istio-system` -> `prod-travel-agency` | `gto-$LAB_PARTICIPANT_ID-ingressgateway` | `travels.prod-travel-agency`, `flights.prod-travel-agency`, `hotels.prod-travel-agency`, `insurances.prod-travel-agency`, `cars.prod-travel-agency`
+| DENY all | `prod-istio-system` -> `prod-travel-agency` | `gto-%LAB_PARTICIPANT_ID%-ingressgateway` | `travels.prod-travel-agency`, `flights.prod-travel-agency`, `hotels.prod-travel-agency`, `insurances.prod-travel-agency`, `cars.prod-travel-agency`
 
 | DENY all | `prod-travel-control` -> `prod-travel-agency` | `control.prod-travel-control` | `travels.prod-travel-agency`, `flights.prod-travel-agency`, `hotels.prod-travel-agency`, `insurances.prod-travel-agency`, `cars.prod-travel-agency`
 
@@ -118,7 +118,7 @@ Let us check the communication paths again:
 
 [source,shell]
 ----
-./check-authz-all.sh DENY $LAB_PARTICIPANT_ID-prod-istio-system $OCP_DOMAIN $SSO_CLIENT_SECRET $LAB_PARTICIPANT_ID
+./check-authz-all.sh DENY %LAB_PARTICIPANT_ID%-prod-istio-system %OCP_DOMAIN% $SSO_CLIENT_SECRET %LAB_PARTICIPANT_ID%
 ----
 
 You can also login to Kiali and verify the traffic in the Dashboard:
@@ -135,7 +135,7 @@ Let us first login as Mesh Operator with `emma/emma` and check if you can access
 ----
 ./login-as.sh emma
 
-curl -k https://travel-$LAB_PARTICIPANT_ID.$OCP_DOMAIN/
+curl -k https://travel-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%/
 
 RBAC: access denied
 ----
@@ -148,7 +148,7 @@ echo "apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: authpolicy-istio-ingressgateway
-  namespace: ${LAB_PARTICIPANT_ID}-prod-istio-system
+  namespace: %LAB_PARTICIPANT_ID%-prod-istio-system
 spec:
   selector:
     matchLabels:
@@ -167,34 +167,34 @@ echo "apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: allow-selective-principals-travel-control
-  namespace: $LAB_PARTICIPANT_ID-prod-travel-control
+  namespace: %LAB_PARTICIPANT_ID%-prod-travel-control
 spec:
   action: ALLOW
   rules:
     - from:
         - source:
-            principals: [\"cluster.local/ns/$LAB_PARTICIPANT_ID-prod-istio-system/sa/istio-ingressgateway-service-account\"]"|oc apply -f -
+            principals: [\"cluster.local/ns/%LAB_PARTICIPANT_ID%-prod-istio-system/sa/istio-ingressgateway-service-account\"]"|oc apply -f -
 ----
 
 Please verify the access to the Travel Dashboard again. It should be accessible right now. You can also open the URL in your Browser:
 
 [source,shell]
 ----
-curl -k https://travel-$LAB_PARTICIPANT_ID.$OCP_DOMAIN/
+curl -k https://travel-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%/
 ----
 
 === Step 5 - Apply fine grained business Authz policies for service to service communications
 
 In this last step, you will create authorisation policies which will allow access:
 
-* from `gto-$LAB_PARTICIPANT_ID` gateway towards
-** `travels.$LAB_PARTICIPANT_ID-prod-travel-agency`,
-** `hotels.$LAB_PARTICIPANT_ID-prod-travel-agency`,
-** `cars.$LAB_PARTICIPANT_ID-prod-travel-agency`,
-** `insurances.$LAB_PARTICIPANT_ID-prod-travel-agency`,
-** `flights.$LAB_PARTICIPANT_ID-prod-travel-agency` in order to enable external partner requests
-* for intra `$LAB_PARTICIPANT_ID-prod-travel-agency` communications
-* from `$LAB_PARTICIPANT_ID-prod-travel-portal` to `$LAB_PARTICIPANT_ID-prod-travel-agency`
+* from `gto-%LAB_PARTICIPANT_ID%` gateway towards
+** `travels.%LAB_PARTICIPANT_ID%-prod-travel-agency`,
+** `hotels.%LAB_PARTICIPANT_ID%-prod-travel-agency`,
+** `cars.%LAB_PARTICIPANT_ID%-prod-travel-agency`,
+** `insurances.%LAB_PARTICIPANT_ID%-prod-travel-agency`,
+** `flights.%LAB_PARTICIPANT_ID%-prod-travel-agency` in order to enable external partner requests
+* for intra `%LAB_PARTICIPANT_ID%-prod-travel-agency` communications
+* from `%LAB_PARTICIPANT_ID%-prod-travel-portal` to `%LAB_PARTICIPANT_ID%-prod-travel-agency`
 
 Login as Mesh Developer with `farid/farid` and create the following AuthorizationPolicy:
 
@@ -206,13 +206,13 @@ echo "apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
  name: allow-selective-principals-travel-agency
- namespace: $LAB_PARTICIPANT_ID-prod-travel-agency
+ namespace: %LAB_PARTICIPANT_ID%-prod-travel-agency
 spec:
  action: ALLOW
  rules:
    - from:
        - source:
-           principals: [\"cluster.local/ns/$LAB_PARTICIPANT_ID-prod-istio-system/sa/gto-$LAB_PARTICIPANT_ID-ingressgateway-service-account\",\"cluster.local/ns/$LAB_PARTICIPANT_ID-prod-travel-agency/sa/default\",\"cluster.local/ns/$LAB_PARTICIPANT_ID-prod-travel-portal/sa/default\"]" |oc apply -f -
+           principals: [\"cluster.local/ns/%LAB_PARTICIPANT_ID%-prod-istio-system/sa/gto-%LAB_PARTICIPANT_ID%-ingressgateway-service-account\",\"cluster.local/ns/%LAB_PARTICIPANT_ID%-prod-travel-agency/sa/default\",\"cluster.local/ns/%LAB_PARTICIPANT_ID%-prod-travel-portal/sa/default\"]" |oc apply -f -
 
 ----
 
@@ -222,7 +222,7 @@ Verify all communications meet the fine-grained authorization targets set by the
 ----
 ./login-as.sh emma
 
-./check-authz-all.sh 'ALLOW intra' $LAB_PARTICIPANT_ID-prod-istio-system $OCP_DOMAIN $SSO_CLIENT_SECRET $LAB_PARTICIPANT_ID
+./check-authz-all.sh 'ALLOW intra' %LAB_PARTICIPANT_ID%-prod-istio-system %OCP_DOMAIN% $SSO_CLIENT_SECRET %LAB_PARTICIPANT_ID%
 ----
 
 Please also login to Kiali and observe the communication flows:
@@ -264,7 +264,7 @@ cd lab-5
 
 ./login-as.sh farid
 
-oc get peerauthentication -n $LAB_PARTICIPANT_ID-prod-istio-system
+oc get peerauthentication -n %LAB_PARTICIPANT_ID%-prod-istio-system
 
 NAME                            MODE         AGE
 default                         STRICT       4d1h
@@ -282,7 +282,7 @@ echo "apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
 metadata:
   name: cars-mtls-disable
-  namespace: $LAB_PARTICIPANT_ID-prod-travel-agency
+  namespace: %LAB_PARTICIPANT_ID%-prod-travel-agency
 spec:
   selector:
     matchLabels:
@@ -295,7 +295,7 @@ Check the applied resource
 
 [source,shell]
 ----
-oc get peerauthentication -n $LAB_PARTICIPANT_ID-prod-travel-agency
+oc get peerauthentication -n %LAB_PARTICIPANT_ID%-prod-travel-agency
 
 NAME                MODE      AGE
 cars-mtls-disable   DISABLE   47s
@@ -307,7 +307,7 @@ Validate no mTLS handshaking is taking place, by connecting to the cars service.
 
 [source,shell]
 ----
-oc exec "$(oc get pod -l app=travels -n $LAB_PARTICIPANT_ID-prod-travel-agency -o jsonpath={.items..metadata.name})" -c istio-proxy -n $LAB_PARTICIPANT_ID-prod-travel-agency -- openssl s_client -showcerts -connect $(oc -n $LAB_PARTICIPANT_ID-prod-travel-agency get svc cars -o jsonpath={.spec.clusterIP}):8000
+oc exec "$(oc get pod -l app=travels -n %LAB_PARTICIPANT_ID%-prod-travel-agency -o jsonpath={.items..metadata.name})" -c istio-proxy -n %LAB_PARTICIPANT_ID%-prod-travel-agency -- openssl s_client -showcerts -connect $(oc -n %LAB_PARTICIPANT_ID%-prod-travel-agency get svc cars -o jsonpath={.spec.clusterIP}):8000
 ----
 
 === Step 4 - Clean-up
@@ -316,5 +316,5 @@ Clean up the `PeerAuthentication` and re-run the above command to verify the mTL
 
 [source,shell]
 ----
-oc delete peerauthentication cars-mtls-disable -n $LAB_PARTICIPANT_ID-prod-travel-agency
+oc delete peerauthentication cars-mtls-disable -n %LAB_PARTICIPANT_ID%-prod-travel-agency
 ----

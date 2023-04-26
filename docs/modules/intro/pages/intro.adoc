@@ -20,7 +20,7 @@ cd ossm-labs
 
 [IMPORTANT]
 ====
-You will be using a shared cluster and the Service Mesh users are also common with access to multiple namespaces. Therefore, it is very important each participant uses their allocated namespaces. In order to make use of the correct *namespaces* make sure you are accessing those with the allocate user id *$LAB_PARTICIPANT_ID*
+You will be using a shared cluster and the Service Mesh users are also common with access to multiple namespaces. Therefore, it is very important each participant uses their allocated namespaces. In order to make use of the correct *namespaces* make sure you are accessing those with the allocate user id *%LAB_PARTICIPANT_ID%*
 ====
 
 

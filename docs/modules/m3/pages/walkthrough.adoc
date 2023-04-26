@@ -261,7 +261,7 @@ In order to achieve that,
 * create on Openshift passthrough route forwarding traffic to the Istio ingress Gateway
 * create an Istio Gateway Resource configured with our TLS certificate
 
-Right now if you login to the *production* Kiali Dashboard with the user `emma/emma` (*Istio Config* -> filter by `VirtualService`) , there is an issue in the `VirtualService` resource `control` and an error on Kiali as no `Gateway` exists yet.
+Right now if you login to the *production* link:https://kiali-%LAB_PARTICIPANT_ID%-prod-istio-system.%OCP_DOMAIN%/[Kiali Dashboard] with the user `emma/emma` (*Istio Config* -> filter by `VirtualService`) , there is an issue in the `VirtualService` resource `control` and an error on Kiali as no `Gateway` exists yet.
 
 image::03-no-gw-for-travel-control-ui-vs.png[]
 
@@ -275,8 +275,7 @@ Login as Mesh Operator (credentials `emma/emma`) and execute the following scrip
 
 NOTE: The configs come from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-3/create-https-ingress-gateway.sh[create-https-ingress-gateway.sh] script which you can inspect for details.
 
-After finishing, the script above, you'll get the exposed URL Route and the `Travel Control Dashboard` should be accessible (look at the end of the script log for the URL) eg.:
-https://travel-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN% and the `Kiali` error on the `VirtualService` resource `control` should now have been resolved.
+After finishing, the script above, you'll get the exposed URL Route and the `Travel Control Dashboard` should be accessible at https://travel-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN% and the `Kiali` error on the `VirtualService` resource `control` should now have been resolved.
 
 image::03-Travel-Control-Dashboard-https.png[Travel Control Dashboard]
 

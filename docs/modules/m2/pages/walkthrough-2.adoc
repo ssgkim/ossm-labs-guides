@@ -5,7 +5,7 @@
 
 [IMPORTANT]
 ====
-Export the following in a terminal of your choice)
+Export the following in a terminal in your link:https://codeserver-codeserver-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%[code-server environment].
 
 * export CLUSTER_API=%API_URL%
 * export LAB_PARTICIPANT_ID=%LAB_PARTICIPANT_ID%

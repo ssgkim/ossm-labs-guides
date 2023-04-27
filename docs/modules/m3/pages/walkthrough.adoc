@@ -6,7 +6,7 @@
 ====
 As this is a multi-tenant cluster you should restrict use for this lab to the following namespaces associated with your user *`%LAB_PARTICIPANT_ID%-prod-istio-system`*, *`%LAB_PARTICIPANT_ID%-prod-travel-control`*, *`%LAB_PARTICIPANT_ID%-prod-travel-portal`*, *`%LAB_PARTICIPANT_ID%-prod-travel-agency`*
 
-Export the following in a terminal of your choice and proceed to the location of the `ossm-labs` assets repository which you have cloned earlier.
+Export the following in your link:https://codeserver-codeserver-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%[code-server] terminal and proceed to the location of the `ossm-labs` assets repository which you have cloned earlier.
 
 * export CLUSTER_API=%API_URL%
 * export LAB_PARTICIPANT_ID=%LAB_PARTICIPANT_ID%

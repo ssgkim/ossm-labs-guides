@@ -37,7 +37,7 @@ Login as Mesh Operator (credentials: `emma/emma`) and run the `create-prod-smcp-
 ----
 cd lab-3
 ./login-as.sh emma
-./create-prod-smcp-1-tracing.sh %LAB_PARTICIPANT_ID%-prod-istio-system %LAB_PARTICIPANT_ID%-production
+./create-prod-smcp-1-tracing.sh %LAB_PARTICIPANT_ID%-prod-istio-system %LAB_PARTICIPANT_ID%-production %LAB_PARTICIPANT_ID%-jaeger-small-production
 ----
 
 * The `Jaeger Operator` will also create a `Jaeger Collector`, a `Jaeger Query` and an `Elastic Search` Deployment in your `%LAB_PARTICIPANT_ID%-prod-istio-system` in order to collect and backup the traces.
@@ -339,7 +339,7 @@ To apply the final production `SMCP` tuning, login as Mesh operator (credentials
 [source,shell]
 ----
 ./login-as.sh emma
-./update-prod-smcp-3-final.sh %LAB_PARTICIPANT_ID%-prod-istio-system %LAB_PARTICIPANT_ID%-production
+./update-prod-smcp-3-final.sh %LAB_PARTICIPANT_ID%-prod-istio-system %LAB_PARTICIPANT_ID%-production %LAB_PARTICIPANT_ID%-jaeger-small-production
 ----
 
 NOTE: The configs come from link:https://github.com/skoussou/summit-2023-ossm-labs/blob/main/lab-3/update-prod-smcp-3-final.sh[update-prod-smcp-3-final.sh] script which you can inspect for details.

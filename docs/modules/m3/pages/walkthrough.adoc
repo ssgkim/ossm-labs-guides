@@ -47,7 +47,7 @@ This is the Jaeger Custom Resource applied:
 ----
 kind: Jaeger
 metadata:
-  name: jaeger-small-production
+  name:  %LAB_PARTICIPANT_ID%-jaeger-small-production
 spec:
   strategy: production <1>
   storage:
@@ -119,7 +119,7 @@ spec:
           enabled: true
         storage:
           type: Elasticsearch <4>
-      name: jaeger-small-production <5>
+      name:  %LAB_PARTICIPANT_ID%-jaeger-small-production <5>
     kiali:
       enabled: true
     prometheus:
@@ -136,7 +136,7 @@ The applied `ServiceMeshControlPlane` Resource ensures that:
 ** *(2)* No external outgoing communications to a host not registered in the mesh will be allowed,
 ** *(3)* `Jaeger` resource will be available in the `Service Mesh` for traces storage,
 ** *(4)* It will utilize Elastic Search for persistence of traces (unlike  in the `dev-istio-system` namespace where `memory` is utilized)
-** *(5)* The `jaeger-small-production` external `Jaeger` Resource is integrated by and utilized in the `Service Mesh`.
+** *(5)* The ` %LAB_PARTICIPANT_ID%-jaeger-small-production` external `Jaeger` Resource is integrated by and utilized in the `Service Mesh`.
 
 Login to the Openshift console with Mesh Operator credentials `emma/emma` and navigate to *`Administrator`* -> *`Workloads`* -> *`Pods`*  in namespace `%LAB_PARTICIPANT_ID%-prod-istio-system` namespace. Verify all deployments and pods are running.
 
@@ -153,7 +153,7 @@ In this task you will add the application namespaces to our newly created Servic
 
 All application `Deployment`(s) will be patched as follows to include the sidecars (*Warning:* Don't apply as the script `deploy-travel-services-domain.sh` further down will do so):
 ----
-oc patch deployment/voyages -p '{"metadata":{"annotations":{"sidecar.jaegertracing.io/inject": "jaeger-small-production"}}}' -n $ENV-travel-portal
+oc patch deployment/voyages -p '{"metadata":{"annotations":{"sidecar.jaegertracing.io/inject": " %LAB_PARTICIPANT_ID%-jaeger-small-production"}}}' -n $ENV-travel-portal
 oc patch deployment/voyages -p '{"spec":{"template":{"metadata":{"annotations":{"sidecar.istio.io/inject": "true"}}}}}' -n $ENV-travel-portal
 ----
 

@@ -1,5 +1,4 @@
 # Service Mesh Observability Stack
-# Red Hat Summit 2023
 
 == Part II:  Development Environment Verification & Observability Usage
 

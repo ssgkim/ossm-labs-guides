@@ -4,7 +4,7 @@
 
 namespace: guides
 
-image: ghcr.io/skoussou/summit-ossm-labs-guides:latest
+image: ghcr.io/redhat-gpte-devopsautomation/ossm-labs-guides:latest
 
 replicaCount: 1
 

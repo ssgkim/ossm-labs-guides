@@ -1,5 +1,4 @@
 # Service Mesh Day 2 Operations
-# Red Hat Summit 2023
 
 
 ## ABOUT THIS LAB

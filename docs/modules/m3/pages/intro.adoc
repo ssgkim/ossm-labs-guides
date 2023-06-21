@@ -1,5 +1,4 @@
 # Setup Travel Demo `ServiceMeshControlPlane` for Production
-# Red Hat Summit 2023
 
 ## ABOUT THIS LAB
 

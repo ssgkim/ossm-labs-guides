@@ -1,5 +1,4 @@
 # Designing Service Mesh Perimeter and Operating Model
-# Red Hat Summit 2023
 
 ## Lab Walkthrough
 
@@ -85,11 +84,11 @@ In the following table you’ll see the Persona / Role mappings for the Travel A
 |*Persona*|*Role*|*Responsibilities*
 
 |Platform Admin|Cluster Admin (Default OpenShift cluster-admin role)|Owner of multiple OpenShift clusters, deploys operators and sets organizational policies.
-|Mesh Operator|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L5[Mesh Operator Role YAML]|Operates parts of the cluster and the domain based service mesh for the hosted services. Creates and operates Service Mesh tenants.
-|Domain Owner (Tech Lead)|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML]|Responsible for an Application Domain. Onboards developers in the team and understands inter/intra service dependencies. Creates and configures Service Mesh resources (`VirtualService`, `DestinationRule` etc.) in their domain.
-|Developer|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML]|Develops services in his Application Domain. Needs to be kept aware of the health, performance and functional correctness of the solution.
-|Application Ops Team|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML]|The _Application Ops_ team monitors and maintains the running applications in the deployed cluster and within the domain hosted mesh (OSSM tenant), including extracting logs, executing commands to verify state, and troubleshooting in higher (non-development) environments
-|Product Owner|link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML]|The Product Owner needs to be aware of the health, usage, cost as well as other metrics around the business domain of the solution.
+|Mesh Operator|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L5[Mesh Operator Role YAML]|Operates parts of the cluster and the domain based service mesh for the hosted services. Creates and operates Service Mesh tenants.
+|Domain Owner (Tech Lead)|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML]|Responsible for an Application Domain. Onboards developers in the team and understands inter/intra service dependencies. Creates and configures Service Mesh resources (`VirtualService`, `DestinationRule` etc.) in their domain.
+|Developer|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML]|Develops services in his Application Domain. Needs to be kept aware of the health, performance and functional correctness of the solution.
+|Application Ops Team|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML]|The _Application Ops_ team monitors and maintains the running applications in the deployed cluster and within the domain hosted mesh (OSSM tenant), including extracting logs, executing commands to verify state, and troubleshooting in higher (non-development) environments
+|Product Owner|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML]|The Product Owner needs to be aware of the health, usage, cost as well as other metrics around the business domain of the solution.
 |===
 
 [NOTE]
@@ -111,17 +110,17 @@ The table below shows the User/Role/Persona Mapping for the Travel Agency DEV en
 |===
 |Name |Enterprise Persona |Role Bindings |Namespace
 
-| emma | Mesh Operator |  link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-emma.yaml[Rolebindings] | `dev-istio-system`
+| emma | Mesh Operator |  link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-emma.yaml[Rolebindings] | `dev-istio-system`
 
-| cristina | Travel Portal Domain Owner (Tech Lead)  | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-cristina.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`
+| cristina | Travel Portal Domain Owner (Tech Lead)  | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-cristina.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`
 
-| farid | Travel Services Domain Owner (Tech Lead)  | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-farid.yaml[Rolebindings] | `dev-travel-agency`
+| farid | Travel Services Domain Owner (Tech Lead)  | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-farid.yaml[Rolebindings] | `dev-travel-agency`
 
-| john | Developer (TP) | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-john.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`
+| john | Developer (TP) | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-john.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`
 
-| mia | Developer (TS) | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mia.yaml[Rolebindings] | `dev-travel-agency`
+| mia | Developer (TS) | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mia.yaml[Rolebindings] | `dev-travel-agency`
 
-| mus | Product Owner | link:https://github.com/skoussou/summit-2023-ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mus.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`, `dev-travel-agency`
+| mus | Product Owner | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mus.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`, `dev-travel-agency`
 
 |===
 

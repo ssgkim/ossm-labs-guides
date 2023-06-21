@@ -1,5 +1,4 @@
 # Part II: Setting Up Corporate CA for Service Mesh
-# Red Hat Summit 2023
 
 == Task 4 (Optional): Use a custom Certificate Authority (CA)
 

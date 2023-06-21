@@ -1,11 +1,10 @@
 # Service Mesh Development Environment
-# Red Hat Summit 2023
 
 == Part I: Installing the Development environment
 
 [IMPORTANT]
 ====
-*You do not have to execute anything in this part of the lab* as lab instructors have *pre-setup all the required assets for the Travel Agency development environment*, including users, roles, namespaces, apps, service mesh etc. You will create the PROD environment step-by-step in the next scenario. You can inspect at the end of the lab the installation of the development environment by exploring the `ArgoCD` resources used to link:https://github.com/skoussou/summit-2023-ossm-labs/tree/helm/helm/ossm/templates/dev[Install & Setup the Development Environment]
+*You do not have to execute anything in this part of the lab* as lab instructors have *pre-setup all the required assets for the Travel Agency development environment*, including users, roles, namespaces, apps, service mesh etc. You will create the PROD environment step-by-step in the next scenario. You can inspect at the end of the lab the installation of the development environment by exploring the `ArgoCD` resources used to link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/tree/helm/helm/ossm/templates/dev[Install & Setup the Development Environment]
 
 Reading the following is totally optional (you are urged to move to _Part II_ as soon as possible) as we only briefly describe the steps the xref:m1:walkthrough.adoc#_travel_agency_personas_roles[Travel Agency Personas] would have had to follow in order to deliver such a development environment:
 ====

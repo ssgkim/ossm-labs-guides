@@ -1,5 +1,4 @@
 # Heading to Production Lab Scenario
-# Red Hat Summit 2023
 
 ## Congratulations on completing this module!
 

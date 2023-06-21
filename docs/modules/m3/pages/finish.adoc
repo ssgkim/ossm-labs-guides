@@ -1,5 +1,4 @@
 # Service Mesh Development Environment & Observability Stack
-# Red Hat Summit 2023
 
 ## Congratulations on completing this module!
 

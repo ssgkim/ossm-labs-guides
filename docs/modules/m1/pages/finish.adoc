@@ -1,5 +1,4 @@
 # Designing Service Mesh Perimeter and Operating Model
-# Red Hat Summit 2023
 
 ## Congratulations on completing this module!
 

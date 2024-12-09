@@ -1,0 +1,190 @@
+= 간단한 라우트 규칙 (Simple Route Rules)
+include::_attributes.adoc[]
+
+이 사용 사례에서는 수정된 Recommendation 버전을 사용해야 합니다.
+
+[#deployrecommendationv2]
+== Recommendation:v2 배포
+
+[NOTE]
+====
+이 튜토리얼을 위해 미리 빌드된 Docker 이미지를 배포합니다. 
+Recommendation V2를 Quarkus로 빌드하려면 다음을 참조하십시오: 
+xref:2build-microservices.adoc#buildrecommendationv2[Recommendation V2 생성]
+====
+
+[NOTE]
+====
+Recommendation V2를 Spring Boot로 빌드하려면 다음을 참조하십시오: 
+xref:2build-microservices.adoc#buildrecommendationspringbootv2[Recommendation V2 Spring Boot 생성]
+====
+
+[IMPORTANT]
+====
+Recommendation의 v2 버전을 관리하기 위해 두 번째 Deployment가 필요합니다.
+====
+
+이미지를 직접 빌드하지 않았다면, 이 튜토리얼에서 미리 빌드된 이미지를 사용하여 *Customer* Pod과 sidecar를 배포합니다.
+
+== 기존 이미지를 사용하여 Recommendation 마이크로서비스 V2 배포
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v2.yml[{recommendation-repo}/kubernetes/Deployment-v2.yml]) -n tutorial{namespace-suffix}
+----
+
+=== v2 배포 대기
+
+Pod의 상태가 "2/2"가 될 때까지 기다립니다. istio-proxy/envoy sidecar도 해당 Pod의 일부로 배포됩니다.
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get pods -w -n tutorial{namespace-suffix}
+----
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+NAME                                  READY     STATUS    RESTARTS   AGE
+customer-3600192384-fpljb             2/2       Running   0          17m
+preference-243057078-8c5hz           2/2       Running   0          15m
+recommendation-v1-60483540-9snd9     2/2       Running   0          12m
+recommendation-v2-2815683430-vpx4p   2/2       Running   0          15s
+----
+
+*customer* 엔드포인트를 테스트합니다.
+
+include::curl.adoc[]
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+customer => preference => recommendation v1 from 'recommendation-v1-99634814-d2z2t': 3
+----
+
+이는 v1 Pod에서 실행되고 있는 Recommendation을 참조하는 것을 나타냅니다.
+
+include::curl.adoc[]
+
+이제는 라운드 로빈 부하 분산으로 인해 v2 Pod이 선택될 수 있습니다.
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+customer => preference => recommendation v2 from 'recommendation-v2-2819441432-5v22s': 1
+----
+
+여러 요청을 보내고 응답을 확인합니다.
+
+include::generate_traffic.adoc[]
+
+Kubernetes/OpenShift의 기본 동작은 단일 서비스 뒤에 있는 모든 가용 Pod 간에 라운드 로빈 방식으로 부하를 분산합니다. recommendation-v2의 복제본을 추가합니다.
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl scale --replicas=2 deployment/recommendation-v2 -n tutorial{namespace-suffix}
+----
+
+이제 v2에 대한 요청 2개와 v1에 대한 요청 1개가 표시됩니다.
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+customer => preference => recommendation v1 from 'recommendation-v1-2819441432-qsp25': 29
+customer => preference => recommendation v2 from 'recommendation-v2-99634814-sf4cl': 37
+customer => preference => recommendation v2 from 'recommendation-v2-99634814-sf4cl': 38
+----
+
+recommendation-v2의 Deployment를 단일 복제본으로 되돌립니다.
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl scale --replicas=1 deployment/recommendation-v2 -n tutorial{namespace-suffix}
+----
+
+[#istiorouting]
+== Istio 라우팅 변경
+
+[#alltorecommendationv2]
+=== 모든 사용자를 recommendation:v2로 라우팅
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial{namespace-suffix}
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v2.yml[istiofiles/virtual-service-recommendation-v2.yml] -n tutorial{namespace-suffix}
+----
+
+include::generate_traffic.adoc[]
+
+v2만 반환되는 것을 확인할 수 있습니다.
+
+[#alltorecommendationv1]
+=== 모든 사용자를 recommendation:v1로 라우팅
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1.yml[istiofiles/virtual-service-recommendation-v1.yml] -n tutorial{namespace-suffix}
+----
+
+[#alltorecommendationv1v2]
+=== 모든 사용자를 recommendation v1 및 v2로 라우팅
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl delete -f istiofiles/virtual-service-recommendation-v1.yml -n tutorial{namespace-suffix}
+----
+
+include::generate_traffic.adoc[]
+
+[#canarydeploymentrecommendation]
+=== 카나리 배포: v1과 v2 간의 트래픽 분할
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1_and_v2.yml[istiofiles/virtual-service-recommendation-v1_and_v2.yml] -n tutorial{namespace-suffix}
+----
+
+include::generate_traffic.adoc[]
+
+복합 비율을 75/25로 변경합니다.
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1_and_v2_75_25.yml[istiofiles/virtual-service-recommendation-v1_and_v2_75_25.yml] -n tutorial{namespace-suffix}
+----
+
+정리 (Clean up)
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl delete -f istiofiles/virtual-service-recommendation-v1_and_v2_75_25.yml -n tutorial{namespace-suffix}
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial{namespace-suffix}
+----
+
+또는 다음 명령을 실행할 수 있습니다.
+
+[.console-input]
+[source, bash,subs="+macros,+attributes"]
+----
+./scripts/clean.sh tutorial{namespace-suffix}
+----

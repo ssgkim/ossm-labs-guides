@@ -1,7 +1,7 @@
-# Service Mesh Day 2 Operations
+# Module 6: Service Mesh Day 2 Operations
 
 ## Congratulations on completing the labs!
 
-You have now successfully completed the Red Hat Openshift Service Mesh labs!
+You have now successfully completed the Red Hat Openshift Service Mesh lab!
 
 

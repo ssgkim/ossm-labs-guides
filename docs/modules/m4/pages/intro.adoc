@@ -1,19 +1,18 @@
-# Securing (Authn & Authz) Gateways with MTLS and valid JWT Token
-
+# 모듈 4: MTLS 및 유효한 JWT 토큰을 사용한 게이트웨이 인증(Authn & Authz) 보안 설정
 
 [IMPORTANT]
 ====
-Before moving forward you should have fully completed *Lab Scenario-3*. If you have not done so, please do so now using if preferred the script `lab-3/complete-lab-3.sh`.
+앞서 *랩 시나리오-3*을 완전히 완료했어야 합니다. 아직 완료하지 않았다면, `lab-3/complete-lab-3.sh` 스크립트를 사용하여 지금 바로 완료하십시오.
 ====
 
-## ABOUT THIS LAB
+## 랩 소개
 
-The _Travel Agency_ company have their _Travel Demo_ applications now running in a development and production environment operating within an Openshift Service Mesh. Now there is a new business opportunity for the Travel Agency, as a new Business partner wants to integrate the Travel API services with their own Solutions. The Travel Agency company needs to establish a secure way to expose the API Services for external partners.
+_Travel Agency_ 회사는 이제 _Travel Demo_ 애플리케이션이 개발 및 운영 환경에서 OpenShift Service Mesh 내에서 실행되고 있습니다. 이제 Travel Agency는 새로운 비즈니스 기회를 맞이하게 되었으며, 새로운 비즈니스 파트너가 Travel API 서비스를 자체 솔루션과 통합하고자 합니다. Travel Agency는 외부 파트너에게 API 서비스를 안전하게 노출할 방법을 설정해야 합니다.
 
-== Requirements and constraints on integrating the new Business Partner
+== 새로운 비즈니스 파트너 통합 요구 사항 및 제약 조건
 
-1. The new partner _Global Travel Organization(GTO)_ will source travel offers via _Travel Services Domain_ APIs.
-2. The Travel Agency _Security Team_ requires all communications with the external client to be performed over `MUTUAL TLS`.
-3. The Travel Agency _Platform Team_ wishes to enable further `authentication` with a valid JWT token in order to exercise possible `authorization` policies in the future.
+1. 새로운 파트너인 _Global Travel Organization(GTO)_는 _Travel Services Domain_ API를 통해 여행 제안을 제공합니다.
+2. Travel Agency의 _보안팀_은 모든 외부 클라이언트와의 통신이 `MUTUAL TLS`를 통해 이루어져야 한다고 요구합니다.
+3. Travel Agency의 _플랫폼 팀_은 향후 `권한 부여` 정책을 적용할 수 있도록 유효한 JWT 토큰을 사용하여 추가적인 `인증`을 활성화하고자 합니다.
 
 image::04-gto.png[300,700]

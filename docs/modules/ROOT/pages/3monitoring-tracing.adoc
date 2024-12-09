@@ -1,0 +1,340 @@
+= 관찰 가능성(Observability)
+include::_attributes.adoc[]
+
+Istio는 Prometheus와 Grafana에 의해 지원되는 관찰 가능성(Observability) 기능을 포함하고 있습니다. 
+Prometheus는 Istio 및 메쉬 내에서 실행 중인 서비스로부터 메트릭을 수집하는 오픈 소스 모니터링 및 경고 도구입니다. 
+Grafana는 Prometheus가 수집한 데이터를 기반으로 대시보드와 차트를 생성할 수 있는 오픈 소스 시각화 도구입니다. 
+이 도구들을 함께 사용하면 Istio 사용자는 애플리케이션의 성능을 모니터링하고 발생할 수 있는 문제를 신속하게 파악할 수 있습니다.
+
+[#simulatetraffic]
+== 메쉬 네트워크에서 트래픽 시뮬레이션
+
+이 튜토리얼의 xref:2deploy-microservices.adoc[] 섹션에서 배포된 서비스에 트래픽이 흐르지 않으면 Grafana 및 Prometheus 대시보드를 보는 것이 흥미롭지 않을 것입니다.
+
+다음 명령어를 실행하여 서비스에 부하를 생성합니다:
+
+include::generate_traffic.adoc[]
+
+[NOTE]
+====
+`GATEWAY_URL`은 xref:2deploy-microservices.html#_validate_ingress[인그레스 검증] 섹션으로 돌아가서 다시 가져올 수 있습니다.
+====
+
+이 명령어를 실행한 상태로 Grafana, Prometheus 및 Jaeger 대시보드를 탐색하세요.
+[#monitoring]
+== Grafana를 사용한 모니터링
+
+Grafana는 인프라 및 애플리케이션을 모니터링하기 위해 대시보드를 생성, 탐색 및 공유할 수 있는 오픈 소스 도구입니다. Prometheus, Elasticsearch 및 InfluxDB를 포함한 여러 소스의 데이터를 쿼리하고 시각화할 수 있습니다. Grafana는 종종 다른 모니터링 도구와 함께 사용되어 시스템의 상태와 성능에 대한 종합적인 가시성을 제공합니다. Grafana는 Istio 설치 과정에서 자동으로 배포되었습니다.
+
+=== Grafana URL 얻기
+
+Grafana를 사용하기 위한 첫 번째 단계는 웹 기반 Grafana 대시보드에 액세스할 수 있는 URL을 가져오는 것입니다.
+
+ifndef::workshop[]
+
+[tabs, subs="attributes+,+macros"]  
+====
+OpenShift::
++
+--
+
+. OpenShift 웹 콘솔에 로그인합니다.
+. 사이드 메뉴에서 *Administrator* 관점을 선택합니다.
+. 사이드 메뉴에서 *Networking*을 확장하고 *Routes*를 선택합니다.
+. *Project* 드롭다운에서 `istio-system`이 선택되어 있는지 확인합니다. 라우트 목록에 Grafana 라우트가 표시됩니다.
++
+image:grafana-openshift-route.png[Istio 시스템 네임스페이스의 OpenShift 라우트]
+. `grafana` 목록 항목의 *Location* 열에 있는 URL을 클릭합니다. 그러면 다른 브라우저 창/탭에서 Grafana 대시보드가 열립니다.
+. OpenShift 계정을 사용하여 로그인하라는 메시지가 표시됩니다. *Log in with OpenShift* 버튼을 클릭하고 화면에 표시되는 지침을 따라 Grafana 대시보드에 액세스합니다.
++
+image:grafana-openshift-login.png[Grafana OpenShift SSO 페이지]
+
+--
+====
+endif::workshop[]
+
+ifdef::workshop[]
+다음 페이지를 브라우저에서 엽니다:
+
+`open http://grafana-istio-system.{appdomain}/dashboard/db/istio-mesh-dashboard`
+
+또는
+
+`firefox http://grafana-istio-system.{appdomain}/dashboard/db/istio-mesh-dashboard`
+endif::workshop[]
+
+=== Grafana에서 Istio 대시보드 보기
+
+Grafana에 액세스하면 Istio에 의해 미리 구성된 메트릭 대시보드를 볼 수 있습니다.
+
+. `/dashboards` 페이지로 이동합니다. 아래 이미지와 유사한 화면이 표시됩니다.
++
+image:grafana-dashboards.png[Grafana 대시보드 목록]
+. *Istio Mesh Dashboard*를 선택합니다. 메트릭 대시보드가 표시됩니다.
++
+image:grafana-istio-mesh-metrics.png[Grafana Istio Mesh 대시보드]
+
+[#prometheus]
+== Prometheus
+
+Prometheus는 클라우드 네이티브 환경에서 일반적으로 사용되는 오픈 소스 메트릭 수집기입니다. 
+이는 모니터링 대상의 HTTP 엔드포인트에서 메트릭을 노출시켜 데이터를 스크래핑하고(*pull-based* 모델), 
+수집된 데이터를 시계열 데이터베이스에 저장합니다. 
+Prometheus는 강력한 쿼리 언어와 내장형 그래프 및 경고 기능을 포함하고 있어, 
+수집된 데이터를 분석하고 시각화하는 것이 쉽고, 
+이 데이터를 기반으로 경고를 설정할 수 있습니다. 
+Prometheus는 일반적으로 Grafana와 같은 다른 도구와 함께 사용되어 
+클라우드 네이티브 애플리케이션에 대한 완벽한 모니터링 및 관찰 가능성(Observability) 솔루션을 제공합니다.
+
+image:prometheus-architecture.png[Prometheus 아키텍처]
+=== Prometheus 대시보드에 액세스하기
+
+ifndef::workshop[]
+
+[tabs, subs="attributes+,+macros"]  
+====
+OpenShift::
++
+--
+
+[NOTE]
+====
+Prometheus 대시보드 URL은 Grafana URL을 가져올 때와 동일한 단계를 사용하여 얻을 수 있습니다. 
+아래 지침은 대체 CLI 기반 접근 방식을 보여주기 위해 제공됩니다.
+====
+
+. 다음 명령어를 실행합니다:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get route prometheus -n istio-system
+----
+
+. 이전 명령의 출력에서 *HOST/PORT* 열에 표시된 URL을 복사합니다.
+. 이 URL을 웹 브라우저의 주소 표시줄에 붙여넣습니다.
+. OpenShift 계정을 사용하여 로그인하라는 메시지가 표시됩니다. *Log in with OpenShift* 버튼을 클릭하고 화면의 지침에 따라 Prometheus 대시보드에 액세스합니다.
+
+--
+====
+
+endif::workshop[]
+
+Prometheus 대시보드가 브라우저에 표시됩니다.
+
+image:prometheus-dashboard.png[Prometheus 대시보드]
+
+ifdef::workshop[]
+다음 페이지를 브라우저에서 엽니다:
+
+`open http://prometheus-istio-system.{appdomain}/graph?g0.range_input=1m&g0.stacked=1&g0.expr=&g0.tab=0`
+
+또는
+
+`firefox http://prometheus-istio-system.{appdomain}/graph?g0.range_input=1m&g0.stacked=1&g0.expr=&g0.tab=0`
+endif::workshop[]
+
+// 워크숍에서는 istio-system에 대한 액세스가 필요하기 때문에 사용자 정의 메트릭이 제거되었습니다.
+ifndef::workshop[]
+[#custommetrics]
+=== Prometheus 쿼리하기
+
+// Istio는 Prometheus 대시보드 내에서 볼 수 있는 사용자 정의 메트릭을 쿼리할 수 있도록 지원합니다.
+
+// 사용자 정의 메트릭 및 규칙 추가. 먼저 "istio-tutorial" 디렉터리에 있는지 확인합니다.
+
+// [.console-input]
+// [source,bash,subs="+macros,+attributes"]
+// ----
+// kubectl create -f link:{github-repo}/{istiofiles-dir}/recommendation_requestcount.yml[istiofiles/recommendation_requestcount.yml] -n istio-system
+// ----
+
+// 그런 다음 시스템을 통해 여러 요청을 실행합니다.
+
+// [.console-input]
+// [source,bash,subs="+macros,+attributes"]
+// ----
+// while true; do curl $GATEWAY_URL/customer; sleep .5;  done
+// ----
+
+. Prometheus 대시보드의 입력 영역에 다음 쿼리를 붙여넣습니다.
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+istio_requests_total{destination_service="recommendation.tutorial.svc.cluster.local"}
+----
+
+. *Execute* 버튼을 클릭합니다.
+. 그래프의 모드를 "line"에서 "stacked"로 변경합니다.
++
+image:prometheus-query.png[Prometheus 쿼리 결과]
+
+[NOTE]
+====
+Prometheus 그래프를 업데이트하려면 브라우저를 새로 고쳐야 할 수 있습니다. 또한, 그래프 위의 더하기/빼기 아이콘을 사용하여 간격을 5분(5m)으로 설정하는 것이 좋습니다.
+====
+
+두 개의 시리즈가 표시되는 것을 확인할 수 있습니다. 
+이것은 Preference 서비스 Pod의 Envoy 프록시 사이드카가 아웃바운드 요청을 보고하고, 
+Recommendation 서비스 Pod의 Envoy 프록시 사이드카가 인바운드 요청을 보고하기 때문입니다. 
+다음 명령을 사용하여 각 시리즈의 *app* 및 *instance* 레이블을 실행 중인 Preference 및 Recommendation Pod에 연결하여 확인할 수 있습니다.
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get pod -n tutorial -o wide
+----
+
+[NOTE]
+====
+이 튜토리얼에 표시된 Pod IP 주소는 사용 중인 환경의 IP 주소와 다를 수 있습니다.
+====
+
+예를 들어, 위의 스크린샷에는 `app=preference` 및 `instance=10.217.1.2`가 표시된 시리즈가 있습니다. 
+이는 `kubectl get pod -n tutorial -o wide` 명령의 출력에 표시된 Preference Pod와 일치합니다.
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+NAME                                 READY   STATUS    RESTARTS      AGE   IP             NODE                 NOMINATED NODE   READINESS GATES
+customer-5f5d9f8767-dmc4f            2/2     Running   0             23h   10.217.0.157   crc-5nvrm-master-0   <none>           <none>
+preference-v1-5d474ff7bd-lf9gt       2/2     Running   1 (19h ago)   19h   10.217.1.2     crc-5nvrm-master-0   <none>           <none>
+recommendation-v1-6c75fc9857-d4npl   2/2     Running   0             19h   10.217.1.25    crc-5nvrm-master-0   <none>           <none>
+----
+endif::workshop[]
+
+
+[#containermemory]
+=== 컨테이너 메모리 사용량 쿼리
+
+Istio는 Envoy 컨테이너의 메모리 사용량을 Prometheus에 노출합니다.
+
+Prometheus 대시보드에서 다음 쿼리를 실행합니다.
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+istio_agent_process_resident_memory_bytes{kubernetes_namespace="tutorial",app=~"customer|preference|recommendation"}
+----
+
+그래프를 스택 모드로 전환합니다. 
+Envoy 사이드카 프로세스의 RSS 메모리 사용량이 표시됩니다.
+
+image:prometheus-memory.png[Prometheus 메모리 사용량]
+
+[#tracing]
+== Jaeger를 사용한 트레이싱(Tracing)
+
+분산 트레이싱(Distributed Tracing)은 추적 컨텍스트를 서비스에서 서비스로 전파하는 것을 의미하며, 
+일반적으로 특정 수신 HTTP 헤더를 하위 요청의 아웃바운드 요청으로 전송하여 수행됩니다. 
+http://opentracing.io/[OpenTracing] 프레임워크 계측(Instrumentation) 라이브러리(예: 
+https://github.com/opentracing-contrib/java-spring-cloud[opentracing-spring-cloud])가 
+포함된 서비스의 경우 이 과정이 자동으로 수행될 수 있습니다. 
+OpenTracing 라이브러리가 포함되지 않은 서비스의 경우, 이 컨텍스트 전파는 수동으로 수행해야 합니다.
+
+OpenTracing은 단순한 계측 라이브러리이므로, 실제로 트레이싱 데이터를 캡처하고 원격 서버에 보고하기 위해서는 
+구체적인 트레이서를 사용해야 합니다. 
+`customer` 및 `preference` 서비스는 구체적인 트레이서로 http://jaegertracing.io/[Jaeger]를 사용합니다. 
+Istio 플랫폼은 수집된 트레이싱 데이터를 Jaeger로 자동으로 전송하므로, 
+`recommendation` 서비스가 OpenTracing이나 Jaeger에 대해 인지하지 못하더라도 
+세 가지 서비스가 모두 포함된 트레이스를 볼 수 있습니다.
+
+`customer` 및 `preference` 서비스는 OpenTracing의 
+https://github.com/jaegertracing/jaeger-client-java/tree/master/jaeger-tracerresolver[`TracerResolver`] 
+기능을 사용하여 구체적인 트레이서를 자동으로 로드합니다. 
+이를 통해 코드에서 Jaeger에 대한 강력한 종속성을 피할 수 있습니다. 
+또한 Jaeger 트레이서는 환경 변수를 통해 구성할 수 있으므로, 
+적절히 구성된 Jaeger 트레이서를 준비하고 OpenTracing에 등록하기 위해 별도의 작업이 필요하지 않습니다. 
+단, 특정 상황에서는 트레이서를 수동으로 구성하는 것이 적절할 수 있습니다. 
+트레이서를 수동으로 구성하는 방법에 대한 자세한 내용은 Jaeger 문서를 참조하세요.
+
+Jaeger 콘솔을 열고 서비스 목록에서 `customer`를 선택한 다음, 
+`Find Traces` 버튼을 클릭하여 트레이스를 확인합니다.
+
+=== Jaeger 대시보드에 액세스하기
+
+
+ifndef::workshop[]
+
+[tabs, subs="attributes+,+macros"]	
+====
+OpenShift::
++
+--
+. OpenShift 웹 콘솔에 로그인합니다.
+. 사이드 메뉴에서 *Administrator* 관점을 선택합니다.
+. 사이드 메뉴에서 *Networking*을 확장하고 *Routes*를 선택합니다.
+. *Project* 드롭다운에서 `istio-system`이 선택되어 있는지 확인합니다. 라우트 목록에 Jaeger 라우트가 표시됩니다.
+. `jaeger` 목록 항목의 *Location* 열에 있는 URL을 클릭합니다. 그러면 다른 브라우저 창/탭에서 Jaeger 대시보드가 열립니다.
+. OpenShift 계정을 사용하여 로그인하라는 메시지가 표시됩니다. *Log in with OpenShift* 버튼을 클릭하고 화면에 표시되는 지침을 따라 Jaeger 대시보드에 액세스합니다.
+
+--
+====
+
+endif::workshop[]
+
+ifdef::workshop[]
+[source,bash,subs="+macros,+attributes"]
+----
+`open https://jaeger-query-istio-system.{appdomain}/`
+
+또는
+
+`firefox https://jaeger-query-istio-system.{appdomain}/`
+----
+endif::workshop[]
+
+Jaeger 대시보드는 다음 스크린샷과 유사하게 보일 것입니다.
+
+image:jaegerUI.png[Jaeger에 표시된 트레이스]
+
+=== 트레이스 보기
+
+[NOTE]
+====
+Jaeger의 트레이스는 Istio 메쉬 네트워크의 트래픽을 기반으로 합니다. 계속 진행하기 전에 xref:3monitoring-tracing.adoc[메쉬 네트워크에서 트래픽 시뮬레이션] 섹션의 지침을 반드시 따르세요.
+====
+
+트레이스를 보려면 검색을 수행합니다.
+
+. Jaeger 대시보드의 헤더에서 *Search* 화면을 선택합니다.
+. *Search* 패널의 *Service* 드롭다운에서 `istio-ingressgateway.istio-system`을 선택합니다.
+. 나머지 입력 값을 기본값으로 두고 *Find Traces* 버튼을 클릭합니다.
+
+HTTP 요청에 해당하는 트레이스의 플롯이 표시되며, 플롯에서 해당 항목의 목록도 함께 표시됩니다.
+
+image:jaeger-search.png[Jaeger 검색 결과]
+
+=== 세부 트레이스 정보 보기
+
+더 많은 트레이스 세부 정보를 보려면 다음 단계를 따르세요.
+
+. 트레이스 목록에서 첫 번째 항목을 클릭합니다. 그러면 트레이스의 더 자세한 뷰가 표시됩니다.
+. 오른쪽 상단의 드롭다운에서 `Trace Timeline` 보기를 선택합니다.
+. 다음 트레이스 세그먼트를 클릭하여 확장합니다.
+  * `istio-ingressgateway.istio-system`
+  * `customer.tutorial`
+  * `customer`
+
+이 세그먼트는 애플리케이션 아키텍처의 메쉬와 마이크로서비스를 통해 요청이 흐르는 각 단계를 나타냅니다.
+
+image:jaeger-trace-details.png[Jaeger 트레이스 세부 정보]
+
+첫 번째 세그먼트는 `istio-system` 네임스페이스의 `istio-ingressgateway`를 통해 요청이 메쉬로 들어왔을 때를 나타냅니다. 
+그 후 요청은 `tutorial` 네임스페이스의 `customer` 서비스로 라우팅됩니다. 
+이 두 세그먼트에 나열된 IP 주소를 각 네임스페이스의 실행 중인 Pod와 연관시킬 수 있습니다. 
+세 번째 세그먼트는 고객 Java 애플리케이션의 `getCustomer` 메서드에서 요청이 처리되는 과정을 나타냅니다.
+
+=== 요청 처리 시간 분석
+
+요청 처리에 지연이 발생한 경우, *Trace Flamegraph*를 사용하여 근본 원인 분석(Root Cause Analysis) 중에 더 면밀히 조사해야 할 후보를 식별할 수 있습니다.
+
+. 오른쪽 상단에서 `Trace Flamegraph`를 선택합니다.
+. 뷰 토글을 *Table* 모드로 설정합니다.
+
+image:jaeger-flamegraph.png[Jaeger Flamegraph]
+
+세그먼트는 기본적으로 자체 처리 시간이 가장 긴 순서대로 정렬됩니다. 
+위 스크린샷에 표시된 트레이스의 경우, Recommendation 서비스에서 약간의 네트워크 지연이 있었던 것으로 보입니다. 
+대부분의 네트워크 트래픽 세그먼트는 57ms에서 74ms 사이의 지속 시간을 보이지만, Recommendation 세그먼트의 지속 시간은 1.63ms로 짧게 나타납니다.

@@ -1,4 +1,4 @@
-# Service Mesh Day 2 Operations
+# Module 6: Service Mesh Day 2 Operations
 
 
 ## ABOUT THIS LAB

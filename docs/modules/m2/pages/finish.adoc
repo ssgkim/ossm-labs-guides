@@ -1,6 +1,6 @@
-# Service Mesh Development Environment & Observability Stack
+# 모듈 2: Service Mesh 개발 환경 및 모니터링 스택
 
-## Congratulations on completing this module!
+## 이 모듈을 완료한 것을 축하합니다!
 
-Congratulations! You have completed Scenario 2.
-Now that you have verified the Development environment with the different users and roles, you will proceed to install the production environment.
+축하합니다! 모듈 2를 완료하셨습니다.  
+이제 다양한 사용자와 역할을 사용하여 개발 환경을 확인했으므로, 운영 환경을 설치하는 단계로 진행하겠습니다.

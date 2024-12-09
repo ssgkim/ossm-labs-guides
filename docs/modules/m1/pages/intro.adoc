@@ -1,6 +1,5 @@
-# Designing Service Mesh Perimeter and Operating Model
+# 모듈 1: Service Mesh 영역 설계 및 운영 모델
 
-## ABOUT THIS LAB
+## 랩 소개
 
-In this first lab scenario we will understand how requirements affect considerations for the introduction of a Service Mesh as well as the involved personas and their responsibilities from the fictive Travel Agency company.
-
+이 첫 번째 랩 시나리오에서는 Service Mesh 도입과 관련된 요구 사항이 고려 사항에 어떤 영향을 미치는지, 그리고 가상의 여행사(Travel Agency) 회사에서 참여하는 페르소나들과 그들의 책임에 대해 알아봅니다.

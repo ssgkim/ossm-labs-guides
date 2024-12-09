@@ -1,7 +1,5 @@
-# Securing (Authn & Authz) Gateways with MTLS and valid JWT Token
+# 모듈 4: MTLS 및 유효한 JWT 토큰을 사용한 게이트웨이 인증(Authn & Authz) 보안 설정
 
-## Congratulations on completing this module!
+## 이 모듈을 완료한 것을 축하합니다!
 
-You have setup Authn and Authz in the production environment. You are on a roll!
-
-
+운영 환경에서 인증(Authn) 및 권한 부여(Authz)를 설정하셨습니다. 순조롭게 진행되고 있습니다!

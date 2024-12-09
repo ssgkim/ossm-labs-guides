@@ -1,7 +1,9 @@
 name: ossm-labs-guides
 title: Lab Guides
-version: main
+version: master
+
 nav:
+  - modules/ROOT/nav.adoc
   - modules/intro/nav.adoc
   - modules/m1/nav.adoc
   - modules/m2/nav.adoc
@@ -9,4 +11,22 @@ nav:
   - modules/m4/nav.adoc
   - modules/m5/nav.adoc
   - modules/m6/nav.adoc
-start_page: intro:intro.adoc
+  - modules/advanced/nav.adoc
+
+start_page: ROOT/1setup.adoc
+
+asciidoc:
+  attributes:
+    lab_name: "Heading to production with OpenShift Service Mesh"
+    release-version: master
+    page-pagination: true
+    my_var: "foo"
+    guid: my-guid
+    ssh_user: devops
+    ssh_password: devops
+    ssh_command: ssh devops@bastion.{guid}.example.opentlc.com
+
+    openshift_cluster_ingress_domain: apps.openshift.com
+    openshift_api_server_url: https://openshift-api:6443
+    openshift_cluster_user_name: user1
+    openshift_cluster_console_url: https://openshift-console.com

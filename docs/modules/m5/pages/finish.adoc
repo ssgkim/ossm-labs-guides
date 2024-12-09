@@ -1,4 +1,4 @@
-# Securing (Authn & Authz) Gateways with MTLS and valid JWT Token
+# Module 5: Securing (Authn & Authz) Gateways with MTLS and valid JWT Token
 
 ## Congratulations on completing this module!
 

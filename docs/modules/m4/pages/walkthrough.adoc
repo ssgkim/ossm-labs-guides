@@ -1,105 +1,103 @@
-# Securing (Authn & Authz) Gateways with MTLS and valid JWT Token
+# 모듈 4: MTLS 및 유효한 JWT 토큰을 사용한 게이트웨이 인증(Authn & Authz) 보안 설정
 
-== Task 1: Export Environment variables
+== 작업 1: 환경 변수 내보내기
 
-[IMPORTANT]
+[IMPORTANT,subs=attributes]
 ====
-As this is a multi-tenant cluster you should restrict use for this lab to the following namespaces associated with your user *`%LAB_PARTICIPANT_ID%-prod-istio-system`*, *`%LAB_PARTICIPANT_ID%-prod-travel-control`*, *`%LAB_PARTICIPANT_ID%-prod-travel-portal`*, *`%LAB_PARTICIPANT_ID%-prod-travel-agency`*
+이 랩은 다중 테넌트 클러스터에서 진행되므로, 다음 네임스페이스로 사용을 제한해야 합니다: *`{openshift_cluster_user_name}-prod-istio-system`*, *`{openshift_cluster_user_name}-prod-travel-control`*, *`{openshift_cluster_user_name}-prod-travel-portal`*, *`{openshift_cluster_user_name}-prod-travel-agency`*
 
-Export the following in a terminal in your link:https://codeserver-codeserver-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%[code-server environment].
+다음 변수를 터미널에서 내보낸 후 작업을 진행하세요.
 
-* export CLUSTER_API=%API_URL%
-* export LAB_PARTICIPANT_ID=%LAB_PARTICIPANT_ID%
-* export OCP_DOMAIN=%OCP_DOMAIN%
-* export SSO_CLIENT_SECRET=bcd06d5bdd1dbaaf81853d10a66aeb989a38dd51
+[source,shell,subs=attributes,role=execute]
+----
+export CLUSTER_API={openshift_api_server_url}
+export LAB_PARTICIPANT_ID={openshift_cluster_user_name}
+export OCP_DOMAIN={openshift_cluster_ingress_domain}
+export SSO_CLIENT_SECRET=bcd06d5bdd1dbaaf81853d10a66aeb989a38dd51
+----
 ====
 
 [NOTE]
 ====
-If you are running out of time and wish to complete the following lab sections in a single step execute
+시간이 부족하여 다음 랩 섹션을 한 번에 완료하려면 아래 명령을 실행하세요:
+
+[source,shell,subs=attributes,role=execute]
 ----
-cd lab-4
-./complete-lab-4.sh $SSO_CLIENT_SECRET %OCP_DOMAIN% %LAB_PARTICIPANT_ID%
+cd ~/ossm-labs/lab-4
+./complete-lab-4.sh $SSO_CLIENT_SECRET {openshift_cluster_ingress_domain} {openshift_cluster_user_name}
 ----
 ====
+== 작업 2: mTLS를 통한 외부 API 통합
 
-== Task 2: External API integration with mTLS
+이 작업에서는 다음을 생성합니다:
 
-In this task you are going to create:
+* Travel Agency API 서비스용 추가 인그레스 게이트웨이
+* 트래픽이 _gto_ 게이트웨이를 통해 흐르도록 설정된 Istio `VirtualService` 구성
+* `curl` GTO 클라이언트가 _gto_ 게이트웨이와 mTLS로 연결할 수 있도록 하는 인증서
+* mTLS 연결 확인
 
-* An additional ingress gateway for the Travel Agency API Services
-* An Istio `VirtualService` configuration for traffic to flow via the _gto_ gateway
-* Certificates for our `curl` GTO client to connect with MTLS to the _gto_ gateway
-* Verify the MTLS connection
+=== 1단계 - 새로운 게이트웨이 주입
 
-=== Step 1 - Create additionalIngress Gateway in SMCP
+[NOTE]
+====
+OpenShift Service Mesh 3 버전부터는 인그레스 및 이그레스 게이트웨이 생성 및 관리가 `ServiceMeshControlPlane`에서 분리되어 업스트림 Istio와 일치합니다.
+====
 
-Login as Mesh Operator (credentials `emma/emma`) and modify the SMCP resource. You can also do this from within the Openshift Console.
+적절한 CR 권한을 가진 팀은 link:https://docs.openshift.com/container-platform/4.15/service_mesh/v2x/ossm-traffic-manage.html#ossm-automatic-gateway-injection_traffic-management[자체 게이트웨이를 주입하고, 메쉬의 엣지에서 보안 및 프로토콜을 관리할 수 있습니다,window=_blank].
 
-[source, shell]
+Travel Services 도메인 소유자(Tech Lead)로서, `{openshift_cluster_user_name}-prod-travel-agency` 네임스페이스에서 서비스를 노출하기 위해 새로운 게이트웨이를 생성할 권한이 부여되었습니다.  
+자격 증명 `farid/farid` 로 로그인하고 Travel Services 네임스페이스에 새로운 `gto` 게이트웨이를 주입하세요.
+
+
+[source,shell,subs=attributes,role=execute]
 ----
-cd lab-4
-./login-as.sh emma
-oc edit smcp/%LAB_PARTICIPANT_ID%-production -n %LAB_PARTICIPANT_ID%-prod-istio-system
-----
-
-Navigate to the `gateways` section and add an additional gateway as follows:
-
-----
-  gateways:
-    additionalIngress:
-      gto-%LAB_PARTICIPANT_ID%-ingressgateway:
-        enabled: true
-        runtime:
-          deployment:
-            autoScaling:
-              enabled: false
-        service:
-          metadata:
-            labels:
-              app: gto-%LAB_PARTICIPANT_ID%-ingressgateway
-          selector:
-            app: gto-%LAB_PARTICIPANT_ID%-ingressgateway
+cd ~/ossm-labs/lab-4
+./login-as.sh farid
+./inject-gto-ingress-gateway.sh prod-travel-agency {openshift_cluster_ingress_domain} {openshift_cluster_user_name}
 ----
 
-You can verify the creation of the additional gateway either in the OCP Console or with the CLI:
+NOTE: You can inspect the configs in detail at link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/main/lab-4/inject-gto-ingress-gateway.sh[inject-gto-ingress-gateway.sh,window=_blank] script.
 
-[source, shell]
+
+Verify the creation of the additional gateway pods (2) either in the OCP Console or with the CLI:
+
+[source,shell,subs=attributes,role=execute]
 ----
-$ oc get pods -n %LAB_PARTICIPANT_ID%-prod-istio-system |grep gto
-gto-%LAB_PARTICIPANT_ID%-ingressgateway-5c87989fb7-r9grv
-
-$ oc get routes -n %LAB_PARTICIPANT_ID%-prod-istio-system |grep "ingress"
-gto-%LAB_PARTICIPANT_ID%-ingressgateway   gto-%LAB_PARTICIPANT_ID%-ingressgateway-%LAB_PARTICIPANT_ID%-prod-istio-system.apps.cluster-xvsnq.sandbox2004.opentlc.com          gto-%LAB_PARTICIPANT_ID%-ingressgateway        8080                               None
+oc get pods -n {openshift_cluster_user_name}-prod-travel-agency | grep gto
 ----
 
 === Step 2 - Expose and secure via MTLS host on new Gateway
 
-In the next step you will expose the new `Gateway` and in order to do this the script provided will:
+In the next step you will expose the new `Gateway` and in order to do this the script provided will create:
 
-* create the CA and certs for the exposure of the TLS based `Gateway`,
-* an Openshift passthrough route,
-* the Istio `Gateway` configuration
-* create the client certificates based on the same CA for the curl client (in order to test MTLS):
+* The CA and certs for the exposure of the TLS based `Gateway`
+* An Openshift passthrough route
+* The Istio `Gateway` configuration
+* The client certificates based on the same CA for the curl client (in order to test MTLS)
 
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
-./create-external-mtls-https-ingress-gateway.sh prod-istio-system %OCP_DOMAIN% %LAB_PARTICIPANT_ID%
+./create-external-mtls-https-ingress-gateway.sh prod-travel-agency {openshift_cluster_ingress_domain} {openshift_cluster_user_name}
 ----
 
 You can check the created certs by looking in your current directory:
 
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
 ls -ltr
+----
 
+The result should look like this:
+
+[source,shell,subs=attributes]
+----
 -rw-r--r--@ 1 oschneid  staff  3272 Dec 19 11:04 ca-root.key
 -rw-r--r--@ 1 oschneid  staff  1944 Dec 19 11:04 ca-root.crt
--rw-r--r--@ 1 oschneid  staff   523 Dec 19 11:04 gto-%LAB_PARTICIPANT_ID%.conf
--rw-r--r--@ 1 oschneid  staff  1704 Dec 19 11:04 gto-%LAB_PARTICIPANT_ID%-app.key
--rw-r--r--@ 1 oschneid  staff  1045 Dec 19 11:04 gto-%LAB_PARTICIPANT_ID%-app.csr
+-rw-r--r--@ 1 oschneid  staff   523 Dec 19 11:04 gto-{openshift_cluster_user_name}.conf
+-rw-r--r--@ 1 oschneid  staff  1704 Dec 19 11:04 gto-{openshift_cluster_user_name}-app.key
+-rw-r--r--@ 1 oschneid  staff  1045 Dec 19 11:04 gto-{openshift_cluster_user_name}-app.csr
 -rw-r--r--@ 1 oschneid  staff    17 Dec 19 11:04 ca-root.srl
--rw-r--r--@ 1 oschneid  staff  1614 Dec 19 11:04 gto-%LAB_PARTICIPANT_ID%-app.crt
+-rw-r--r--@ 1 oschneid  staff  1614 Dec 19 11:04 gto-{openshift_cluster_user_name}-app.crt
 -rw-r--r--@ 1 oschneid  staff  1704 Dec 19 11:04 curl-client.key
 -rw-r--r--@ 1 oschneid  staff   940 Dec 19 11:04 curl-client.csr
 -rw-r--r--@ 1 oschneid  staff  1497 Dec 19 11:04 curl-client.crt
@@ -107,34 +105,37 @@ ls -ltr
 
 To verify what has been applied you can navigate in Kiali to `Istio Config` and check the `travel-api-gateway` `Gateway` resource. The resource will now:
 
-* Expose host `gto-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%` over https
+* Expose host `gto-{openshift_cluster_user_name}.{openshift_cluster_ingress_domain}` over https
 * TLS mode for this host will be `MUTUAL`
-* Certificates will be used from `Secret` resource `gto-%LAB_PARTICIPANT_ID%-secret`
+* Certificates will be used from `Secret` resource `gto-{openshift_cluster_user_name}-secret`
 
+[link=_images/04-Kiali-Gateway.png,window=_blank]
 image::04-Kiali-Gateway.png[300,700]
 
-NOTE: The configs came from link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/main/lab-4/create-external-mtls-https-ingress-gateway.sh[create-external-mtls-https-ingress-gateway.sh] script which you can inspect for details.
+NOTE: The configs came from link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/main/lab-4/create-external-mtls-https-ingress-gateway.sh[create-external-mtls-https-ingress-gateway.sh,window=_blank] script which you can inspect for details.
 
 
 === Step 3 - Configuration to allow Traffic flow via new Gateway
 
-As the Travel Services Domain Owner (Tech Lead) you can now enable Istio routing to your services via the new gateway (previously only possible via `%LAB_PARTICIPANT_ID%-prod-travel-portal` namespace). Login with credentials `farid/farid` and deploy the Istio Configs in your `%LAB_PARTICIPANT_ID%-prod-travel-agency` namespace to allow requests via the above defined Gateway to reach the required services cars, insurances, flights, hotels and travels.
+As the Travel Services Domain Owner (Tech Lead) you can now enable Istio routing to your services via the new gateway (previously only possible via `{openshift_cluster_user_name}-prod-travel-portal` namespace). Login with credentials `farid/farid` and deploy the Istio Configs in your `{openshift_cluster_user_name}-prod-travel-agency` namespace to allow requests via the above defined Gateway to reach the required services: cars, insurances, flights, hotels and travels.
 
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
 ./login-as.sh farid
-./deploy-external-travel-api-mtls-vs.sh %LAB_PARTICIPANT_ID%-prod %LAB_PARTICIPANT_ID%-prod-istio-system %LAB_PARTICIPANT_ID%
+./deploy-external-travel-api-mtls-vs.sh {openshift_cluster_user_name}-prod {openshift_cluster_user_name}-prod-travel-agency {openshift_cluster_user_name}
 ----
 
 The script will also run some example requests and if MTLS handshake works you should see something similar to this:
 
+[link=_images/04-MTLS-reqs.png,window=_blank]
 image::04-MTLS-reqs.png[300,700]
 
 You can now go to the Kiali Dashboard (Graph section) and observe the traffic entering the Mesh through the MTLS enabled Gateway.
 
+[link=_images/04-gto-external-ingressgateway.png,window=_blank]
 image::04-gto-external-ingressgateway.png[300,700]
 
-NOTE: The configs came from link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/main/lab-4/deploy-external-travel-api-mtls-vs.sh[deploy-external-travel-api-mtls-vs.sh] script which you can inspect for details.
+NOTE: The configs came from link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/main/lab-4/deploy-external-travel-api-mtls-vs.sh[deploy-external-travel-api-mtls-vs.sh,window=_blank] script which you can inspect for details.
 
 
 == Task 3: Configure Authn and Authz with JWT Tokens
@@ -144,7 +145,7 @@ The Travel Agency has exposed their API services with MTLS through an additional
 
 [IMPORTANT]
 ====
-The Lab Instructors have created an RH-SSO Identity Provider, a `Realm` for Service Mesh and have also created a client configuration (`istio-%LAB_PARTICIPANT_ID%-production`) for your `%LAB_PARTICIPANT_ID%-production` Service Mesh control plane. You will now use this setup.
+The Lab Instructors have created an RH-SSO Identity Provider, a `Realm` for Service Mesh and have also created a client configuration (`istio-{openshift_cluster_user_name}-production`) for your `{openshift_cluster_user_name}-production` Service Mesh control plane. You will now use this setup.
 
 ====
 
@@ -153,9 +154,9 @@ The Lab Instructors have created an RH-SSO Identity Provider, a `Realm` for Serv
 The intended final authentication workflow (in addition to the mTLS handshake) for external requests with a `JWT` token is as follows:
 
 1. The external user authenticates to RHSSO and gets a JWT token
-2. The user performs a HTTP request to `link:https://gto-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%/travels/Brussels[/travels]` (or one of `cars`, `hotels`, `insurances`, `flights`) and passes along this request the JWT token
+2. The user performs a HTTP request to `link:https://gto-{openshift_cluster_user_name}.{openshift_cluster_ingress_domain}/travels/Brussels[/travels,window=blank]` (or `cars`, `hotels`, `insurances`, `flights`) and passes along this request the JWT token
 3. The `istio-proxy` container of the Istio Ingress Gateway checks the validity of the JWT token based on the `RequestAuthentication` and `AuthorizationPolicy` objects
-4. If the JWT token is valid and the `AuthorizationPolicy` matches, the external user is allowed to access the `/PATH` - otherwise, an error message is returned to the user (code `403`, message `RBAC: access denied` or others).
+4. If the JWT token is valid and the `AuthorizationPolicy` matches, the external user is allowed to access the `/PATH` - otherwise, an error message is returned to the user: code `403`, message `RBAC: access denied`.
 
 * Pros:
 ** This is the simplest approach (only 2 Custom Resources to be deployed)
@@ -168,55 +169,54 @@ The intended final authentication workflow (in addition to the mTLS handshake) f
 
 As the communications between RHSSO and `istiod` are secured with a router certificate the `Mesh Operator` has to perform a one-time operation first to load the certificate to `istiod`. This is performed by the following script:
 
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
 ./login-as.sh emma
-./mount-rhsso-cert-to-istiod.sh %LAB_PARTICIPANT_ID%-prod-istio-system %LAB_PARTICIPANT_ID%-production %OCP_DOMAIN%
+./mount-rhsso-cert-to-istiod.sh {openshift_cluster_user_name}-prod-istio-system {openshift_cluster_user_name}-production {openshift_cluster_ingress_domain}
 ----
 
-The `RequestAuthentication` enables JWT validation on the Istio ingress gateway so that the validated JWT claims can later be used (i.e. in a `VirtualService`) for routing purposes. The request authentication is applied on the ingress gateway because the JWT claim based routing is *only* supported on ingress gateways.
-
-As the current Travel Agency decision is to have a producer/consumer model for their Service Mesh these changes are performed as Mesh Operator (`emma/emma`) in the controlplane namespace based gateway `gto-%LAB_PARTICIPANT_ID%-ingressgateway`.
-
+The `RequestAuthentication` enables JWT validation on the Istio ingress gateway so that the validated JWT claims can later be used (i.e. in a `VirtualService`) for routing purposes. 
 
 [NOTE]
 ====
 The `RequestAuthentication` will only check the JWT if it exists in the request. To make the JWT required and reject the request if it does not include JWT, apply an authorization policy.
 ====
 
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
-./login-as.sh emma
+./login-as.sh farid
 
 echo "apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
 metadata:
  name: jwt-rhsso-gto-external
- namespace: %LAB_PARTICIPANT_ID%-prod-istio-system
+ namespace: {openshift_cluster_user_name}-prod-travel-agency
 spec:
  selector:
    matchLabels:
-     app: gto-%LAB_PARTICIPANT_ID%-ingressgateway
+     app: gto-{openshift_cluster_user_name}-ingressgateway
  jwtRules:
    - issuer: >-
-       https://keycloak-rhsso.%OCP_DOMAIN%/auth/realms/servicemesh-lab
+       https://keycloak-rhsso.{openshift_cluster_ingress_domain}/auth/realms/servicemesh-lab
      jwksUri: >-
-       https://keycloak-rhsso.%OCP_DOMAIN%/auth/realms/servicemesh-lab/protocol/openid-connect/certs" | oc apply -f -
+       https://keycloak-rhsso.{openshift_cluster_ingress_domain}/auth/realms/servicemesh-lab/protocol/openid-connect/certs" | oc apply -f -
 ----
 
 Next add an `AuthorizationPolicy` Resource which specifies to only allow requests from a user when the token was issued by the specified RH-SSO.
 
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
+./login-as.sh farid
+
 echo "apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: authpolicy-gto-external
-  namespace: %LAB_PARTICIPANT_ID%-prod-istio-system
+  namespace: {openshift_cluster_user_name}-prod-travel-agency
 spec:
   selector:
     matchLabels:
-      app: gto-%LAB_PARTICIPANT_ID%-ingressgateway
+      app: gto-{openshift_cluster_user_name}-ingressgateway
   action: ALLOW
   rules:
   - from:
@@ -224,18 +224,18 @@ spec:
         requestPrincipals: ['*']
     when:
     - key: request.auth.claims[iss]
-      values: ['https://keycloak-rhsso.%OCP_DOMAIN%/auth/realms/servicemesh-lab'] " | oc apply -f -
+      values: ['https://keycloak-rhsso.{openshift_cluster_ingress_domain}/auth/realms/servicemesh-lab'] " | oc apply -f -
 ----
 
 == Task 4: Test Authn / Authz with JWT
 
 * You are ready to test if the external access is secured by sending a request to the _/cars_ and _/travels_ APIs without a JWT Token. The following should now result in a `HTTP 403` Response (RBAC / Access Denied):
 +
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
-./login-as.sh emma
+./login-as.sh farid
 
-export GATEWAY_URL=$(oc -n %LAB_PARTICIPANT_ID%-prod-istio-system get route gto-%LAB_PARTICIPANT_ID% -o jsonpath='{.spec.host}')
+export GATEWAY_URL=$(oc -n {openshift_cluster_user_name}-prod-travel-agency get route gto-{openshift_cluster_user_name} -o jsonpath='{.spec.host}')
 echo $GATEWAY_URL
 echo "------------------------------------------------------------"
 curl -v --cacert ca-root.crt --key curl-client.key --cert curl-client.crt https://$GATEWAY_URL/cars/Tallinn
@@ -247,21 +247,22 @@ echo
 
 * Next, Authenticate against the RH-SSO instance and retrieve a JWT Access Token:
 +
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
-TOKEN=$(curl -Lk --data "username=gtouser&password=gtouser&grant_type=password&client_id=istio-%LAB_PARTICIPANT_ID%&client_secret=$SSO_CLIENT_SECRET" https://keycloak-rhsso.%OCP_DOMAIN%/auth/realms/servicemesh-lab/protocol/openid-connect/token | jq .access_token)
+TOKEN=$(curl -Lk --data "username=gtouser&password=gtouser&grant_type=password&client_id=istio-{openshift_cluster_user_name}&client_secret=$SSO_CLIENT_SECRET" https://keycloak-rhsso.{openshift_cluster_ingress_domain}/auth/realms/servicemesh-lab/protocol/openid-connect/token | jq .access_token)
 
 echo $TOKEN
 ----
 
 * Now you can start sending requests with the JWT Token to the additional Ingress Gateway by using MTLS:
 +
-[source, shell]
+[source,shell,subs=attributes,role=execute]
 ----
-./call-via-mtls-and-jwt-travel-agency-api.sh %LAB_PARTICIPANT_ID%-prod-istio-system gto-%LAB_PARTICIPANT_ID% $TOKEN
+./call-via-mtls-and-jwt-travel-agency-api.sh {openshift_cluster_user_name}-prod-travel-agency gto-{openshift_cluster_user_name} $TOKEN
 ----
 
-Login to Kiali, go to menu `Graph`, select only namespace `%LAB_PARTICIPANT_ID%-prod-istio-system` and verify the traffic is successfully entering the mesh.
+Login to Kiali, go to menu `Graph`, select only namespace `{openshift_cluster_user_name}-prod-istio-system` and verify the traffic is successfully entering the mesh via the `gto` gateway.
 
-image::04-gto-external-ingressgateway-jtw.png[300,700]
+[link=_images/04-gto-external-ingressgateway-jwt-2.png,window=_blank]
+image::04-gto-external-ingressgateway-jwt-2.png[300,700]
 

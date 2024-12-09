@@ -1,28 +1,28 @@
-# Service Mesh Development Environment & Observability Stack
+# 모듈 2: Service Mesh 개발 환경 및 모니터링 스택
 
-## ABOUT THIS LAB
+## 랩 소개
 
-The _Travel Agency_ company has decided to setup a development as well as a production environment for the Travel Demo application.
+_Travel Agency_ 회사는 Travel Demo 애플리케이션을 위한 개발 환경과 운영 환경을 설정하기로 결정했습니다.
 
-In this lab scenario you will look at the development environment in two parts:
+이 랩 시나리오에서는 *개발 환경*을 두 부분으로 나누어 살펴봅니다:
 
-1. _The first_ part of the scenario (already pre-delivered) is setting up the development environment, creating the users, roles and rolebindings as well as installing the Service Mesh in the DEV environment.
-2. _The second part_ of the scenario is about verifying that everything has been correctly installed, familiarize with the Service Mesh observability stack and ensure all roles/permissions are working as expected.
+1. _첫 번째_ 시나리오에서는 (미리 준비된) 개발 환경 설정, 사용자, 역할 및 역할 바인딩 생성, 그리고 개발 환경에서의 Service Mesh 설치를 다룹니다.
+2. _두 번째_ 시나리오에서는 모든 구성이 올바르게 설치되었는지 확인하고, Service Mesh 모니터링 스택을 익히며, 모든 역할 및 권한이 예상대로 작동하는지 확인합니다.
 
-== Development User credentials
+== 개발 환경 사용자 자격 증명
 [cols="3,3,4"]
-.Users credentials
+.사용자 자격 증명
 |===
-|username |password |Enterprise Persona
+|사용자 이름 |비밀번호 |엔터프라이즈 페르소나
 
 | emma | emma | Mesh Operator
 
-| cristina | cristina | Travel Portal Domain Owner (Tech Lead)
+| cristina | cristina | Travel Portal 도메인 소유자 (Tech Lead)
 
-| farid | farid | Travel Services Domain Owner (Tech Lead)
+| farid | farid | Travel Services 도메인 소유자 (Tech Lead)
 
-| john | john | Developer (TP)
+| john | john | 개발자 (TP)
 
-| mia | mia | Developer (TS)
+| mia | mia | 개발자 (TS)
 
-| mus | mus | Product Owner
+| mus | mus | 제품 소유자

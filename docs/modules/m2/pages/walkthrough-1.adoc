@@ -1,37 +1,48 @@
-# Service Mesh Development Environment
+# 모듈 2: Service Mesh 개발 환경
 
-== Part I: Installing the Development environment
+== 파트 I: 개발 환경 설치
 
 [IMPORTANT]
 ====
-*You do not have to execute anything in this part of the lab* as lab instructors have *pre-setup all the required assets for the Travel Agency development environment*, including users, roles, namespaces, apps, service mesh etc. You will create the PROD environment step-by-step in the next scenario. You can inspect at the end of the lab the installation of the development environment by exploring the `ArgoCD` resources used to link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/tree/helm/helm/ossm/templates/dev[Install & Setup the Development Environment]
+*이 랩의 이 부분에서는 아무 것도 실행할 필요가 없습니다.*  
+랩 강사가 Travel Agency 개발 환경에 필요한 사용자, 역할, 네임스페이스, 애플리케이션, 서비스 메쉬 등을 *미리 설정*해 두었습니다.  
+다음 시나리오에서는 운영(PROD) 환경을 단계별로 직접 생성하게 됩니다.  
 
-Reading the following is totally optional (you are urged to move to _Part II_ as soon as possible) as we only briefly describe the steps the xref:m1:walkthrough.adoc#_travel_agency_personas_roles[Travel Agency Personas] would have had to follow in order to deliver such a development environment:
+랩 끝부분에서는 `ArgoCD` 리소스를 탐색하여 개발 환경의 설치 과정을 확인할 수 있습니다. 링크를 통해 자세히 살펴볼 수 있습니다:  
+link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/tree/helm/helm/ossm/templates/dev[Install & Setup the Development Environment,window=_blank]
+
+다음 내용을 읽는 것은 완전히 선택 사항입니다(최대한 빨리 _파트 II_로 진행할 것을 권장합니다).  
+여기서는 xref:m1:walkthrough.adoc#_travel_agency_personas_roles[Travel Agency 페르소나]가 개발 환경을 구축하기 위해 따라야 했던 단계를 간략히 설명합니다:
 ====
 
-=== Actions with role Cluster Admin
+=== Cluster Admin 역할의 작업
 
-1. As openshift administrator (role: `Cluster Admin`) add the `Service Mesh` operators in the OCP Cluster
-2. As openshift administrator (role: `Cluster Admin`) once the operators have been successfully installed, create the necessary _Travel Agency_ Namespaces
-3. As openshift administrator (role: `Cluster Admin`) create the `Service Mesh Roles`
-4. As openshift administrator (role: `Cluster Admin`) create the Service Mesh Users and assign Roles
+1. 플랫폼 관리자(역할: `Cluster Admin`)로서 OCP 클러스터에 `Service Mesh` 오퍼레이터를 추가합니다.
+2. 플랫폼 관리자(역할: `Cluster Admin`)로서 오퍼레이터가 성공적으로 설치되면 필요한 _Travel Agency_ 네임스페이스를 생성합니다.
+3. 플랫폼 관리자(역할: `Cluster Admin`)로서 `Service Mesh Roles`를 생성합니다.
+4. 플랫폼 관리자(역할: `Cluster Admin`)로서 Service Mesh 사용자를 생성하고 역할을 할당합니다.
 
-=== Actions with role Mesh Operator
+=== Mesh Operator 역할의 작업
 
-1. As *emma* (role: `Mesh Operator`) create the `Service Mesh` controlplane namespaces and the `ServiceMeshControlPlane (SMCP)` resource.
+1. *emma* (역할: `Mesh Operator`)로서 `Service Mesh` 제어 플레인 네임스페이스 및 `ServiceMeshControlPlane (SMCP)` 리소스를 생성합니다.
+=== Mesh Developer 역할의 작업
 
-=== Actions with role Mesh Developer
+1. *farid* (역할: `Mesh Developer`) _Travel Services 도메인 소유자 (Tech Lead)_로서:
+** 네임스페이스 `dev-travel-agency`를 `dev-basic` Service Mesh에 온보딩하기 위해 `ServiceMeshMember (SMM)` 리소스를 `dev-travel-agency`에 추가합니다.
+** `dev-travel-agency` 네임스페이스에 애플리케이션을 배포합니다.
 
-1. As *farid* (role: `Mesh Developer`) _Travel Services Domain Owner (Tech Lead)_
-** Onboard namespace `dev-travel-agency` to Service Mesh `dev-basic` by adding a `ServiceMeshMember` (`SMM`) resource in `dev-travel-agency`.
-** Deploy the Applications in `dev-travel-agency` namespaces
+2. *cristina* (역할: `Mesh Developer`) _Travel Portal 도메인 소유자 (Tech Lead)_로서:
+** 네임스페이스 `dev-travel-control` 및 `dev-travel-portal`을 `dev-basic` Service Mesh에 온보딩하기 위해 각 네임스페이스에 `dev-basic` 멤버십을 위한 `ServiceMeshMember (SMM)` 리소스를 추가합니다.
+** `dev-travel-control`, `dev-travel-portal` 네임스페이스에 애플리케이션과 Service Mesh 서비스를 노출하기 위한 `Istio` 구성을 배포합니다.
 
-2. As *cristina* (role: `Mesh Developer`) _Travel Portal Domain Owner (Tech Lead)_
-** Onboard namespaces `dev-travel-control` and `dev-travel-portal` to Service Mesh `dev-basic` by adding a `ServiceMeshMember` (`SMM`) resource in each namespace for `dev-basic` membership.
-** Deploy the Applications in `dev-travel-control`, `dev-travel-portal` namespaces and `Istio` configs to expose Service Mesh services.
+=== Mesh Operator 역할의 최종 작업
 
-=== Final Actions with role Mesh Operator
+1. *emma* (역할: `Mesh Operator`)로서 Istio `Gateway` 리소스를 생성합니다.
 
-1. As *emma* (role: `Mesh Operator`) create the Istio `Gateway` resource
+[IMPORTANT]
+====
+`OpenShift Service Mesh`는 Istio와 마찬가지로 데이터 플레인에서 *_Ingress Gateway_*를 주입할 수 있는 기능을 제공합니다.  
+그러나 DEV 환경에서의 _Travel Agency_ 사용 사례에서는 아키텍트들이 *_Self-Service_* xref:m1:walkthrough.adoc#_user_governance_model[사용자 거버넌스 모델]을 선택했으며, 이에 따라 `Mesh Operator`가 Ingress/Egress 리소스 구성을 담당합니다.
 
-IMPORTANT: `OSSM` -like Istio- now offers the ability for the injection of an  *_ingress Gateway_* in the dataplane however for the _Travel Agency_ use case the Architects have selected a *_Self-Service(Restricted)_*  xref:m1:walkthrough.adoc#_user_governance_model[User Governance Model] where the `Mesh Operator` will be responsible for ingress/egress resource configurations.
+*_Gateway Injection_*은 이후 xref:m4:walkthrough.adoc#_user_governance_model[랩 모듈 4]에서 사용하게 됩니다.
+====

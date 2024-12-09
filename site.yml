@@ -3,7 +3,7 @@ runtime:
 
 site:
   title: Heading to Production with OSSM Lab Guides
-  start_page: ossm-labs-guides:intro:intro.adoc
+  start_page: ossm-labs-guides:ROOT:1setup.adoc
 
 content:
   sources:

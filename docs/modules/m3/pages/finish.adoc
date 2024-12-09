@@ -1,7 +1,5 @@
-# Service Mesh Development Environment & Observability Stack
+# 모듈 3: 운영 환경을 위한 Travel Agency `ServiceMeshControlPlane` 설정
 
-## Congratulations on completing this module!
+## 이 모듈을 완료한 것을 축하합니다!
 
-Congratulations! You have helped the _Travel Agency_ to setup a production grade Service Mesh environment and introduced the _Travel Demo_ applications within the mesh.
-
-
+축하합니다! _Travel Agency_의 운영 환경에서 사용할 프로덕션급 Service Mesh 환경을 성공적으로 설정하고, _Travel Demo_ 애플리케이션을 메쉬에 도입하였습니다.

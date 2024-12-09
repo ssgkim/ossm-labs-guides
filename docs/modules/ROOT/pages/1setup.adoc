@@ -1,0 +1,132 @@
+:tutorial-url: https://github.com/redhat-scholars/istio-tutorial
+:folder: istio-tutorial
+
+= Setup & Installation
+include::_attributes.adoc[]
+
+이 튜토리얼은 관리자 액세스 권한이 있는 OpenShift 4 클러스터를 사용할 수도 있습니다. 만약 OpenShift 환경에 액세스할 수 없다면, https://developers.redhat.com/products/openshift-local/overview[OpenShift Local]을 통해 로컬 OpenShift 4 클러스터에 접근할 수 있습니다.
+실습 과정에서 필요한 Istio 설치는 완료되었으며, 6. *Create ServiceMeshMemberRoll* 부분을 위한 변경 작업을 진행 합니다.
+
+[#istioinstallation]
+== Istio Installation
+
+[tabs, subs="attributes+,+macros"]	
+====
+--
+OpenShift::
++
+--
+Istio는 https://www.redhat.com/en/technologies/cloud-computing/openshift/what-is-openshift-service-mesh[Red Hat OpenShift Service Mesh] 오퍼레이터를 통해 OpenShift에서 지원됩니다. 이 섹션에서는 OpenShift 4.9 이상 클러스터와 관리자 액세스 권한이 있는 계정을 가지고 있다고 가정합니다.
+
+[NOTE]
+====
+아래 단계는 Red Hat OpenShift Service Mesh 설치 절차에 대한 요약을 제공합니다. 자세한 지침은 https://access.redhat.com/documentation/en-us/openshift_container_platform/4.9/html/service_mesh/index[OpenShift 문서]에서 확인할 수 있습니다.
+====
+
+OpenShift에서 Istio를 사용하려면 네 가지 오퍼레이터를 설치하고 *Mesh Control Plane*을 구성하며, *Mesh Member Roll*을 사용하여 네임스페이스를 메쉬에 등록해야 합니다. 필요한 오퍼레이터는 다음과 같습니다:
+
+* OpenShift Elastic Search Operator
+* OpenShift 분산 추적 플랫폼 (https://www.jaegertracing.io/[Jaeger] 기반)
+* Kiali Operator
+* OpenShift Service Mesh Operator
+
+다음 절차에 따라 오퍼레이터를 설치하세요:
+
+1. 관리자 권한이 있는 사용자 (예: *kubeadmin* 계정)로 OpenShift 클러스터 콘솔에 로그인합니다.
+2. 사이드 메뉴에서 *Administrator* 관점을 선택합니다.
+3. *Operators* 섹션을 확장하고 *Operator Hub*를 선택합니다.
+4. *Source* 섹션에서 *Red Hat* 상자를 체크하여 커뮤니티 오퍼레이터를 필터링합니다.
+5. *OpenShift Elastic Search Operator*를 검색하여 설치합니다. 설치를 진행할 때 기본 설치 매개변수를 수락합니다.
++
+. 이전 단계를 반복하여 다음 오퍼레이터를 설치합니다:
+  * OpenShift 분산 추적 플랫폼
+  * Kiali
+  * OpenShift Service Mesh
+
+[NOTE]
+====
+*Web Terminal* 오퍼레이터를 설치하는 것이 권장되지만 선택 사항입니다. 이 오퍼레이터를 설치하면 이후 가이드에서 명령을 실행하는 것이 간편해집니다. 원한다면 OpenShift CLI(`oc`) 및 `kubectl`을 개발 머신에서 직접 사용할 수 있습니다. OpenShift CLI는 OpenShift 콘솔 오른쪽 상단의 도움말 아이콘에서 *Command line tools* 링크를 통해 다운로드할 수 있습니다.
+====
+
+설치가 완료되면 OpenShift 콘솔의 사이드 메뉴에서 *Installed Operators*를 선택하고 설치된 오퍼레이터가 목록에 있는지 확인합니다. 목록은 아래 스크린샷과 유사해야 합니다.
+
+image::setup-all-operators.png[]
+
+Istio를 구성하려면 제어 플레인 컴포넌트를 배포할 네임스페이스를 만들어야 합니다. `user1-dev-istio-system` 네임스페이스를 생성하려면:
+
+1. *Home* 섹션을 확장하고 *Projects*를 선택합니다.
+2. 화면 오른쪽 상단의 *Create Project* 버튼을 클릭합니다. 모달이 화면 중앙에 나타납니다.
+3. *Name*에 `user1-dev-istio-system`을 입력하고 모달에서 *Create*를 클릭합니다.
+
+image::6.createproject.png[]
+
+이제 Istio를 구성하고 배포할 수 있습니다:
+
+1. *Operators* 섹션을 확장하고 *Installed Operators*를 선택합니다.
+2. *Provided APIs* 열에서 Red Hat Service Mesh Operator 옆에 있는 *Istio Service Mesh Control Plane* 항목을 클릭합니다.
++
+image::7.installedoperators.png[]
+3. *Create ServiceMeshControlPlane* 버튼을 클릭합니다.
+4. Istio 구성 매개변수는 기본값으로 두되, `Proxy > Networking > Traffic Control > Outbound > Policy`는 `REGISTRY_ONLY`로 변경하여 메쉬 외부로의 트래픽을 방지합니다.
+5. 아래로 스크롤하고 *Create*를 클릭하여 Istio Control Plane을 생성합니다.
+6. *ServiceMeshControlPlane* 목록에서 새로 나열된 `basic` 항목을 클릭합니다.
++
+image::8.smconf.png[]
+7. 모든 Istio 컴포넌트가 준비 상태로 표시될 때까지 기다립니다.
++
+image::9.bootup.png[]
+
+마지막으로 https://docs.openshift.com/container-platform/4.9/service_mesh/v2x/ossm-create-mesh.html[*Istio Service Mesh Member Roll*]을 사용하여 네임스페이스에서 서비스를 메쉬에 등록합니다:
+
+1. *Home* 섹션을 확장하고 *Projects*를 선택합니다.
+2. 화면 오른쪽 상단의 *Create Project* 버튼을 클릭합니다. 모달이 화면 중앙에 나타납니다.
+3. *Name*에 `tutorial`을 입력하고 모달에서 *Create*를 클릭합니다.
+4. 사이드 메뉴에서 *Operators > Installed Operators*를 선택합니다.
+5. *Provided APIs* 열에서 *Istio Service Mesh Member Roll* 옵션을 선택합니다.
++
+image::10.memberroll.png[]
+6. *Create ServiceMeshMemberRoll* 버튼을 클릭합니다.
+7. *YAML View*를 선택하고 `tutorial` 네임스페이스를 `spec.members` 목록에 추가합니다:
++
+[.console-input]
+[source,yaml,subs="attributes+,+macros"]
+----
+apiVersion: maistra.io/v1
+kind: ServiceMeshMemberRoll
+metadata:
+  name: default
+  namespace: user1-dev-istio-system
+spec:
+  members:
+    - user1-dev-travel-agency
+    - user1-dev-travel-control
+    - user1-dev-travel-portal
+    - tutorial
+----
+8. 아래로 스크롤하고 *Create* 버튼을 클릭합니다.
+
+축하합니다! Istio를 배포하고 `tutorial` 프로젝트에 배포된 서비스를 메쉬에 등록했습니다.
+
+설치가 완료된 후, 모든 필수 포드가 `user1-dev-istio-system` 네임스페이스에 배포되어 있는지 확인하는 것이 중요합니다:
+
+
+[.console-input]
+[source,bash,subs="attributes+,+macros"]
+----
+kubectl get pods -w -n user1-dev-istio-system
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME                                     READY   STATUS             RESTARTS   AGE
+grafana-77c8d875c6-blrtn               2/2     Running   0          57m
+istio-egressgateway-69f57c4784-8ph2c   1/1     Running   0          57m
+istio-ingressgateway-fb75588cc-fvmzg   1/1     Running   0          57m
+istiod-basic-6d6cb9d7bb-8dvl7          1/1     Running   0          58m
+jaeger-c78d79786-hmm7q                 2/2     Running   0          57m
+kiali-774f655f6c-sv7nv                 1/1     Running   0          18m
+prometheus-9db548fb6-vhwhc             3/3     Running   0          57m
+----
+--
+====

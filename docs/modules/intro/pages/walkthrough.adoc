@@ -1,51 +1,59 @@
-# Heading to Production Lab Scenario
+# Introduction
 
-## Travel Demo Use Case
+## Travel Demo 사용 사례
 
-Throughout the following labs we will use a Fictive Use Case of a _Travel Agency_ company introducing a Service Mesh for their existing Travel Demo application and heading to production. Lets walk through the use case:
+이후의 랩에서는 기존 Travel Demo 애플리케이션에 Service Mesh를 도입하고 운영 환경으로 전환하려는 _여행사(Travel Agency)_ 회사의 가상 사용 사례를 다룹니다. 사용 사례를 살펴보겠습니다:
 
 ifdef::env-github[]
 image:https://img.youtube.com/vi/j9ONtiZjiac/maxresdefault.jpg[link=https://youtu.be/j9ONtiZjiac]
 endif::[]
 
-.A walkthrough of the labs use case
+.랩 사용 사례 소개
 ifndef::env-github[]
 video::j9ONtiZjiac[youtube,list=PLZjCciga0z5w6PiJKl2P8UJKdG0cEXKcz]
 endif::[]
 
-== Understanding the existing application
+== 기존 애플리케이션 이해하기
 
-(Note: The sample application we use in this Lab is the _Kiali Travel Demo Tutorial_: https://kiali.io/docs/tutorials/travels/[https://kiali.io/docs/tutorials/travels/])
+(참고: 이 랩에서 사용하는 샘플 애플리케이션은 _Kiali Travel Demo Tutorial_입니다: https://kiali.io/docs/tutorials/travels/[https://kiali.io/docs/tutorials/travels/,window=_blank])
 
-=== Travel Portal Domain namespace
+=== Travel Portal 도메인 네임스페이스
 
-The Travel Demo application simulates two business domains organized in different namespaces.
-In a first namespace called `travel-portal` there will be deployed several travel shops, where users can search for and book flights, hotels, cars or insurance. The shop applications can behave differently based on request characteristics like channel (web or mobile) or user (new or existing). +
-These workloads may generate different types of traffic to imitate different real scenarios. All the portals consume a service called `travels` deployed in the `travel-agency` namespace.
+Travel Demo 애플리케이션은 두 개의 비즈니스 도메인을 시뮬레이션하며, 각각 별도의 네임스페이스로 구성됩니다.  
+첫 번째 네임스페이스인 `travel-portal` 에는 여러 여행 상점 애플리케이션이 배포됩니다. 이 애플리케이션에서는 사용자가 항공편, 호텔, 차량, 보험을 검색하고 예약할 수 있습니다.  
+상점 애플리케이션은 요청 특성(예: 채널(웹 또는 모바일), 사용자 유형(신규 또는 기존)에 따라 다르게 동작할 수 있습니다). +  
+이 워크로드는 다양한 실제 시나리오를 모방하기 위해 서로 다른 유형의 트래픽을 생성할 수 있습니다.  
+모든 포털 애플리케이션은 `travel-agency` 네임스페이스에 배포된 `travels` 라는 서비스를 호출하여 사용합니다.
 
-=== Travel Agency Services Domain namespace
+=== Travel Agency 서비스 도메인 네임스페이스
 
-A second namespace called `travel-agency` will host a set of services created to provide quotes for travel. +
-A main `travels` service will be the business entry point for the travel agency. It receives a destination city and a user as parameters and it calculates all elements that compose a travel budget: airfare, lodging, car reservation and travel insurance. +
-Each service can provide an independent quote and the `travels` service must then aggregate them into a single response. Additionally, some users, like _registered_ users, can have access to special discounts, managed as well by an external service. +
-Service relations between namespaces can be described in the following diagram:
+두 번째 네임스페이스인 `travel-agency` 에는 여행 견적을 제공하기 위해 생성된 일련의 서비스가 배치됩니다. +  
+주요 서비스인 `travels` 는 여행사의 비즈니스 진입점 역할을 합니다. 이 서비스는 목적지 도시와 사용자를 매개변수로 받아 여행 예산을 구성하는 모든 요소(항공료, 숙박, 차량 예약, 여행 보험)를 계산합니다. +  
+각 서비스는 독립적인 견적을 제공할 수 있으며, `travels` 서비스는 이를 단일 응답으로 집계해야 합니다.  
+추가적으로, _등록된_ 사용자와 같은 특정 사용자 그룹은 외부 서비스에서 관리하는 특별 할인을 받을 수 있습니다. +  
+네임스페이스 간의 서비스 관계는 아래 다이어그램과 같이 설명할 수 있습니다:
 
+
+
+[link=_images/01-travels-demo-design.png,window=_blank]
 image::01-travels-demo-design.png[]
 
-=== Travel Portal and Travel Agency flow
+=== Travel Portal과 Travel Agency의 절차
 
-A typical flow consists of the following steps:
+일반적인 절차는 다음과 같은 단계로 이루어집니다:
 
-. A portal queries the `travels` service for available destinations,
-. `travels` service queries the available `hotels` and returns to the portal shop,
-. A user selects a destination and a type of travel, which may include a `flight` and/or a `car`, `hotel` and `insurance`,
-.  `Cars`, `Hotels` and `Flights` may have available discounts depending on user type.
+. 포털이 `travels` 서비스를 호출하여 사용 가능한 목적지 정보를 요청합니다.
+. `travels` 서비스는 사용 가능한 `hotels` 정보를 조회하고, 이를 포털로 반환합니다.
+. 사용자는 목적지와 여행 유형을 선택합니다. 여행 유형에는 `flight`, `car`, `hotel`, `insurance`가 포함될 수 있습니다.
+. `Cars`, `Hotels`, `Flights` 서비스는 사용자 유형(예: 신규 사용자 또는 등록 사용자)에 따라 할인 혜택을 제공할 수 있습니다.
 
-=== Travel Control namespace
+=== Travel Control 네임스페이스
 
-The `travel-control` namespace runs a _business dashboard_ with two key features:
+`travel-control` 네임스페이스는 _비즈니스 대시보드_를 운영하며, 다음과 같은 주요 기능을 제공합니다:
 
-* Allow setting changes for every travel shop simulator (traffic ratio, device, user and type of travel).
-* Provide a _business_ view of the total requests generated from the `travel-portal` namespace to the `travel-agency` services, organized by business criteria as grouped per shop, per type of traffic and per city.
+* 각 여행 상점 시뮬레이터의 설정을 변경할 수 있습니다 (트래픽 비율, 디바이스 유형, 사용자 유형 및 여행 유형).
+* `travel-portal` 네임스페이스에서 `travel-agency` 서비스로 전달된 요청을 기준으로 상점별, 트래픽 유형별, 도시별로 그룹화하여 총 요청 수를 _비즈니스_ 뷰 형태로 제공합니다.
 
+
+[link=_images/01-travels-dashboard.png,window=_blank]
 image::01-travels-dashboard.png[]

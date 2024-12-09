@@ -1,24 +1,44 @@
-# Heading to Production Lab Scenario
+# 소개
 
-## ABOUT THIS LAB
+**{lab_name}** 랩에 오신 것을 환영합니다.
 
-This lab will take you through the use case of the _Travel Agency_ organization which intends to utilize Service Mesh for its _Travel Demo_ application. You will be introduced to techniques of designing a mesh based on real stakeholder requirements and delivering against those from development all the way to production. In addition, it introduces a set of corporate personas with responsibilities and permissions to create and operate the mesh.
+이 랩에서는 **{openshift_cluster_user_name}** 사용자로 작업하게 됩니다.
 
 
-## LAB ASSETS
+## 랩 소개
 
-Before you begin, access your link:https://codeserver-codeserver-%LAB_PARTICIPANT_ID%.%OCP_DOMAIN%[code-server environment] and ensure you have access to the lab assets `ossm-labs`.
+이 랩에서는 _여행사(Travel Agency)_ 조직이 _Travel Demo_ 애플리케이션에 Service Mesh를 활용하려는 사용 사례를 다룹니다.  
+실제 이해 관계자의 요구 사항을 기반으로 메쉬를 설계하는 기술과 개발부터 운영까지 이를 실현하는 과정을 배우게 됩니다.  
+또한, 메쉬를 생성하고 운영하기 위한 책임과 권한을 가진 회사의 다양한 페르소나(Persona)도 소개됩니다.
 
-Open a terminal (*`Terminal`* -> *`New Terminal`* from the menu) in the _code-server_ so that you can execute the commands during the labs.
 
-Although for the labs the assets are made available you can additionally get and inspect these resources at a later stage from the link:https://github.com/redhat-gpte-devopsautomation/ossm-labs[ossm-labs] github repository.
 
-## Use of correct Openshift Namespaces
+## 랩 자료
+
+//랩을 시작하기 전에 link:https://codeserver-codeserver-{openshift_cluster_user_name}.{openshift_cluster_ingress_domain}[code-server 환경,window=_blank]에 접속하여 `ossm-labs` 랩 자료에 접근할 수 있는지 확인하세요.
+
+// _code-server_에서 (*`Terminal`* -> *`New Terminal`* 메뉴를 통해) 터미널을 열어 랩에서 사용할 명령어를 실행할 수 있도록 준비하세요.
+
+오른쪽 터미널에는 Git 리포지토리 link:https://github.com/redhat-gpte-devopsautomation/ossm-labs[ossm-labs,window=_blank]에서 복제된 모든 랩 자료가 준비되어 있습니다. 현재 디렉토리를 확인하고 모든 자료가 있는지 확인하세요.
+
+
+
+[source,shell,subs=attributes,role=execute]
+----
+ls -la
+----
+
+현재 디렉토리를 확인하고, 나중에 이 저장소에서 해당 자료를 자세히 살펴볼 수 있습니다.
+
+// 랩에서 사용할 자료가 이미 제공되었지만, 추가적으로 link:https://github.com/redhat-gpte-devopsautomation/ossm-labs[ossm-labs,window=_blank] GitHub 저장소에서 이 자료를 가져와 확인할 수도 있습니다.
+
+## OpenShift 클러스터 환경
 
 [IMPORTANT]
 ====
-You will be using a shared cluster and the Service Mesh users are also common with access to multiple namespaces. Therefore, it is very important each participant uses their allocated namespaces. In order to make use of the correct *namespaces* make sure you are accessing those with the allocate user id *%LAB_PARTICIPANT_ID%*
+개발 및 운영 환경 모두에서 사용할 *전용 OpenShift 클러스터*를 사용하게 됩니다. 따라서 OpenShift 환경에서 Service Mesh를 다중 테넌트 모드로 설치할 예정입니다.
 ====
+
 
 
 

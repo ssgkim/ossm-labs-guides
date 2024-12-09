@@ -1,0 +1,617 @@
+:tutorial-url: https://github.com/redhat-scholars/istio-tutorial
+:folder: istio-tutorial
+
+= Deploy Microservices
+include::_attributes.adoc[]
+이 섹션에서는 튜토리얼에서 사용된 세 가지 마이크로서비스의 배포 방법을 안내합니다.
+
+각 마이크로서비스는 `tutorial` 네임스페이스에 배포되며, [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)를 사용하여 관리됩니다. 이 배포는 다음과 같은 주석을 포함합니다:
+
+[.console-output]
+[source,text,subs="attributes+,+macros"]
+----
+sidecar.istio.io/inject: "true"
+----
+
+이 주석은 `tutorial` 네임스페이스가 메쉬의 일부로 포함되어 있고 (*Setup* 섹션에서 생성한 *ServiceMeshMemberRoll* 덕분에) 각 마이크로서비스가 트래픽을 관리할 수 있는 Istio "사이드카"를 갖게 됨을 의미합니다. Istio 문서를 참조하여 [트래픽 관리 및 사이드카(Envoy 기반) 프록시](https://istio.io/latest/docs/concepts/traffic-management/)에 대해 자세히 알아보세요.
+
+image:architecture-basic.png[]
+
+ifdef::workshop[]
+사용자 환경 변수를 생성하고 OpenShift에 로그인하세요.
+
+
+[source,bash,subs="+macros,+attributes"]
+----
+export WORKSHOP_USER=<your-username-number>
+
+
+#Example:
+export WORKSHOP_USER=1
+
+oc login -u user$WORKSHOP_USER -p openshift {ocpurl}
+----
+endif::workshop[]
+
+== 로그인, 네임스페이스 및 튜토리얼 파일 확인
+
+[tabs, subs="attributes+,+macros"]  
+--
+OpenShift (웹 터미널)::
++
+--
+
+`Setup & Installation` xref:1setup.adoc#istioinstallation[섹션]에서 OpenShift Web Terminal을 설치했다면, OpenShift Web 콘솔을 새로 고침하고 화면 오른쪽 상단의 터미널 아이콘을 클릭하여 웹 터미널을 시작합니다.
+
+image:deploy-web-terminal.png[OpenShift Web Terminal]
+
+터미널 세션은 `~/.kube/config` 파일로 미리 구성되어 있습니다. 이는 `oc`와 `kubectl`이 이미 로그인된 상태임을 의미합니다. 다음 명령어를 실행하여 확인하세요:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+oc whoami
+----
+
+이 명령어는 사용자의 사용자 이름을 출력합니다. `kubectl`을 사용하여 확인할 수도 있습니다:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl config current-context
+----
+
+다음 명령어를 실행하여 `tutorial` 네임스페이스를 생성하고 현재 컨텍스트로 설정합니다:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+oc new-project tutorial ; oc project tutorial
+----
+
+// 이 파일 상단에 선언된 `tutorial-url` 및 `folder` 변수 사용
+include::https://raw.githubusercontent.com/redhat-developer-demos/rhd-tutorial-common/master/download-sources.adoc[]
+
+[IMPORTANT]
+====
+OpenShift Web Terminal은 지속적인 환경이 아닙니다. OpenShift Web Terminal이 닫히거나 몇 분간 비활성화되면 `istio-tutorial` 폴더, `TUTORIAL_HOME`, 및 설정된 환경 변수는 손실됩니다. Web Terminal 세션을 다시 구성해야 할 경우 이 섹션으로 돌아가서 `git clone`, `export`, 및 `cd` 명령어를 다시 실행하세요.
+====
+
+
+--
+OpenShift (Local Terminal)::
++
+--
+1. OpenShift Web Console의 오른쪽 상단에 있는 (*?* 아이콘) 도움말 메뉴에서 OpenShift CLI (`oc`)를 다운로드하고 *Copy login command* 링크를 확인합니다.
++
+image:deploy-openshift-cli.png[OpenShift Help and Login Command]
+
+2. CLI를 압축 해제하고 `PATH`에 추가합니다.
+3. CLI를 사용하여 로그인하려면 *Copy login command*의 값을 터미널에 붙여넣습니다.
++
+image:deploy-openshift-cli-local.png[Using OpenShift CLI and kubectl locally]
+
+4. 다음 명령어를 실행하여 `tutorial` 네임스페이스를 생성하고 현재 컨텍스트로 설정합니다:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+oc new-project tutorial ; oc project tutorial
+----
+
+// 이 파일 상단에 선언된 `tutorial-url` 및 `folder` 변수 사용
+include::https://raw.githubusercontent.com/redhat-developer-demos/rhd-tutorial-common/master/download-sources.adoc[]
+
+--
+====
+
+[#deploycustomer]
+== Deploy the Customer Service
+
+[NOTE]
+====
+You will deploy container images that were previously built for this tutorial. It's possible to deploy your own version of these images.
+
+If you want to build and deploy custom container images for this service *using Quarkus* xref:2build-microservices.adoc#buildcustomer[click here]. If you'd prefer to *use Spring Boot* xref:2build-microservices.adoc#buildcustomerspringboot[click here].
+====
+
+[IMPORTANT]
+====
+If you choose to build custom versions of the container images, don't forget to modify the `image` in the *Deployment.yml* files referenced in subsequent steps.
+====
+
+Deploy the customer application using the YAML files provided in the https://github.com/redhat-scholars/istio-tutorial[tutorial content]:
+
+[tabs, subs="attributes+,+macros"]	
+====
+Minikube::
++
+--
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{customer-repo}/kubernetes/Deployment.yml[{customer-repo}/kubernetes/Deployment.yml]) -n tutorial{namespace-suffix}
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{customer-repo}/kubernetes/Service.yml[{customer-repo}/kubernetes/Service.yml] -n tutorial{namespace-suffix}
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get pods -w -n tutorial{namespace-suffix}
+----
+
+--
+OpenShift::
++
+--
+
+. Deploy the customer application using the *Deployment.yml*. This Deployment has the `sidecar.istio.io/inject: "true"` annotation, which means Istio will inject a sidecar container to manage network traffic:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl apply -f link:{github-repo}/{customer-repo}/kubernetes/Deployment.yml[{customer-repo}/kubernetes/Deployment.yml] -n tutorial{namespace-suffix}
+----
+. Create a Service so the customer application Pods have a stable DNS entry on the cluster:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{customer-repo}/kubernetes/Service.yml[{customer-repo}/kubernetes/Service.yml] -n tutorial{namespace-suffix}
+----
+. Verify that the customer application Pod has started and all containers are reporting `READY`:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get pods -w -n tutorial{namespace-suffix}
+----
+
+--
+====
+
+The output from the `get pods` command will eventually show that 2/2 containers are in the READY status like so:
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+NAME                        READY   STATUS    RESTARTS   AGE
+customer-5f5d9f8767-dmc4f   2/2     Running   0          5m24s
+----
+
+Press Ctrl+C to exit the watch (-w) command when all containers are reporting READY.
+
+The `spec.replicas` for in the *Deployment.yml* is set to 1, so why is does the `get pods` command specify that 2 of 2 containers are ready? The reason is that Istio injected the sidecar container that will be used to manage network traffic!
+
+You can use `kubectl describe pods -n tutorial` to inspect the customer application's Pod and see the Istio annotations and that a second container was automatically added to the Pod spec by the Istio operator.
+
+[#configureingress]
+== Configure Ingress for the Customer Service
+
+Since the `customer` service is the one our users will interact with, let's create a https://istio.io/latest/docs/reference/config/networking/gateway/[Gateway] and https://istio.io/latest/docs/reference/config/networking/virtual-service/[VirtualService] that will enable us to direct incoming traffic to the application. 
+
+The Gateway resource configures a load balancer at the edge of the mesh to receive incoming TCP/HTTP traffic. The VirtualService will define traffic routing rules to send traffic matching specific URL patterns to the customer service.
+
+image:architecture-basic-gateway-virtualservice.png[]
+
+ifndef::workshop[]
+
+Deploy the Gateway and VirtualService using the following command:
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{customer-repo}/kubernetes/Gateway.yml[{customer-repo}/kubernetes/Gateway.yml] -n tutorial{namespace-suffix}
+----
+
+The Gateway and VirtualService are logical constructs that are used to configure Istio traffic management. All traffic into the mesh will come via the `istio-ingressgateway` deployed in the `istio-system` namespace. Use the following command to confirm the `istio-ingressgateway` components are deployed:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get all -l app=istio-ingressgateway -n istio-system
+----
+
+The output of the above command will differ slightly between Minikube and OpenShift:
+
+[tabs, subs="attributes+,+macros"]	
+====
+Minikube::
++
+--
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+istio-ingressgateway   LoadBalancer   10.101.82.250   <pending>     15020:31582/TCP,80:31380/TCP,443:31390/TCP,31400:31400/TCP,15029:30818/TCP,15030:32542/TCP,15031:30106/TCP,15032:32284/TCP,15443:31080/TCP   19m
+----
+
+--
+OpenShift::
++
+--
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME                                        READY   STATUS    RESTARTS   AGE
+pod/istio-ingressgateway-6f7f4b8778-7s7zg   1/1     Running   0          175m
+
+NAME                           TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)                    AGE
+service/istio-ingressgateway   ClusterIP   10.217.4.72   <none>        15021/TCP,80/TCP,443/TCP   175m
+
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/istio-ingressgateway   1/1     1            1           175m
+
+NAME                                              DESIRED   CURRENT   READY   AGE
+replicaset.apps/istio-ingressgateway-6f7f4b8778   1         1         1       175m
+
+NAME                                            HOST/PORT                                            PATH   SERVICES               PORT   TERMINATION   WILDCARD
+route.route.openshift.io/istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing          istio-ingressgateway   8080                 None
+----
+
+--
+====
+
+
+== Validate Ingress
+
+Confirm that traffic ingress and routing using the VirtualService is working by making a HTTP request to the customer application.
+
+=== Get the Ingress URL
+
+Obtain the ingress URL and store it in a `GATEWAY_URL` variable in your terminal:
+
+[tabs]
+====
+Minikube::
++
+--
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+export INGRESS_HOST=$(minikube ip -p istio-devnation)
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+----
+--
+OpenShift::
++
+--
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+export GATEWAY_URL=$(kubectl get route istio-ingressgateway -n istio-system -o=jsonpath="{.spec.host}")
+----
+--
+====
+
+IMPORTANT: The `GATEWAY_URL` is used frequently throughout this guide. If you lose it, come back here to obtain it again. Use the command `echo $GATEWAY_URL` to print the URL. 
+
+endif::workshop[]
+
+ifdef::workshop[]
+[source,bash,subs="+macros,+attributes"]
+----
+envsubst < link:{github-repo}/{customer-repo}/kubernetes/Gateway.workshop.yml[{customer-repo}/kubernetes/Gateway.workshop.yml] | oc create -f - -n tutorial{namespace-suffix}
+or
+envsubst < link:{github-repo}/{customer-repo}/kubernetes/Gateway.workshop.yml[{customer-repo}/kubernetes/Gateway.workshop.yml] | kubectl create -f - -n tutorial{namespace-suffix}
+
+oc get pods -w -n tutorial{namespace-suffix}
+or
+kubectl get pods -w -n tutorial{namespace-suffix}
+----
+endif::workshop[]
+// Not sure what this refers to
+// IMPORTANT: If your pod fails with `ImagePullBackOff`, it's possible that your current terminal isn't using the proper Docker Environment. See link:#setup-environment[Setup environment].
+
+// Wait until the status is `Running` and there are `2/2` pods in the `Ready` column. To exit, press `Ctrl+C`
+
+=== Test the Ingress using cURL
+
+Test the customer endpoint using cURL:
+
+include::curl.adoc[]
+
+The following response should be returned. The `UnknownHostException` is included in the response because the `preference` and `recommendation` applications are not deployed yet.
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+customer => UnknownHostException: preference
+----
+
+=== Review the Customer Application Logs
+
+This command returns logs from the `customer` container, but not the `istio-proxy` sidecar container in the Pod:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl logs \
+$(kubectl get pods -n tutorial |grep customer|awk '{ print $1 }'|head -1) \
+-c customer -n tutorial
+----
+
+A stacktrace containing the `UnknownHostException` reported by the cURL command should be visible in the logs:
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+customer-6fc99b7bfd-5st28 customer Caused by: java.net.UnknownHostException: preference
+----
+
+[#deploypreference]
+== Deploy the Preference Service
+
+[NOTE]
+====
+You will deploy container images that were previously built for this tutorial. It's possible to deploy your own version of these images.
+
+If you want to build and deploy custom container images for this service *using Quarkus* xref:2build-microservices.adoc#buildpreference[click here]. If you'd prefer to *use Spring Boot* xref:2build-microservices.adoc#buildpreferencespringboot[click here].
+====
+
+[IMPORTANT]
+====
+If you choose to build custom versions of the container images, don't forget to modify the `image` in the *Deployment.yml* files referenced in subsequent steps.
+====
+
+=== Apply the Preference Service Resources
+
+[tabs, subs="attributes+,+macros"]	
+====
+Minikube::
++
+--
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{preference-repo}/kubernetes/Deployment.yml[{preference-repo}/kubernetes/Deployment.yml]) -n tutorial{namespace-suffix}
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{preference-repo}/kubernetes/Service.yml[{preference-repo}/kubernetes/Service.yml] -n tutorial{namespace-suffix}
+----
+
+--
+OpenShift::
++
+--
+
+The deployment process for the preference application is the same as the deployment process for the customer application. The preference *Deployment.yml* is also annotated with `sidecar.istio.io/inject: "true"`.
+
+. Deploy the preference application using the *Deployment.yml*:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl apply -f link:{github-repo}/{preference-repo}/kubernetes/Deployment.yml[{preference-repo}/kubernetes/Deployment.yml] -n tutorial{namespace-suffix}
+----
+. Create a Service so the preference application has a stable DNS entry:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{preference-repo}/kubernetes/Service.yml[{preference-repo}/kubernetes/Service.yml] -n tutorial{namespace-suffix}
+----
+
+--
+====
+
+Verify that the preference application Pod has started. Press `Ctrl+C` to exit the watch (`-w`) command when all containers are reporting `READY`:
+
+[.console-input]
+[source, bash,subs="+macros,+attributes"]
+----
+kubectl get pods -w -n tutorial{namespace-suffix}
+----
+
+=== Validate Preference Service Connectivity
+
+Now that the preference service is deployed the customer service should return a different response to incoming HTTP requests. Verify this using cURL:
+
+include::curl.adoc[]
+
+The response still reports an `UnknownHostException`, but this time it's for the `recommendation` service. This is because the `recommendation` service is not yet deployed.
+
+// NOTE: We could make this a bit more resilient in a future iteration of this tutorial
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+customer => Error: 503 - preference => UnknownHostException: recommendation
+----
+
+=== Review the Preference Application Logs
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl logs \
+$(kubectl get pods -n tutorial |grep preference|awk '{ print $1 }'|head -1) \
+-c preference -n tutorial
+----
+
+A stacktrace containing the `UnknownHostException` reported by the cURL command should be visible in the logs:
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+preference-v1-898764bdb-hz7s6 preference Caused by: java.net.UnknownHostException: recommendation
+----
+
+[#deployrecommendation]
+== Deploy the Recommendation Service
+
+[NOTE]
+====
+You will deploy container images that were previously built for this tutorial. It's possible to deploy your own version of these images.
+
+If you want to build and deploy custom container images for this service *using Quarkus* xref:2build-microservices.adoc#buildrecommendation[click here]. If you'd prefer to *use Spring Boot* xref:2build-microservices.adoc#buildrecommendationspringboot[click here].
+====
+
+[IMPORTANT]
+====
+If you choose to build custom versions of the container images, don't forget to modify the `image` in the *Deployment.yml* files referenced in subsequent steps.
+====
+
+=== Apply the Recommendation Service Resources
+
+[tabs, subs="attributes+,+macros"]	
+====
+Minikube::
++
+--
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment.yml[{recommendation-repo}/kubernetes/Deployment.yml]) -n tutorial{namespace-suffix}
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{recommendation-repo}/kubernetes/Service.yml[{recommendation-repo}/kubernetes/Service.yml] -n tutorial{namespace-suffix}
+----
+
+--
+OpenShift::
++
+--
+
+The deployment process for the recommendation application is the same as the deployment process for the customer application. The recommendation *Deployment.yml* is also annotated with `sidecar.istio.io/inject: "true"`.
+
+. Deploy the recommendation application using the *Deployment.yml*:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl apply -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment.yml[{recommendation-repo}/kubernetes/Deployment.yml] -n tutorial{namespace-suffix}
+----
+. Create a Service so the recommendation application has a stable DNS entry:
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{recommendation-repo}/kubernetes/Service.yml[{recommendation-repo}/kubernetes/Service.yml] -n tutorial{namespace-suffix}
+----
+
+--
+====
+
+Verify that the recommendation application Pod has started. Press `Ctrl+C` to exit the watch (`-w`) command when all containers are reporting `READY`:
+
+[.console-input]
+[source, bash,subs="+macros,+attributes"]
+----
+kubectl get pods -w -n tutorial{namespace-suffix}
+----
+
+=== Validate Recommendation Service Connectivity
+
+Now that the recommendation service is deployed the customer service should return a different response to incoming HTTP requests. Verify this using cURL:
+
+include::curl.adoc[]
+
+The response will contain no errors, since the end-to-end flow of services has been deployed.
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+customer => preference => recommendation v1 from 'recommendation-v1-6cf5ff55d9-7zbj8': 1
+----
+
+=== Review the Recommendation Application Logs
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl logs \
+$(kubectl get pods -n tutorial |grep recommendation|awk '{ print $1 }'|head -1) \
+-c recommendation -n tutorial
+----
+
+No errors should be reported in the logs. Instead you will see an incrementing counter:
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+recommendation request from recommendation-v1-6c75fc9857-d4npl: 1
+----
+
+
+
+
+
+
+
+[#redeployingcode]
+== Updating & Redeploying 
+
+NOTE: This section is optional. Feel free to move on to the xref:3monitoring-tracing.adoc[Observability section] of this guide.
+
+When you wish to change code (e.g. editing the .java files) and wish to "redeploy", simply:
+
+[.console-input]
+[source,bash]
+----
+cd {servicename}/java/{quarkus|springboot|vertx}
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+vi src/main/java/com/redhat/developer/demos/{servicename}/{Servicename}{Controller|Verticle}.java
+----
+
+Make your changes, save it and then:
+
+[.console-input]
+[source,bash]
+----
+mvn clean package
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+docker build -t example/{servicename}:v1 .
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get pods -o jsonpath='{.items[*].metadata.name}' -l app={servicename}
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get pods -o jsonpath='{.items[*].metadata.name}' -l app={servicename},version=v1
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl delete pod -l app={servicename},version=v1 -n tutorial{namespace-suffix}
+----
+
+Why the delete pod?
+
+Based on the Deployment configuration, Kubernetes/OpenShift will recreate the pod, based on the new docker image as it attempts to keep the desired replicas available
+
+[.console-input]
+[source,bash]
+----
+kubectl describe deployment {servicename} -n tutorial{namespace-suffix} | grep Replicas
+----

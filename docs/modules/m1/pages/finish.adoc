@@ -1,7 +1,5 @@
-# Designing Service Mesh Perimeter and Operating Model
+# 모듈 1: Service Mesh 영역 설계 및 운영 모델
 
-## Congratulations on completing this module!
+## 이 모듈을 완료한 것을 축하합니다!
 
-In the next scenario you will be setting up the development environment and verifying it with the Service Mesh provided observability stack.
-
-
+다음 시나리오에서는 개발 환경을 설정하고 제공된 Service Mesh의 가시성 스택을 사용하여 이를 확인하게 됩니다.

@@ -1,126 +1,128 @@
-# Designing Service Mesh Perimeter and Operating Model
+# 모듈 1: Service Mesh 영역 설계 및 운영 모델
 
-## Lab Walkthrough
+## 랩 안내
 
 ifdef::env-github[]
 image:https://img.youtube.com/vi/qSAa4iY3Xa0/maxresdefault.jpg[link=https://youtu.be/qSAa4iY3Xa0]
 endif::[]
 
-.A walkthrough of the labs use case
+.랩 사용 사례 안내
 ifndef::env-github[]
 video::qSAa4iY3Xa0[youtube,list=PLZjCciga0z5w6PiJKl2P8UJKdG0cEXKcz]
 endif::[]
 
-== Motivation
+== 배경
 
-The existing Travel Demo system is based on an architecture of microservices split into two domains, developed and operated by several teams and personas.
+기존 Travel Demo 시스템은 두 개의 도메인으로 나뉜 마이크로서비스 아키텍처를 기반으로 하며, 여러 팀과 페르소나들이 개발 및 운영을 담당합니다.
 
-A service mesh is a design pattern that can be applied to a microservice-based system to manage communication between services and address common concerns of running a service, like monitoring, networking, and security.
+Service Mesh는 마이크로서비스 기반 시스템에 적용할 수 있는 디자인 패턴으로, 서비스 간의 통신을 관리하고 모니터링, 네트워킹, 보안 등 서비스 운영의 일반적인 문제를 해결합니다.
 
-Developers and operators can focus on creating and managing applications for their users instead of worrying about implementing specific features to address challenges for every service.
+이를 통해 개발자와 운영자는 모든 서비스의 개별적인 문제를 해결하는 데 시간을 들이는 대신, 사용자들을 위한 애플리케이션 개발과 관리에 집중할 수 있습니다.
 
-This is one of the reasons why the company has decided to introduce OpenShift Service Mesh.
+이것이 회사가 OpenShift Service Mesh를 도입하기로 결정한 주요 이유 중 하나입니다.
 
-== Service Mesh Requirements
 
-As part of a Kick-Off meeting the Travel Agency stakeholders have stated the capabilities they would like to benefit from with the introduction of Service Mesh:
+== Service Mesh 요구사항
 
-. The _Development Team_ wants to be able to trace (every) request during development, and a sample of 20% of traffic in Production
-. The _Product Team_ wants to see metrics around performance/usage and storing them for up to 1 week
-. The _Security_ team wishes to enable mTLS in all service-to-service communications
-. The _Platform Team_ wants to centrally manage all security aspects
-. The _Development Teams_ wants to implement some resiliency to make the overall application more stable and reliable.
+Kick-Off 회의에서 Travel Agency의 이해관계자들은 Service Mesh 도입을 통해 얻고자 하는 기능들을 다음과 같이 제시했습니다:
 
-== User Governance Model
+. _개발팀_은 개발 중 모든 요청을 추적할 수 있기를 원하며, 운영 환경에서는 트래픽의 20% 샘플링을 원합니다.
+. _제품팀_은 성능 및 사용량에 대한 메트릭을 확인하고 이를 최대 1주일간 저장할 수 있기를 원합니다.
+. _보안팀_은 모든 서비스 간 통신에서 mTLS를 활성화하기를 원합니다.
+. _플랫폼팀_은 모든 보안 요소를 중앙에서 관리하기를 원합니다.
+. _개발팀_은 애플리케이션의 안정성과 신뢰성을 높이기 위해 회복력(resiliency)을 구현하고자 합니다.
 
-*The personas, roles and responsibilities are greatly affected by certain organizational, operational and governance choices around the cloud application platforms.* The Travel Agency company considered in the KickOff meeting the following aspects:
+== 사용자 거버넌스 모델
 
-_Type of cluster_::
+*페르소나, 역할 및 책임은 클라우드 애플리케이션 플랫폼과 관련된 조직적, 운영적 및 거버넌스 선택에 크게 영향을 받습니다.*  
+Travel Agency 회사는 Kick-Off 회의에서 다음과 같은 사항을 고려했습니다:
 
-Is it multi tenant cluster running/operating several application domains or is it a dedicated cluster for one app domain? And the topology of the Service Mesh (multi-tenant mesh vs. a single cluster mesh).
+_클러스터 유형_::
 
-_Choices of automation_::
+여러 애플리케이션 도메인을 실행하거나 운영하는 멀티 테넌트 클러스터인지, 아니면 하나의 애플리케이션 도메인에 전용된 클러스터인지? 그리고 Service Mesh의 토폴로지(멀티 테넌트 메쉬 vs. 단일 클러스터 메쉬)는 어떻게 되는지?
 
-What kind of automation to use to configure apps, the mesh configuration and the cloud platform? (Using i.e. CI/CD Pipelines, GitOps, Ansible, Scripting, ACM or none).
+_자동화 선택_::
 
-_Platform (Service Mesh) Operating Model_::
+애플리케이션, 메쉬 구성 및 클라우드 플랫폼을 구성하기 위해 어떤 종류의 자동화를 사용할 것인가요? (예: CI/CD 파이프라인, GitOps, Ansible, 스크립팅, link:https://www.redhat.com/ko/technologies/management/advanced-cluster-management[ACM,window=_blank] 또는 없음).
 
-Is it a producer-consumer platform  where admins/ops deploy all configurations and developers consume or is it a self-service platform?
+_플랫폼(Service Mesh) 운영 모델_::
 
-_Dev(Sec)Ops Methodology_::
+관리자나 운영자가 모든 구성을 배포하고 개발자가 이를 소비하는 생산자-소비자 플랫폼인지, 아니면 셀프 서비스 플랫폼인지?
 
-Whether the team have adopted link:https://www.redhat.com/en/topics/security/devsecops/approach[DevSecOps approaches] for application and cloud configuration delivery. DevSecOps approaches bring together development, security, and operations into a collaborative shared-responsibility paradigm. The goal is to break down barriers between roles, disciplines, and teams across an organization to encourage collaboration and work toward common goals. A DevSecOps approach encompasses people, processes, technology, and governance.
+_Dev(Sec)Ops 방법론_::
 
-For the purpose of the provided scenarios the Travel Agency has selected the following options determining the _Model of Operation_.
+팀이 애플리케이션 및 클라우드 구성 전달을 위해 link:https://www.redhat.com/ko/topics/security/devsecops/approach[DevSecOps 접근 방식,window=_blank]을 채택했는지 여부. DevSecOps 접근 방식은 개발, 보안 및 운영을 협업하는 공유 책임 패러다임으로 통합합니다. 목표는 조직 전반의 역할, 분야 및 팀 간의 장벽을 허물어 협업을 장려하고 공동의 목표를 향해 노력하는 것입니다. DevSecOps 접근 방식은 사람, 프로세스, 기술 및 거버넌스를 포괄합니다.
 
+제공된 시나리오의 목적을 위해 Travel Agency는 _운영 모델_을 결정하는 다음 옵션들을 선택했습니다.
 [cols="2,4,4"]
 .Model of Operation
 |===
 |# |Strategy |Option
 
-| 1 | Cluster Type | Dedicated Cluster
+| 1 | 클러스터 유형 | 전용 클러스터
 
-| 2 | Automation | Scripting (Step2 is GitOps)
+| 2 | 자동화 | 스크립팅
 
-| 3 | Platform Operating Model | <<sidenote2,Self-Service platform (restricted)>>
+| 3 | 플랫폼 운영 모델 | <<sidenote2,셀프 서비스 플랫폼>>
 
-| 4 | Dev(Sec)Ops Methodology | not covered by the Labs
+| 4 | Dev(Sec)Ops 방법론 | 랩에서는 다루지 않음
 
 |===
 
 [[sidenote2]]
-*Self-service (restricted):* In this Model of Operation the teams will be able to create `Service Mesh` configurations in a self-service manner with the exception of `Gateway` resources which will be handled by the `Service Mesh` operating admin.
+*셀프 서비스:* 이 운영 모델에서는 팀이 `Service Mesh` 구성을 셀프 서비스 방식으로 생성할 수 있으며, 심지어 `Gateway` 리소스도 `Service Mesh` 운영 관리자의 개입 없이 주입할 수 있습니다.
 
-== Travel Agency Personas & Roles
+== Travel Agency 페르소나 및 역할
 
-The following Travel Agency enterprise personas that will interact with the Service Mesh (OSSM) have been identified. Typically these are the most common ones in customer organizations (albeit with possible different names).
-
-Upstream Istio, and so OpenShift Service Mesh, do not define standard or default user roles it is up to each project/implementation to define the appropriate permissions and roles for the required personas in order to access the necessary Service Mesh resources.
-We have defined those based on the _Model of Operation_ and expected User Governance.
-
-In the following table you’ll see the Persona / Role mappings for the Travel Agency personas:
-
-|===
-|*Persona*|*Role*|*Responsibilities*
-
-|Platform Admin|Cluster Admin (Default OpenShift cluster-admin role)|Owner of multiple OpenShift clusters, deploys operators and sets organizational policies.
-|Mesh Operator|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L5[Mesh Operator Role YAML]|Operates parts of the cluster and the domain based service mesh for the hosted services. Creates and operates Service Mesh tenants.
-|Domain Owner (Tech Lead)|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML]|Responsible for an Application Domain. Onboards developers in the team and understands inter/intra service dependencies. Creates and configures Service Mesh resources (`VirtualService`, `DestinationRule` etc.) in their domain.
-|Developer|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML]|Develops services in his Application Domain. Needs to be kept aware of the health, performance and functional correctness of the solution.
-|Application Ops Team|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML]|The _Application Ops_ team monitors and maintains the running applications in the deployed cluster and within the domain hosted mesh (OSSM tenant), including extracting logs, executing commands to verify state, and troubleshooting in higher (non-development) environments
-|Product Owner|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML]|The Product Owner needs to be aware of the health, usage, cost as well as other metrics around the business domain of the solution.
-|===
+다음은 Travel Agency 엔터프라이즈에서 Service Mesh(OSSM)와 상호작용할 것으로 예상되는 페르소나들입니다. 이들은 일반적으로 고객 조직에서 가장 흔히 볼 수 있는 페르소나(다른 이름으로 불릴 가능성도 있음)들입니다.
 
 [NOTE]
 ====
-The `Mesh Operator`, `Mesh Application Viewer` and `Mesh Developer` Roles have been pre created for this Lab and `Rolebinding` has been added for each user (see links on the table below).
+Upstream Istio 및 OpenShift Service Mesh는 표준 또는 기본 사용자 역할을 정의하지 않습니다. 필요한 Service Mesh 리소스에 접근하기 위해 적절한 권한과 역할을 정의하는 것은 각 프로젝트 또는 구현에 따라 달라집니다.
 ====
 
-== User/Role/Persona Mapping for the DEV environment
+우리는 _운영 모델_과 예상 사용자 거버넌스에 기반하여 이러한 페르소나를 정의했습니다.
+
+다음 표는 Travel Agency의 페르소나에 대한 역할 매핑을 보여줍니다:
+|===
+|*페르소나*|*역할*|*책임*
+
+|플랫폼 관리자|OpenShift 클러스터 관리자 (기본 OpenShift `cluster-admin` 역할)|여러 OpenShift 클러스터를 관리하며, 오퍼레이터를 배포하고 조직 정책을 설정합니다.
+|메쉬 운영자|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L5[Mesh Operator Role YAML,window=_blank]|클러스터 및 도메인 기반 서비스 메쉬의 일부를 운영합니다. Service Mesh 테넌트를 생성하고 운영합니다.
+|도메인 소유자 (Tech Lead)|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML,window=_blank]|애플리케이션 도메인을 책임집니다. 팀 내 개발자를 온보딩하고 서비스 간/내 의존성을 이해합니다. 도메인 내 `VirtualService`, `DestinationRule` 등의 Service Mesh 리소스를 생성하고 구성합니다.
+|개발자|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML,window=_blank]|자신의 애플리케이션 도메인에서 서비스를 개발합니다. 솔루션의 상태, 성능, 기능적 정확성을 지속적으로 파악해야 합니다.
+|애플리케이션 운영팀|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L142[Mesh Developer Role YAML,window=_blank]|_애플리케이션 운영_ 팀은 배포된 클러스터와 도메인 내 호스팅된 메쉬(OSSM 테넌트)에서 실행 중인 애플리케이션을 모니터링하고 유지 관리합니다. 로그를 추출하고 상태를 확인하기 위한 명령을 실행하며, 고급(비개발) 환경에서 문제를 해결합니다.
+|제품 소유자|link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/bootstrap/templates/clusterroles.yaml#L275[Mesh Application Viewer Role YAML,window=_blank]|제품 소유자는 솔루션의 비즈니스 도메인과 관련된 상태, 사용량, 비용, 기타 메트릭을 파악해야 합니다.
+|===
+[NOTE]
+====
+`Mesh Operator`, `Mesh Application Viewer` 및 `Mesh Developer` 역할은 이 랩을 위해 미리 생성되었으며, 각 사용자에 대해 `Rolebinding`이 추가되었습니다(아래 표의 링크 참조).
+====
+
+== DEV 환경의 사용자/역할/페르소나 매핑
 
 [NOTE]
 ====
-For this Lab all the required OpenShift users for the identified personas have been pre-created and mapped to the corresponding roles.
+이 랩에서는 식별된 페르소나에 필요한 모든 OpenShift 사용자가 미리 생성되었으며, 해당 역할에 매핑되었습니다.
 ====
 
-The table below shows the User/Role/Persona Mapping for the Travel Agency DEV environment:
+아래 표는 Travel Agency DEV 환경의 사용자/역할/페르소나 매핑을 보여줍니다:
 
 [cols="1,4,2,3"]
-.Users created in `DEV` Environment
+.`DEV` 환경에서 생성된 사용자
 |===
-|Name |Enterprise Persona |Role Bindings |Namespace
+|이름 |엔터프라이즈 페르소나 |역할 바인딩 |네임스페이스
 
-| emma | Mesh Operator |  link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-emma.yaml[Rolebindings] | `dev-istio-system`
+| emma | Mesh Operator | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-emma.yaml[Rolebindings,window=_blank] | `dev-istio-system`
 
-| cristina | Travel Portal Domain Owner (Tech Lead)  | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-cristina.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`
+| cristina | Travel Portal 도메인 소유자 (Tech Lead) | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-cristina.yaml[Rolebindings,window=_blank] | `dev-travel-portal`, `dev-travel-control`
 
-| farid | Travel Services Domain Owner (Tech Lead)  | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-farid.yaml[Rolebindings] | `dev-travel-agency`
+| farid | Travel Services 도메인 소유자 (Tech Lead) | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-farid.yaml[Rolebindings,window=_blank] | `dev-travel-agency`
 
-| john | Developer (TP) | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-john.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`
+| john | 개발자 (TP) | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-john.yaml[Rolebindings,window=_blank] | `dev-travel-portal`, `dev-travel-control`
 
-| mia | Developer (TS) | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mia.yaml[Rolebindings] | `dev-travel-agency`
+| mia | 개발자 (TS) | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mia.yaml[Rolebindings,window=_blank] | `dev-travel-agency`
 
-| mus | Product Owner | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mus.yaml[Rolebindings] | `dev-travel-portal`, `dev-travel-control`, `dev-travel-agency`
+| mus | 제품 소유자 | link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/blob/helm/helm/ossm/templates/dev/rolebindings-mus.yaml[Rolebindings,window=_blank] | `dev-travel-portal`, `dev-travel-control`, `dev-travel-agency`
 
 |===
-

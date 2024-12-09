@@ -36,7 +36,7 @@ endif::workshop[]
 == 로그인, 네임스페이스 및 튜토리얼 파일 확인
 
 [tabs, subs="attributes+,+macros"]  
-====
+--
 OpenShift (웹 터미널)::
 +
 --
@@ -98,10 +98,11 @@ image:deploy-openshift-cli-local.png[Using OpenShift CLI and kubectl locally]
 ----
 oc new-project tutorial ; oc project tutorial
 ----
---
-====
+
+
 
 [#deploycustomer]
+
 == 고객 서비스 배포
 
 [NOTE]
@@ -214,7 +215,7 @@ oc create -f Gateway.yaml -n tutorial{namespace-suffix}
 ----
 
 Gateway 및 VirtualService는 Istio 트래픽 관리를 구성하는 데 사용되는 논리적 개체입니다. 메쉬로 들어오는 모든 트래픽은 `user1-dev-istio-system` 네임스페이스에 배포된 `istio-ingressgateway` 를 통해 유입됩니다. `istio-ingressgateway` 구성 요소가 배포되었는지 확인하려면 다음 명령어를 사용하세요:
-+
+
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----

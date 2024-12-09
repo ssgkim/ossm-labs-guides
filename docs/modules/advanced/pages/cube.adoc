@@ -44,7 +44,7 @@ customer => preference => recommendation v1 from '2819441432-qsp25': 3
 [#explanation]
 == 설명 (Explanation)
 
-*다크 론칭 (Dark Launching)*은 새로운 버전의 소프트웨어가 예상대로 작동하는지 확인하기 위해 사용자에게 선택적으로 또는 은밀하게 소프트웨어를 릴리스하는 프로세스입니다.
+*다크 론칭 (Dark Launching)* 은 새로운 버전의 소프트웨어가 예상대로 작동하는지 확인하기 위해 사용자에게 선택적으로 또는 은밀하게 소프트웨어를 릴리스하는 프로세스입니다.
 
 *다크 론칭* 기술에는 여러 가지 방법이 있습니다. 이 튜토리얼에서 xref:ROOT:5advanced-routerules.adoc#mirroringtraffic[트래픽 미러링]에 대해 배웠습니다. 
 이번에는 *DarkLaunch* 문자열이 `user-agent` 헤더에 포함된 경우 트래픽이 _v2_로 리디렉션되도록 하는 방법을 보여줍니다.

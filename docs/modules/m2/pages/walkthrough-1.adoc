@@ -4,7 +4,7 @@
 
 [IMPORTANT]
 ====
-*이 랩의 이 부분에서는 아무 것도 실행할 필요가 없습니다.*  
+* 이 랩의 이 부분에서는 아무 것도 실행할 필요가 없습니다.*  
 랩 강사가 Travel Agency 개발 환경에 필요한 사용자, 역할, 네임스페이스, 애플리케이션, 서비스 메쉬 등을 *미리 설정*해 두었습니다.  
 다음 시나리오에서는 운영(PROD) 환경을 단계별로 직접 생성하게 됩니다.  
 
@@ -44,5 +44,5 @@ link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/tree/helm/helm/os
 `OpenShift Service Mesh` 는 Istio와 마찬가지로 데이터 플레인에서 *_Ingress Gateway_* 를 주입할 수 있는 기능을 제공합니다.  
 그러나 DEV 환경에서의 _Travel Agency_ 사용 사례에서는 아키텍트들이 *_Self-Service_* xref:m1:walkthrough.adoc#_user_governance_model[사용자 거버넌스 모델]을 선택했으며, 이에 따라 `Mesh Operator`가 Ingress/Egress 리소스 구성을 담당합니다.
 
-*_Gateway Injection_*은 이후 xref:m4:walkthrough.adoc#_user_governance_model[랩 모듈 4]에서 사용하게 됩니다.
+*_Gateway Injection_* 은 이후 xref:m4:walkthrough.adoc#_user_governance_model[랩 모듈 4]에서 사용하게 됩니다.
 ====

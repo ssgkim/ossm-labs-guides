@@ -17,7 +17,7 @@ export SSO_CLIENT_SECRET=bcd06d5bdd1dbaaf81853d10a66aeb989a38dd51
 
 === 작업 1: Travel Control 대시보드에 접근하기
 
-* CLI를 사용하여 사용자 `emma` 로 로그인하세요. 이 사용자는 `{openshift_cluster_user_name}-dev-istio-system`에 접근할 수 있습니다. 애플리케이션 비즈니스 대시보드의 URL을 가져와 브라우저에 붙여넣고 *Travel Control Dashboard*에 접근할 수 있는지 확인하세요.
+* CLI를 사용하여 사용자 `emma` 로 로그인하세요. 이 사용자는 `{openshift_cluster_user_name}-dev-istio-system`에 접근할 수 있습니다. 애플리케이션 비즈니스 대시보드의 URL을 가져와 브라우저에 붙여넣고 *Travel Control Dashboard* 에 접근할 수 있는지 확인하세요.
 
 [source, shell, role=execute, subs=attributes]
 ----
@@ -173,7 +173,7 @@ image::02-grafana-cars-workload-outbound-dashboard.png[400,1000]
 
 1. 사용자 이름/비밀번호 *`mia`*/*`mia`* (역할: `Application Viewer`)로 `Kiali` URL에 접근합니다.
 
-* _Travel Services_ 도메인의 `Developer` 로서 *mia*는 `dev-travel-agency` 내 워크로드에서 기능, 성능 또는 구성 문제를 확인하는 데 관심이 있습니다. 따라서 해당 서비스 메쉬 네임스페이스에 대한 접근 권한이 부여되며, _Travel Portal_ 도메인 네임스페이스와 서비스 메쉬 컨트롤 플레인 네임스페이스는 제한됩니다(잠금 아이콘 표시).
+* _Travel Services_ 도메인의 `Developer` 로서 *mia* 는 `dev-travel-agency` 내 워크로드에서 기능, 성능 또는 구성 문제를 확인하는 데 관심이 있습니다. 따라서 해당 서비스 메쉬 네임스페이스에 대한 접근 권한이 부여되며, _Travel Portal_ 도메인 네임스페이스와 서비스 메쉬 컨트롤 플레인 네임스페이스는 제한됩니다(잠금 아이콘 표시).
 +
 [link=_images/02-mia-graph-restricted-view.png,window=_blank]
 image::02-mia-graph-restricted-view.png[]
@@ -185,7 +185,7 @@ image::02-mia-graph-restricted-view.png[]
 1. 사용자 이름/비밀번호 *`emma`*/*`emma`* (역할: `Mesh Operator`)로 `Kiali` URL에 접근합니다.
 
 * `Mesh Operator` 로서 모든 3개의 _데이터 플레인_ 네임스페이스와 _컨트롤 플레인_에 *전체* 접근 권한을 가집니다.
-** `Kiali`에서 *Graphs -> App Graph*로 이동하여 *Display*에서 `Request Distribution`, `Namespace Boxes`, `Traffic Animation`, `Security` 를 선택하여 Mesh Operator 뷰를 확인합니다.
+** `Kiali`에서 *Graphs -> App Graph*로 이동하여 *Display* 에서 `Request Distribution`, `Namespace Boxes`, `Traffic Animation`, `Security` 를 선택하여 Mesh Operator 뷰를 확인합니다.
 ** 또한, 왼쪽 `Kiali` 메뉴에서 `Istio Config` 로 이동합니다. 이 메쉬의 관리자로서 모든 구성을 접근하거나 수정할 수 있습니다.
 ** 워크로드의 로그에도 접근할 수 있습니다. 왼쪽 `Kiali` 메뉴에서 `Workloads` 로 이동하고 워크로드 중 하나를 선택하면 프록시와 Pod 로그가 모두 표시됩니다.
 ** 마지막으로, 이전 사용자와 마찬가지로 `Prometheus`, `Jaeger`, 및 `Grafana`에 접근할 수 있습니다. `Grafana`에서는 서비스 메쉬 _컨트롤 플레인_ 상태를 시각화하는 대시보드도 사용할 수 있습니다.

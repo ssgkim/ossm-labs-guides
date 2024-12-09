@@ -645,7 +645,7 @@ increase(pilot_proxy_convergence_time_sum[10m])/increase(pilot_proxy_convergence
 
 == 작업 6: 최종 운영 환경 설정
 
-다음 *목표*와 *원칙*은 `Travel Agency` 아키텍트들과 최종적으로 확정되었으며, 이에 따라 최종 `Service Mesh` 구성 조정이 승인되었습니다:
+다음 *목표*와 *원칙* 은 `Travel Agency` 아키텍트들과 최종적으로 확정되었으며, 이에 따라 최종 `Service Mesh` 구성 조정이 승인되었습니다:
 
 * *목표:*
 ** 서비스 간 통신의 보안을 보장합니다.

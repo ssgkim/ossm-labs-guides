@@ -39,7 +39,7 @@ preference-243057078-8c5hz            2/2       Running   0          15m
 [WARNING]
 .고객 및 선호도 서비스의 이전 버전
 ====
-이 섹션을 실행하려면 최신 _customer_ 및 _preference_ 버전을 배포해야 합니다. _customer_ 및 _preference_의 *이전* 버전이 이미 존재하는 경우, xref:ROOT:2deploy-microservices.adoc[Deploy Microservices]를 따라 최신 소스로 다시 배포하십시오.
+이 섹션을 실행하려면 최신 _customer_ 및 _preference_ 버전을 배포해야 합니다. _customer_ 및 _preference_의 * 이전* 버전이 이미 존재하는 경우, xref:ROOT:2deploy-microservices.adoc[Deploy Microservices]를 따라 최신 소스로 다시 배포하십시오.
 ====
 
 [#recommendationv4]
@@ -345,7 +345,7 @@ kubectl delete all -l app=recommendation,version=v5
 [#recommendationv7]
 === Recommendation:v7
 
-마지막으로 해야 할 작업은 새 열 *movie_name*에만 매번 기록하고, 두 열 모두에 기록하지 않는 것입니다.
+마지막으로 해야 할 작업은 새 열 *movie_name* 에만 매번 기록하고, 두 열 모두에 기록하지 않는 것입니다.
 또한 null 제약 조건을 제거하고 새 열에 추가해야 합니다.
 
 [source,bash,subs="+macros,+attributes"]

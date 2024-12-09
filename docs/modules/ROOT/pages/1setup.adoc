@@ -57,7 +57,7 @@ Istio를 구성하려면 제어 플레인 컴포넌트를 배포할 네임스페
 
 1. *Home* 섹션을 확장하고 *Projects* 를 선택합니다.
 2. 화면 오른쪽 상단의 *Create Project* 버튼을 클릭합니다. 모달이 화면 중앙에 나타납니다.
-3. *Name*에 `user1-dev-istio-system` 을 입력하고 모달에서 *Create* 를 클릭합니다.
+3. *Name* 에 `user1-dev-istio-system` 을 입력하고 모달에서 *Create* 를 클릭합니다.
 
 image::6.createproject.png[]
 
@@ -81,7 +81,7 @@ image::9.bootup.png[]
 
 1. *Home* 섹션을 확장하고 *Projects* 를 선택합니다.
 2. 화면 오른쪽 상단의 *Create Project* 버튼을 클릭합니다. 모달이 화면 중앙에 나타납니다.
-3. *Name*에 `tutorial` 을 입력하고 모달에서 *Create* 를 클릭합니다.
+3. *Name* 에 `tutorial` 을 입력하고 모달에서 *Create* 를 클릭합니다.
 4. 사이드 메뉴에서 *Operators > Installed Operators* 를 선택합니다.
 5. *Provided APIs* 열에서 *Istio Service Mesh Member Roll* 옵션을 선택합니다.
 +

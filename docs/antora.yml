@@ -9,15 +9,13 @@ nav:
   - modules/m2/nav.adoc
   - modules/m3/nav.adoc
   - modules/m4/nav.adoc
-  - modules/m5/nav.adoc
-  - modules/m6/nav.adoc
   - modules/advanced/nav.adoc
 
 start_page: ROOT/1setup.adoc
 
 asciidoc:
   attributes:
-    lab_name: "Heading to production with OpenShift Service Mesh"
+    lab_name: "KFTC Service Mesh"
     release-version: master
     page-pagination: true
     my_var: "foo"

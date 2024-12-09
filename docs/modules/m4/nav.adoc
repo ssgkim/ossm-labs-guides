@@ -1,4 +1,4 @@
-.Module Four - Authn & Authz
-* xref:intro.adoc[Securing (Authn & Authz) Gateways with MTLS and valid JWT Token]
-* xref:walkthrough.adoc[Walkthrough]
-* xref:finish.adoc[Finish]
+.모듈 4 - 인증 및 권한 부여 (Authn & Authz)
+* xref:intro.adoc[MTLS 및 유효한 JWT 토큰으로 게이트웨이 보호 (Authn & Authz)]
+* xref:walkthrough.adoc[워크스루]
+* xref:finish.adoc[완료]

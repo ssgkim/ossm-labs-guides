@@ -1,10 +1,8 @@
-# Module 5: Securing (Authn & Authz) Gateways with MTLS and valid JWT Token
+# 모듈 5: MTLS 및 유효한 JWT 토큰으로 게이트웨이 보안 (인증 및 권한 부여)
 
-## Congratulations on completing this module!
+## 이 모듈을 완료한 것을 축하합니다!
 
-Congratulations!!
-You have successfully completed taking the _Travel Agency_ application _Travel Demo_ to production with Service Mesh.
+축하합니다!!
+_Travel Agency_ 애플리케이션 _Travel Demo_ 를 서비스 메쉬와 함께 프로덕션으로 성공적으로 이전했습니다.
 
-As next steps you can review in the next section the Day 2 operations with Service Mesh.
-
-
+다음 단계로, 다음 섹션에서 서비스 메쉬와 함께하는 Day 2 운영에 대해 검토할 수 있습니다.

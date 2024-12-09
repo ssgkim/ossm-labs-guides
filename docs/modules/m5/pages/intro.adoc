@@ -1,18 +1,18 @@
-# Module 5: Business Authz restrictions and Corporate CA Setup
+# 모듈 5: 비즈니스 권한 제한 및 기업 CA 설정
 
 [IMPORTANT]
 ====
-Before moving forward you should have fully completed *Lab Scenario-4*. If you have not done so, please do so now using if preferred the script `lab-4/complete-lab-4.sh`.
+진행하기 전에 *Lab Scenario-4*를 완전히 완료해야 합니다. 아직 완료하지 않았다면, `lab-4/complete-lab-4.sh` 스크립트를 사용하여 지금 완료하십시오.
 ====
 
-## ABOUT THIS LAB
+## 이 랩에 대해
 
-Evaluations by the Product Security Team as well as new regulations are requiring the _Travel Agency_ company to further improve the security aspects of the running applications in production.
+제품 보안 팀의 평가와 새로운 규정에 따라 _Travel Agency_ 회사는 프로덕션에서 실행 중인 애플리케이션의 보안 측면을 더욱 향상시켜야 합니다.
 
-1. The Security Team requires a corporate (intermediate) CA certificate to be used for the inter-Service Mesh mTLS communications.
-2. The Product Team (of the Travel Agency APIs) requires to add authorization for the access to specific services.
+1. 보안 팀은 서비스 메쉬 간의 mTLS 통신에 회사의 (중간) CA 인증서를 사용할 것을 요구합니다.
+2. 제품 팀(Travel Agency API)은 특정 서비스에 대한 액세스를 제한하기 위해 권한 부여(Authorization)를 추가해야 합니다.
 
-== Final Security Architecture Overview
+== 최종 보안 아키텍처 개요
 
 [link=_images/05-corporate-mtls-authz.png,window=_blank]
 image::05-corporate-mtls-authz.png[300,700]

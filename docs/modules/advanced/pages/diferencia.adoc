@@ -1,11 +1,18 @@
-= Diferencia and Detecting Regressions
+= Diferencia와 회귀 감지 (Diferencia and Detecting Regressions)
 include::_attributes.adoc[]
 
 [IMPORTANT]
 .Before Start
 ====
-You should have NO virtualservice nor destinationrule (in `tutorial` namespace) `kubectl get virtualservice` `kubectl get destinationrule` 
-if so run:
+`tutorial` 네임스페이스에 가상 서비스(virtualservice)나 대상 규칙(destinationrule)이 없어야 합니다. 다음 명령어로 확인할 수 있습니다.
+
+[source, bash]
+----
+kubectl get virtualservice
+kubectl get destinationrule
+----
+
+필요한 경우 다음 명령어로 정리할 수 있습니다.
 
 [source, bash]
 ----
@@ -14,228 +21,124 @@ if so run:
 ====
 
 [#what-is-diferencia]
-== What is Diferencia?
+== Diferencia란 무엇인가?
 
-https://lordofthejars.github.io/diferencia-docs-site[*Diferencia*] is designed to act as a proxy which intercepts calls to a service and multicast it to several instances of the same service. 
-These instances are an old and new version of the service. Then when the response is returned from each instance, Diferencia will check if both responses are _similar_, and if it is the case, then the two implementations might be considered compatible and the new version implementation is *regression-free*.
+https://lordofthejars.github.io/diferencia-docs-site[*Diferencia*]는 서비스 호출을 가로채고 동일한 서비스의 여러 인스턴스로 멀티캐스트하는 프록시로 작동하도록 설계되었습니다. 
+이 인스턴스는 이전 버전과 새 버전의 서비스입니다. 그런 다음 각 인스턴스로부터 반환된 응답을 비교합니다. 
+두 응답이 *유사*한 경우, 두 구현은 호환 가능한 것으로 간주될 수 있으며 새 버전 구현은 *회귀가 없는* 것으로 간주됩니다.
 
-image::diferencia-simple.png[Overview of Diferencia]
+image::diferencia-simple.png[Diferencia 개요]
 
-In the previous schema, you can see that a request is multicasted to two instances of Service A, one being V1 and to other V2. 
-Both return a response and then it is compared by Diferencia. 
-Finally, notice that no response is returned (_by default_) but the result (in form of HTTP Status Code).
+위의 다이어그램에서는 하나의 요청이 두 개의 서비스 A 인스턴스(하나는 V1, 다른 하나는 V2)로 멀티캐스트되는 것을 볼 수 있습니다. 
+두 인스턴스 모두 응답을 반환하고 Diferencia는 이들을 비교합니다. 
+기본적으로 Diferencia는 실제 응답을 반환하지 않고 비교 결과(HTTP 상태 코드 형태)만 반환합니다.
 
-Since Diferencia does not return a real response, but a comparison, effectively means that it is a perfect fit for *Traffic Shadowing/Mirroring* technique.
+Diferencia는 실제 응답을 반환하지 않으므로 *트래픽 미러링(Shadowing/Mirroring)* 기술에 적합합니다.
 
 [#master-candidate]
-=== Selecting Master and Candidate
+=== 마스터 및 후보 선택
 
-The first thing you need to do is selecting a *master* service (the one you know it works) and a *candidate* service (the one you want to release) and create a Kubernetes service.
-For this case, *master* is `recommendation:v1` and *candidate* is `recommendation:v2`.
+가장 먼저 해야 할 일은 *마스터* 서비스(정상 작동을 보장하는 서비스)와 *후보* 서비스(릴리스하려는 서비스)를 선택하고 Kubernetes 서비스를 생성하는 것입니다. 
+이 경우 *마스터*는 `recommendation:v1`이고 *후보*는 `recommendation:v2`입니다.
 
 [source, bash,subs="+macros,+attributes"]
 ----
-oc create -f link:{github-repo}/{diferencia-dir}/recommendation-master-svc.yml[diferencia/recommendation-master-svc.yml] -n tutorial
-oc create -f link:{github-repo}/{diferencia-dir}/recommendation-candidate-svc.yml[diferencia/recommendation-candidate-svc.yml] -n tutorial
+oc create -f link:{github-repo}/{diferencia-dir}/recommendation-master-svc.yml -n tutorial
+oc create -f link:{github-repo}/{diferencia-dir}/recommendation-candidate-svc.yml -n tutorial
 
-or
+또는
 
-kubectl create -f link:{github-repo}/{diferencia-dir}/recommendation-master-svc.yml[diferencia/recommendation-master-svc.yml] -n tutorial
-kubectl create -f link:{github-repo}/{diferencia-dir}/recommendation-candidate-svc.yml[diferencia/recommendation-candidate-svc.yml] -n tutorial
+kubectl create -f link:{github-repo}/{diferencia-dir}/recommendation-master-svc.yml -n tutorial
+kubectl create -f link:{github-repo}/{diferencia-dir}/recommendation-candidate-svc.yml -n tutorial
 ----
 
 [#deploying-diferencia]
-=== Deploying Diferencia
+=== Diferencia 배포
 
-Next thing is to deploy Diferencia.
+이제 Diferencia를 배포해야 합니다.
 
 [source, bash, subs="+macros,+attributes"]
 ----
-oc apply -f <(istioctl kube-inject -f link:{github-repo}/{diferencia-dir}/Deployment.yml[diferencia/Deployment.yml]) -n tutorial
+oc apply -f <(istioctl kube-inject -f link:{github-repo}/{diferencia-dir}/Deployment.yml) -n tutorial
 oc create -f diferencia/Service.yml -n tutorial
 
-or
+또는
 
-kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{diferencia-dir}/Deployment.yml[diferencia/Deployment.yml]) -n tutorial
+kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{diferencia-dir}/Deployment.yml) -n tutorial
 kubectl create -f diferencia/Service.yml -n tutorial
 ----
 
 [#shadowing-traffic]
-=== Shadowing Traffic
+=== 트래픽 미러링 (Shadowing Traffic)
 
-The last thing is to just start shadowing traffic between `recommendation:v1` and diferencia.
+마지막으로 `recommendation:v1`과 Diferencia 사이에 트래픽 미러링을 시작합니다.
 
 [source, bash,subs="+macros,+attributes"]
 ----
-istioctl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial
-
-istioctl create -f link:{github-repo}/{diferencia-dir}/virtual-service-recommendation-v1-diferencia-mirror-v2.yml[diferencia/virtual-service-recommendation-v1-diferencia-mirror-v2.yml] -n tutorial
+istioctl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml -n tutorial
+istioctl create -f link:{github-repo}/{diferencia-dir}/virtual-service-recommendation-v1-diferencia-mirror-v2.yml -n tutorial
 ----
 
-And then you can send two requests to the application.
+이제 애플리케이션에 두 개의 요청을 보낼 수 있습니다.
 
 [source, bash]
 ----
 curl customer-tutorial.$(minishift ip).nip.io
-customer => preference => recommendation v1 from '5f97c568c4-rkb8t': 8
-
 curl customer-tutorial.$(minishift ip).nip.io
-customer => preference => recommendation v1 from '5f97c568c4-rkb8t': 10
 ----
 
-Things to notice here is that for each `curl` request, the counter is incremented by 2.
-Why? Because one request is the one sent to the user and the other one is the one consumed by diferencia.
+각 `curl` 요청에 대해 카운터가 2씩 증가하는 것을 볼 수 있습니다. 
+왜 그럴까요? 하나의 요청은 사용자에게 전송된 것이고, 다른 하나는 Diferencia에 의해 소비된 요청이기 때문입니다.
 
-Then how do you check if there is any regression or not?
-Diferencia offers different ways:
+이제 회귀가 있는지 어떻게 확인할 수 있을까요? Diferencia는 다음과 같은 여러 가지 방법을 제공합니다.
 
-logs:: If you start Diferencia in `debug` mode (in this example it is) then you can inspect the results of each request.
-API:: There is an endpoint that returns a JSON document with the stats of each request/response. `:8082/stats`.
-Dashboard:: There is a simple HTML dashboard to get the stats. `:8082/dashboard`.
-Prometheus:: All statistics are exposed in Prometheus format. `:8081/metrics`.
+- **로그(logs)**: Diferencia를 `debug` 모드로 시작하면 요청의 결과를 검사할 수 있습니다.
+- **API**: 특정 엔드포인트 (`:8082/stats`)에서 요청/응답 통계를 반환하는 JSON 문서를 제공합니다.
+- **대시보드(Dashboard)**: `:8082/dashboard`에 간단한 HTML 대시보드를 제공하여 통계를 볼 수 있습니다.
+- **Prometheus**: 모든 통계는 Prometheus 형식으로 노출됩니다. `:8081/metrics` 엔드포인트를 통해 액세스할 수 있습니다.
 
-Check the logs of Diferencia.
+Diferencia의 로그를 확인합니다.
 
 [source, bash]
 ----
-oc logs -f `oc get pods|grep recommendation-diferencia|awk '{ print $1 }'` -c recommendation-diferencia
+oc logs -f `oc get pods | grep recommendation-diferencia | awk '{ print $1 }'` -c recommendation-diferencia
 
-or
+또는
 
-kubectl logs -f `kubectl get pods|grep recommendation-diferencia|awk '{ print $1 }'` -c recommendation-diferencia
+kubectl logs -f `kubectl get pods | grep recommendation-diferencia | awk '{ print $1 }'` -c recommendation-diferencia
 ----
 
-And you'll see:
+로그 출력 예시:
 
 [source, bash]
 ----
 time="2018-11-14T12:07:43Z" level=debug msg="URL / is going to be processed"
 time="2018-11-14T12:07:43Z" level=debug msg="Forwarding call to http://recommendation-master:8080/"
 time="2018-11-14T12:07:43Z" level=debug msg="Forwarding call to http://recommendation-candidate:8080/"
-time="2018-11-14T12:07:43Z" level=debug msg="Forwarding call to http://recommendation-master:8080/"
 time="2018-11-14T12:07:43Z" level=debug msg="Result of comparing http://recommendation-master:8080/ and http://recommendation-candidate:8080/ is false"
-time="2018-11-14T12:07:50Z" level=debug msg="URL / is going to be processed"
-time="2018-11-14T12:07:50Z" level=debug msg="Forwarding call to http://recommendation-master:8080/"
-time="2018-11-14T12:07:50Z" level=debug msg="Forwarding call to http://recommendation-candidate:8080/"
-time="2018-11-14T12:07:50Z" level=debug msg="Forwarding call to http://recommendation-master:8080/"
-time="2018-11-14T12:07:50Z" level=debug msg="Result of comparing http://recommendation-master:8080/ and http://recommendation-candidate:8080/ is false"
 ----
 
-And notice that in both cases the response is `false`.
-This means that recommendation v1 and recommendation v2 are not compatible.
-The reason of that is because of both responses are not equal (`recommendation v1 from '5f97c568c4-rkb8t': 8`, `recommendation v2 from '5f97cab34c4-r348t': 12`).
-
-TIP: This example uses a text comparison which is fine for this case but not in a real use case. Diferencia is built to work perfectly fine in different scenarios where JSON is the content type. You can read more about how Diferencia works when content is JSON https://lordofthejars.github.io/diferencia-docs-site/diferencia/0.4.0/run-diferencia.html#modes[here].
-
-[#noise-detection]
-=== Noise Detection
-
-Notice that in the previous example we could agree that if `recommendation` was present, we could say that both services are compatible and they are regression-free.
-
-To not make a simple comparision but something a bit more error-prone, Diferencia implements a https://lordofthejars.github.io/diferencia-docs-site/diferencia/0.4.1/run-diferencia.html#noise[Noise cancellation] approach to remove these parts that are dynamic (for example the hostname).
-
-And it works like:
-
-image::diferencia-noise.png[Noise Cancellation]
-
-This algorithm sends the request to not two instances but three. Two are the old instances (primary and secondary) and one to the new instance (candidate).
-
-The request to primary and secondary returns a valid request (since old instances are the correct ones), then from their responses, Diferencia checks for the differences between both responses.
-
-Since both responses are valid (because the source is the same but different instances), the differences that are between them are just noise that should not take into consideration for response validation.
-
-Then detected noise is removed from primary and candidate response, and they are compared, if they are equal, then you know that everything is fine.
-
-TIP: Of course this is a simple example but in case of the JSON is where noise cancellation is really useful, for example for skipping fields such as time, random numbers, ...
-
-==== Removes Old Diferencia instance
-
-Let's remove Diferencia and mirroring.
-
-[source, bash]
-----
-oc delete deployments recommendation-diferencia
-or 
-kubectl delete deployments recommendation-diferencia
-
-istioctl delete -f diferencia/virtual-service-recommendation-v1-diferencia-mirror-v2.yml -n tutorial
-----
-
-==== Deploy Diferencia with Noise Cancellation
-
-Then let's add Diferencia with noise cancellation enabled:
-
-[source, bash,subs="+macros,+attributes"]
-----
-oc apply -f <(istioctl kube-inject -f link:{github-repo}/{diferencia-dir}/Deployment-noise-detection.yml[diferencia/Deployment-noise-detection.yml]) -n tutorial
-oc create -f diferencia/Service.yml -n tutorial
-
-or 
-
-kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{diferencia-dir}/Deployment-noise-detection.yml[diferencia/Deployment-noise-detection.yml]) -n tutorial
-kubectl create -f diferencia/Service.yml -n tutorial
-----
-
-Then let's enable mirroring again:
-
-[source, bash,subs="+macros,+attributes"]
-----
-istioctl create -f link:{github-repo}/{diferencia-dir}/virtual-service-recommendation-v1-diferencia-mirror-v2.yml[diferencia/virtual-service-recommendation-v1-diferencia-mirror-v2.yml] -n tutorial
-----
-
-And then you can send two requests to the application.
-
-[source, bash]
-----
-curl customer-tutorial.$(minishift ip).nip.io
-customer => preference => recommendation v1 from '5f97c568c4-rkb8t': 11
-
-curl customer-tutorial.$(minishift ip).nip.io
-customer => preference => recommendation v1 from '5f97c568c4-rkb8t': 14
-----
-
-Things to notice here is that for each `curl` request, the counter is incremented by 3.
-Why? Because one request is the one sent to the user and the other one is the one consumed by diferencia as _primary_ and _seconday_.
-
-Now if you check the logs of Diferencia, you should see something like:
-
-[source, bash]
-----
-oc logs -f `oc get pods|grep recommendation-diferencia|awk '{ print $1 }'` -c recommendation-diferencia
-
-or
-
-kubectl logs -f `kubectl get pods|grep recommendation-diferencia|awk '{ print $1 }'` -c recommendation-diferencia
-
-time="2018-11-16T08:57:33Z" level=debug msg="URL / is going to be processed"
-time="2018-11-16T08:57:33Z" level=debug msg="Forwarding call to http://recommendation-master:8080/"
-time="2018-11-16T08:57:33Z" level=debug msg="Forwarding call to http://recommendation-candidate:8080/"
-time="2018-11-16T08:57:33Z" level=debug msg="Forwarding call to http://recommendation-master:8080/"
-time="2018-11-16T08:57:33Z" level=debug msg="Result of comparing http://recommendation-master:8080/ and http://recommendation-candidate:8080/ is true"
-----
-
-Notice that now the result is `true` meaning that both services are equivalent.
-
-IMPORTANT: This is a simple example using text plain, but https://lordofthejars.github.io/diferencia-docs-site[*Diferencia*] is really useful when the output is a JSON format where there can be incompatibilities.
+응답이 `false`인 것을 볼 수 있습니다. 이는 `recommendation v1`과 `recommendation v2`가 호환되지 않는다는 것을 의미합니다.
 
 [#cleanup]
-== Clean Up
+== 정리 작업 (Clean Up)
+
+다음 명령으로 Diferencia 및 관련 리소스를 제거합니다.
 
 [source, bash]
 ----
 oc delete deployments recommendation-diferencia
-or 
-kubectl delete deployments recommendation-diferencia
-
 oc delete service recommendation-candidate
-or
-kubectl delete service recommendation-candidate
-
-
 oc delete service recommendation-master
-or
-kubectl delete service recommendation-master
-
 istioctl delete -f diferencia/virtual-service-recommendation-v1-diferencia-mirror-v2.yml -n tutorial
 ----
 
+또는
+
+[source, bash]
+----
+kubectl delete deployments recommendation-diferencia
+kubectl delete service recommendation-candidate
+kubectl delete service recommendation-master
+istioctl delete -f diferencia/virtual-service-recommendation-v1-diferencia-mirror-v2.yml -n tutorial
+----

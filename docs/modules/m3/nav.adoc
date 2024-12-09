@@ -1,4 +1,4 @@
-.Module Three - Production Setup
-* xref:intro.adoc[Setup Travel Demo `ServiceMeshControlPlane` for Production]
-* xref:walkthrough.adoc[Walkthrough]
-* xref:finish.adoc[Finish]
+.모듈 3 - 프로덕션 설정
+* xref:intro.adoc[프로덕션을 위한 Travel Demo `ServiceMeshControlPlane` 설정]
+* xref:walkthrough.adoc[워크스루]
+* xref:finish.adoc[완료]

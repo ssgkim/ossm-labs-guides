@@ -1,84 +1,84 @@
-= Zero Downtime Migrations
+= 무중단 마이그레이션
 include::_attributes.adoc[]
 
 [IMPORTANT]
-.Before Start
+.시작하기 전에
 ====
-You should have NO virtualservice, destinationrule, gateway or policy (in `tutorial` namespace) `kubectl get virtualservice` `kubectl get destinationrule` `kubectl get gateway` `kubectl get policy`
-if so run:
+`kubectl get virtualservice`, `kubectl get destinationrule`, `kubectl get gateway`, `kubectl get policy` 명령어를 실행하여 `tutorial` 네임스페이스에 virtualservice, destinationrule, gateway 또는 policy가 없어야 합니다.
+만약 존재한다면 다음 명령어로 정리하십시오.
 
 [source, bash]
 ----
 ./scripts/clean.sh
 ----
 
-Also, you need to undeploy any _recommendation_ service (v1, v2, v3) that you might have deployed on the cluster.
-To undeploy them just run: 
+또한, 클러스터에 배포된 모든 _recommendation_ 서비스(v1, v2, v3)를 제거해야 합니다.
+다음 명령어를 실행하여 제거하십시오. 
 
 [source, bash]
 ----
 oc delete all -l app=recommendation -n tutorial
-or
+또는
 kubectl delete all -l app=recommendation -n tutorial
 ----
 
-Wait until all _recommendation_ serivces are down.
+모든 _recommendation_ 서비스가 중단될 때까지 기다립니다.
 
 [source, bash]
 ----
 oc get pods -n tutorial
-or
+또는
 kubectl get pods -n tutorial
 
 NAME                                  READY     STATUS    RESTARTS   AGE
 customer-3600192384-fpljb             2/2       Running   0          17m
-preference-243057078-8c5hz           2/2       Running   0          15m
+preference-243057078-8c5hz            2/2       Running   0          15m
 ----
 ====
 
 [WARNING]
-.Old Versions of customer and preference
+.고객 및 선호도 서비스의 이전 버전
 ====
-To run this section you need to deploy the latest _customer_ and _preference_ versions, if you already have these *old* versions of _customer_ and _preference_, deploy them again with latest sources following xref:ROOT:2deploy-microservices.adoc[Deploy Microservices].
+이 섹션을 실행하려면 최신 _customer_ 및 _preference_ 버전을 배포해야 합니다. _customer_ 및 _preference_의 *이전* 버전이 이미 존재하는 경우, xref:ROOT:2deploy-microservices.adoc[Deploy Microservices]를 따라 최신 소스로 다시 배포하십시오.
 ====
 
 [#recommendationv4]
-== Deploy recommendation:v4
+== recommendation:v4 배포
 
-=== Deploy PostgreSQL database
+=== PostgreSQL 데이터베이스 배포
 
-The first thing you need to do is deploy a PostgreSQL database server.
+먼저 PostgreSQL 데이터베이스 서버를 배포해야 합니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
 cd recommendation/java/vertx
 
 oc apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/PostgreSQL-deployment.yml[../../kubernetes/PostgreSQL-deployment.yml]) -n tutorial
-or
+또는
 kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/PostgreSQL-deployment.yml[../../kubernetes/PostgreSQL-deployment.yml]) -n tutorial
 
 oc create -f link:{github-repo}/{recommendation-repo}/kubernetes/PostgreSQL-service.yml[../../kubernetes/PostgreSQL-service.yml] -n tutorial
-or
+또는
 kubectl create -f link:{github-repo}/{recommendation-repo}/kubernetes/PostgreSQL-service.yml[../../kubernetes/PostgreSQL-service.yml] -n tutorial
 
-# Wait until PotsgresSQL deployed
+# PostgreSQL이 배포될 때까지 대기합니다.
 
 oc get pods -w -n tutorial
-or
+또는
 kubectl get pods -w -n tutorial
 ----
 
-=== Inspecting Database Changes
+=== 데이터베이스 변경 사항 검사
 
-I recommend that every time you deploy a new _recommendation_ service version or you do a `POST` call, you inspect how the database (_recommendation_ table) has changed.
+새로운 _recommendation_ 서비스 버전을 배포하거나 `POST` 호출을 실행할 때마다 데이터베이스 (_recommendation_ 테이블)의 변경 사항을 확인하는 것이 좋습니다.
 
-To do it, you just need to go inside into the _postgres_ container and use `psql` tool.
-Open a new terminal window and run next commands:
+이 작업을 수행하려면 _postgres_ 컨테이너에 들어가서 `psql` 도구를 사용해야 합니다.
+새 터미널 창을 열고 다음 명령어를 실행합니다.
 
 [source, bash]
 ----
 oc get pods
-or 
+또는 
 kubectl get pods
 
 NAME                                 READY     STATUS    RESTARTS   AGE
@@ -89,7 +89,7 @@ preference-v1-7f7ddf6c4-fhjtw        2/2       Running   0          21m
 kubectl exec -ti postgres-6cc7c8bbd5-jqw8r -c postgres /bin/bash
 ----
 
-Then, when you are inside the container, you can inspect database changes:
+컨테이너에 들어가면 데이터베이스 변경 사항을 확인할 수 있습니다.
 
 [source, bash]
 ----
@@ -104,11 +104,11 @@ recommendation=# select * from recommendation;
 (2 rows)
 ----
 
-=== Create recommendation:v4
+=== recommendation:v4 생성
 
-To create _recommendation v4_, we need to change one line in link:{github-repo}/{recommendation-repo}/java/vertx/pom.xml[pom.xml]) of project, and change configuration part from `vertx-maven-plugin`:
+_recommendation v4_를 생성하려면 프로젝트의 link:{github-repo}/{recommendation-repo}/java/vertx/pom.xml[pom.xml] 파일의 `vertx-maven-plugin` 구성 부분에서 한 줄을 변경해야 합니다.
 
-Before:
+변경 전:
 
 [source, xml]
 .pom.xml
@@ -118,7 +118,7 @@ Before:
 </configuration>
 ----
 
-After:
+변경 후:
 
 [source, xml]
 .pom.xml
@@ -128,7 +128,7 @@ After:
 </configuration>
 ----
 
-==== Docker build (if you have access to Docker daemon)
+==== Docker 빌드 (Docker 데몬에 접근할 수 있는 경우)
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -142,24 +142,23 @@ example/recommendation                  v2                  c31e399a9628        
 example/recommendation                  v1                  f072978d9cf6        8 minutes ago      438MB
 ----
 
-IMPORTANT: We have a 4th Deployment to manage the v4 version of recommendation. 
+중요: recommendation v4 버전을 관리하기 위해 4번째 배포를 수행합니다. 
 
 [source,bash,subs="+macros,+attributes"]
 ----
 oc apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v4.yml[../../kubernetes/Deployment-v4.yml]) -n tutorial
 oc get pods -w -n tutorial
 
-or
+또는
 
 kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v4.yml[../../kubernetes/Deployment-v4.yml]) -n tutorial
 kubectl get pods -w -n tutorial
 
 oc create -f ../../kubernetes/Service.yml
-or
+또는
 kubectl create -f ../../kubernetes/Service.yml
 ----
-
-==== OpenShift S2I strategy (if you DON'T have access to Docker daemon)
+==== OpenShift S2I 전략 (Docker 데몬에 접근할 수 없는 경우)
 
 [source, bash]
 ----
@@ -171,9 +170,9 @@ oc delete svc/recommendation-v4 -n tutorial
 oc start-build recommendation-v4 --from-dir=. --follow -n tutorial
 ----
 
-==== Wait for v4 to be deployed
+==== v4 배포 대기
 
-Wait for those pods to show "2/2", the istio-proxy/envoy sidecar is part of that pod
+Pod가 "2/2" 상태가 될 때까지 대기합니다. istio-proxy/envoy 사이드카가 이 Pod의 일부입니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -183,7 +182,7 @@ preference-243057078-8c5hz           2/2       Running   0          15m
 recommendation-v4-60483540-9snd9     2/2       Running   0          12m
 ----
 
-and test the customer endpoint
+고객 엔드포인트 테스트
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -192,9 +191,9 @@ curl customer-tutorial.$(minishift ip).nip.io
 recommendation v4 [Star Wars: A New Hope,Star Trek: First Contact] from '60483540-9snd9': 1
 ----
 
-What you are getting here is a list of recommendations (every time will be the same) which are selected from the database, so it means that any change on the database is reflected to this query.
+여기서 얻는 결과는 데이터베이스에서 선택된 추천 목록입니다(항상 동일). 따라서 데이터베이스의 변경 사항이 이 쿼리에 반영됩니다.
 
-For example, run next command to add a new recommendation:
+예를 들어, 다음 명령을 실행하여 새 추천 항목을 추가합니다.
 
 [source, bash]
 ----
@@ -202,9 +201,9 @@ curl -H "Content-type: text/plain" -X POST --data "Avengers: Infinity War" custo
 3
 ----
 
-TIP: If you don't see an integer but a normal GET (`customer => preference => recommendation v4 [Star Wars: A New Hope,Star Trek: First Contact] from '6d4b86c9fb-ph8rm': 2`) this is because you have old versions of customer and preference services deployed.
+TIP: 정수가 아니라 일반 GET 요청(`customer => preference => recommendation v4 [Star Wars: A New Hope,Star Trek: First Contact] from '6d4b86c9fb-ph8rm': 2`)이 표시되면 이는 고객 및 선호도 서비스의 이전 버전이 배포되었기 때문입니다.
 
-And make a new request:
+새 요청을 실행합니다.
 
 [source, bash]
 ----
@@ -213,273 +212,57 @@ curl customer-tutorial.$(minishift ip).nip.io
 recommendation v4 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War] from '60483540-9snd9': 2
 ----
 
-
 [#migration]
-== Start the migration
+== 마이그레이션 시작
 
-What we want to do is one of the most complex operations in terms of database migration, and this is changing the name of a column.
-The same process is used for example if you need to change a data type, and it is similar in case of having to add new columns or tables.
+우리가 하려고 하는 작업은 데이터베이스 마이그레이션에서 가장 복잡한 작업 중 하나로, 열의 이름을 변경하는 것입니다.
+예를 들어 데이터 유형을 변경해야 할 때에도 동일한 프로세스를 사용하며, 새 열이나 테이블을 추가해야 할 때에도 비슷한 방식으로 진행합니다.
 
 .Flyway
 ****
-https://flywaydb.org/[Flyway] is a version control for your database.
-It allows you to evolute your database schema (and data) with ease and pleasure.
+https://flywaydb.org/[Flyway]는 데이터베이스의 버전 관리를 위한 도구입니다.
+이를 통해 데이터베이스 스키마(및 데이터)를 쉽게 진화시킬 수 있습니다.
 
-Flyway allows you to have your database migration files altogether with your code.
-In summary, any SQL file placed following _Flyway__ naming convention at `src/main/resources/db/migration` are executed against a configured database if it has not applied before.
+Flyway는 데이터베이스 마이그레이션 파일을 코드와 함께 배치할 수 있습니다.
+요약하면, `src/main/resources/db/migration`에 _Flyway_ 명명 규칙을 따르는 모든 SQL 파일이 아직 적용되지 않은 경우 구성된 데이터베이스에 대해 실행됩니다.
 
-And this is the solution used in the _recommendation_ service for dealing with database migrations.
+_recommendation_ 서비스는 데이터베이스 마이그레이션을 처리하기 위해 이 솔루션을 사용합니다.
 ****
 
-The steps we are going to follow for the migration is by doing 3 versions of the service:
+마이그레이션을 위해 따를 단계는 서비스의 3가지 버전을 생성하는 것입니다.
 
-TIP: For sake of simplicity we are going to change the major number of the version, but in a real case, you'll make it using minor/patch versions.
+TIP: 단순화를 위해 버전의 주요 번호를 변경할 것이지만, 실제 사례에서는 마이너/패치 버전을 사용하여 이를 수행합니다.
 
-. Add a new column and make the new service read from the old column and write to both.
-. Copy old data to the new column and code reads from the new column and writes to both.
-. The code reads and writes from the new column.
+. 새 열을 추가하고 새 서비스가 이전 열에서 읽고 두 열 모두에 기록하도록 만듭니다.
+. 이전 데이터를 새 열로 복사하고 코드는 새 열에서 읽고 두 열에 기록합니다.
+. 코드는 새 열에서 읽고 기록합니다.
 
-NOTE: You can create subversions (i.e one version for adding the column, another for making the new service read from old column and write to both) depending on your release process.
+NOTE: 릴리스 프로세스에 따라 하위 버전을 생성할 수 있습니다(예: 열을 추가하기 위한 버전 하나, 이전 열에서 읽고 두 열에 기록하기 위한 버전 하나 등).
 
-NOTE: It is important to follow these steps (no shortcuts) to make your application safe to any rollback in case of an error in the newer version.
+NOTE: 새 버전에서 오류가 발생할 경우 애플리케이션을 안전하게 롤백할 수 있도록 이 단계를 따르는 것이 중요합니다(지름길 없이).
 
-So let's see the process of updating the column named _name_ to _movie_name_.
+이제 _name_ 열의 이름을 _movie_name_으로 업데이트하는 과정을 살펴보겠습니다.
 
 [#recommendationv5]
 === Recommendation:v5
 
-The first thing to do before releasing _recommendation_ v5 is to add the new column (which would be the final name, in this case, *movie_name*).
-To do it execute next command on a terminal:
+_recommendation_ v5를 릴리스하기 전에 수행해야 하는 첫 번째 작업은 새 열(이 경우 최종 이름은 *movie_name*)을 추가하는 것입니다.
+이를 위해 터미널에서 다음 명령을 실행합니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
 cp link:{github-repo}/{recommendation-repo}/java/vertx/src/main/sql/V2__Add_movie_column_in_recommendation_table.sql[src/main/sql/V2__Add_movie_column_in_recommendation_table.sql] src/main/resources/db/migration/V2__Add_movie_column_in_recommendation_table.sql
 ----
 
-And then update the _recommendation_ service to a newer version and to write new values to both columns.
+그런 다음 _recommendation_ 서비스를 최신 버전으로 업데이트하고 두 열 모두에 새 값을 기록합니다.
 
 [source,java]
 ----
 private static final String RESPONSE_STRING_FORMAT = "recommendation v5 from '%s': %d\n";
 ----
 
-
-Open `RecommendationPersistenceVerticle` class and change `start` method form:
-
-[source, java]
-.com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
-----
-router.post("/").handler(this::addRecommendation);
-// router.post("/").handler(this::addRecommendationToBothColumns);
-----
-
-to
-
-[source, java]
-.com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
-----
-// router.post("/").handler(this::addRecommendation);
-router.post("/").handler(this::addRecommendationToBothColumns);
-----
-
-And then let's build the new version and deploy it to the cluster.
-
-==== Docker build (if you have access to Docker daemon)
-
-[source,bash,subs="+macros,+attributes"]
-----
-mvn clean package
-
-docker build -t example/recommendation:v5 .
-
-docker images | grep recommendation
-example/recommendation                  v5                  a84563734376        1 minutes ago       438MB
-example/recommendation                  v4                  b23e37349009        1 minutes ago       438MB
-example/recommendation                  v2                  c31e399a9628        5 minutes ago       438MB
-example/recommendation                  v1                  f072978d9cf6        8 minutes ago      438MB
-----
-
-IMPORTANT: We have a 5th Deployment to manage the v4 version of recommendation. 
-
-[source,bash,subs="+macros,+attributes"]
-----
-oc apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v5.yml[../../kubernetes/Deployment-v5.yml]) -n tutorial
-oc get pods -w -n tutorial
-
-or
-
-kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v5.yml[../../kubernetes/Deployment-v5.yml]) -n tutorial
-kubectl get pods -w -n tutorial
-----
-
-==== OpenShift S2I strategy (if you DON'T have access to Docker daemon)
-
-[source, bash]
-----
-mvn clean package -f recommendation/java/vertx
-oc new-app -l app=recommendation,version=v5 --name=recommendation-v5 --context-dir=recommendation/java/vertx -e JAEGER_SERVICE_NAME=recommendation JAEGER_ENDPOINT=http://jaeger-collector.istio-system.svc:14268/api/traces JAEGER_PROPAGATION=b3 JAEGER_SAMPLER_TYPE=const JAEGER_SAMPLER_PARAM=1 JAVA_OPTIONS='-Xms128m -Xmx256m -Djava.net.preferIPv4Stack=true' fabric8/s2i-java~https://github.com/redhat-scholars/istio-tutorial -o yaml  > recommendation-v5.yml
-oc apply -f <(istioctl kube-inject -f recommendation-v5.yml) -n tutorial
-oc cancel-build bc/recommendation-v5 -n tutorial
-oc delete svc/recommendation-v5 -n tutorial
-oc start-build recommendation-v5 --from-dir=. --follow -n tutorial
-----
-
-==== Wait for v5 to be deployed
-
-Wait for those pods to show "2/2", the istio-proxy/envoy sidecar is part of that pod
-
-[source,bash,subs="+macros,+attributes"]
-----
-NAME                                  READY     STATUS    RESTARTS   AGE
-customer-3600192384-fpljb             2/2       Running   0          17m
-preference-243057078-8c5hz           2/2       Running   0          15m
-recommendation-v4-60483540-9snd9     2/2       Running   0          12m
-recommendation-v5-00979354-89fga     2/2       Running   0          11m
-----
-
-==== Blue-Green Deployment between v4 and v5
-
-Now we can start the release process of _recommendation_ v5.
-Let's redirect all traffic to v4.
-
-[source,bash,subs="+macros,+attributes"]
-----
-istioctl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v4-v5-v6-v7.yml[../../../istiofiles/destination-rule-recommendation-v4-v5-v6-v7.yml] -n tutorial
-istioctl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v4.yml[../../../istiofiles/virtual-service-recommendation-v4.yml] -n tutorial
-----
-
-[source, bash]
-----
-curl customer-tutorial.$(minishift ip).nip.io
-
-recommendation v4 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War] from '60483540-9snd9': 2
-----
-
-Now, let's redirect traffic to v5:
-
-[source,bash,subs="+macros,+attributes"]
-----
-istioctl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v5.yml[../../../istiofiles/virtual-service-recommendation-v5.yml] -n tutorial
-----
-
-And apply some requests:
-
-[source, bash]
-----
-curl customer-tutorial.$(minishift ip).nip.io
-recommendation v5 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War] from '00979354-89fga': 1
-
-curl -H "Content-type: text/plain" -X POST --data "Frozen" customer-tutorial.$(minishift ip).nip.io
-3
-
-curl customer-tutorial.$(minishift ip).nip.io
-recommendation v5 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War, Frozen] from '00979354-89fga': 2
-----
-
-What's happening if we find some problems in _v5_ ? We just need to redirect traffic back to v4.
-
-[source,bash,subs="+macros,+attributes"]
-----
-istioctl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v4.yml[istiofiles/virtual-service-recommendation-v4.yml] -n tutorial
-----
-
-[source, bash]
-----
-curl customer-tutorial.$(minishift ip).nip.io
-
-recommendation v4 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War, Frozen] from '60483540-9snd9': 3
-----
-
-Notice that even though, it is the old version, the content added during v5 was released is still available and no data lost has ocurred.
-Next step (executed by DB administrator) could be just removing the *movie_name* column.
-
-But let's suppose that _v5_ has no errors and it is going to be the correct release:
-
-[source,bash,subs="+macros,+attributes"]
-----
-istioctl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v5.yml[istiofiles/virtual-service-recommendation-v5.yml] -n tutorial
-----
-
-And we can undeploy the _recommendation_ v4 service from the cluster:
-
-[source, bash]
-----
-oc delete all -l app=recommendation,version=v4
-or
-kubectl delete all -l app=recommendation,version=v4
-----
-
-[#recommendationv6]
-=== Recommendation:v6
-
-The first thing to do before releasing _recommendation_ v6 is to copy old data (*name* column) to the new column (*movie_name*).
-Usually, if the column contains a lot of entries, you'll do it using a batch process, but for the sake of simplicity, a simple SQL update is executed in this case.
-To do it execute next command on a terminal:
-
-[source,bash,subs="+macros,+attributes"]
-----
-cp link:{github-repo}/{recommendation-repo}/java/vertx/src/main/sql/V3__Update_recommendation_data.sql[src/main/sql/V3__Update_recommendation_data.sql] src/main/resources/db/migration/V3__Update_recommendation_data.sql
-----
-
-And then update code so the reads are happening from the new column and write to both.
-
-[source,java]
-----
-private static final String RESPONSE_STRING_FORMAT = "recommendation v6 from '%s': %d\n";
-----
-
-Open `RecommendationPersistenceVerticle` class and change `getRecommendationsFromDb` method form:
-
-[source, java]
-.com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
-----
-
-final List<String> recommendations = findRecommendation(resultSet);
-// final List<String> recommendations = findRecommendationNew(resultSet);
-----
-
-to
-
-[source, java]
-.com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
-----
-
-// final List<String> recommendations = findRecommendation(resultSet);
-final List<String> recommendations = findRecommendationNew(resultSet);
-----
-
-And then let's build the new version and deploy it to the cluster.
-
-==== Docker build (if you have access to Docker daemon)
-
-[source,bash,subs="+macros,+attributes"]
-----
-mvn clean package
-
-docker build -t example/recommendation:v6 .
-
-docker images | grep recommendation
-example/recommendation                  v6                  345bb6773434        1 minutes ago       438MB
-example/recommendation                  v5                  a84563734376        1 minutes ago       438MB
-example/recommendation                  v4                  b23e37349009        1 minutes ago       438MB
-example/recommendation                  v2                  c31e399a9628        5 minutes ago       438MB
-example/recommendation                  v1                  f072978d9cf6        8 minutes ago      438MB
-----
-
-IMPORTANT: We have a 6th Deployment to manage the v4 version of recommendation. 
-
-[source,bash,subs="+macros,+attributes"]
-----
-oc apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v6.yml[../../kubernetes/Deployment-v6.yml]) -n tutorial
-oc get pods -w -n tutorial
-
-or
-
-kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v6.yml[../../kubernetes/Deployment-v6.yml]) -n tutorial
-kubectl get pods -w -n tutorial
-----
-
-==== OpenShift S2I strategy (if you DON'T have access to Docker daemon)
+`RecommendationPersistenceVerticle` 클래스의 `start` 메서드를 다음과 같이 변경합니다.
+==== OpenShift S2I 전략 (Docker 데몬에 접근할 수 없는 경우)
 
 [source, bash]
 ----
@@ -491,9 +274,9 @@ oc delete svc/recommendation-v6 -n tutorial
 oc start-build recommendation-v6 --from-dir=. --follow -n tutorial
 ----
 
-==== Wait for v6 to be deployed
+==== v6 배포 대기
 
-Wait for those pods to show "2/2", the istio-proxy/envoy sidecar is part of that pod
+Pod가 "2/2" 상태가 될 때까지 대기합니다. istio-proxy/envoy 사이드카가 이 Pod의 일부입니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -504,16 +287,16 @@ recommendation-v5-00979354-89fga     2/2       Running   0          11m
 recommendation-v6-98b29894-64g45     2/2       Running   0          11m
 ----
 
-==== Blue-Green Deployment between v5 and v6
+==== v5와 v6 사이의 블루-그린 배포
 
-Now, let's redirect traffic to v6:
+이제 트래픽을 v6으로 리디렉션합니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
 istioctl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v6.yml[istiofiles/virtual-service-recommendation-v6.yml] -n tutorial
 ----
 
-And apply some requests:
+요청을 적용합니다.
 
 [source, bash]
 ----
@@ -527,7 +310,7 @@ curl customer-tutorial.$(minishift ip).nip.io
 recommendation v6 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War, Frozen, The Lord Of The Rings: The Fellowship of the Ring] from '98b29894-64g45': 2
 ----
 
-What's happening if we find some problems in _v6_ ? We just need to redirect traffic back to v5.
+만약 v6에 문제가 있다면, 우리는 트래픽을 v5로 다시 리디렉션하기만 하면 됩니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -541,16 +324,16 @@ curl customer-tutorial.$(minishift ip).nip.io
 recommendation v5 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War, Frozen, The Lord Of The Rings: The Fellowship of the Ring] from '00979354-89fga': 3
 ----
 
-So again no data lost and rolling back the service has no consequences.
+데이터 손실 없이 서비스 롤백이 가능합니다.
 
-But let's suppose that _v6_ has no errors and it is going to be the correct release:
+이제 v6이 오류 없이 작동하고 최종 릴리스가 되었다고 가정해 보겠습니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
 istioctl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v6.yml[istiofiles/virtual-service-recommendation-v6.yml] -n tutorial
 ----
 
-And we can undeploy the _recommendation_ v5 service from the cluster:
+v5 서비스를 클러스터에서 언디플로이할 수 있습니다.
 
 [source, bash]
 ----
@@ -562,8 +345,8 @@ kubectl delete all -l app=recommendation,version=v5
 [#recommendationv7]
 === Recommendation:v7
 
-The last thing to do is just write every time to the new column *movie_name* and not both.
-Also, it implies removing the null constraint and add it to the new column.
+마지막으로 해야 할 작업은 새 열 *movie_name*에만 매번 기록하고, 두 열 모두에 기록하지 않는 것입니다.
+또한 null 제약 조건을 제거하고 새 열에 추가해야 합니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -575,7 +358,7 @@ cp link:{github-repo}/{recommendation-repo}/java/vertx/src/main/sql/V4__Update_m
 private static final String RESPONSE_STRING_FORMAT = "recommendation v7 from '%s': %d\n";
 ----
 
-Open `RecommendationPersistenceVerticle` class and change `getRecommendationsFromDb` method form:
+`RecommendationPersistenceVerticle` 클래스의 `getRecommendationsFromDb` 메서드를 다음과 같이 변경합니다.
 
 [source, java]
 .com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
@@ -585,7 +368,7 @@ router.post("/").handler(this::addRecommendationToBothColumns);
 // router.post("/").handler(this::addRecommendationToNewColumn);
 ----
 
-to
+변경 후:
 
 [source, java]
 .com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
@@ -595,9 +378,9 @@ to
 router.post("/").handler(this::addRecommendationToNewColumn);
 ----
 
-And then let's build the new version and deploy it to the cluster.
+이제 새 버전을 빌드하고 클러스터에 배포합니다.
 
-==== Docker build (if you have access to Docker daemon)
+==== Docker 빌드 (Docker 데몬에 접근할 수 있는 경우)
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -609,25 +392,11 @@ docker images | grep recommendation
 example/recommendation                  v7                  f449867a2342        2 minutes ago       438MB
 example/recommendation                  v6                  345bb6773434        3 minutes ago       438MB
 example/recommendation                  v5                  a84563734376        8 minutes ago       438MB
-example/recommendation                  v4                  b23e37349009        9 minutes ago       438MB
-example/recommendation                  v2                  c31e399a9628        12 minutes ago       438MB
-example/recommendation                  v1                  f072978d9cf6        15 minutes ago      438MB
 ----
 
-IMPORTANT: We have a 7th Deployment to manage the v4 version of recommendation. 
+중요: recommendation v7 버전을 관리하기 위해 7번째 배포를 수행합니다. 
 
-[source,bash,subs="+macros,+attributes"]
-----
-oc apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v7.yml[../../kubernetes/Deployment-v7.yml]) -n tutorial
-oc get pods -w -n tutorial
-
-or
-
-kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v7.yml[../../kubernetes/Deployment-v7.yml]) -n tutorial
-kubectl get pods -w -n tutorial
-----
-
-==== OpenShift S2I strategy (if you DON'T have access to Docker daemon)
+==== OpenShift S2I 전략 (Docker 데몬에 접근할 수 없는 경우)
 
 [source, bash]
 ----
@@ -639,9 +408,9 @@ oc delete svc/recommendation-v7 -n tutorial
 oc start-build recommendation-v7 --from-dir=. --follow -n tutorial
 ----
 
-==== Wait for v7 to be deployed
+==== v7 배포 대기
 
-Wait for those pods to show "2/2", the istio-proxy/envoy sidecar is part of that pod
+Pod 상태가 "2/2"로 표시될 때까지 기다리십시오. 이는 istio-proxy/envoy 사이드카가 포함된 상태를 의미합니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -652,30 +421,30 @@ recommendation-v6-98b29894-64g45     2/2       Running   0          11m
 recommendation-v7-bb452a56-45tg2     2/2       Running   0          10m
 ----
 
-==== Blue-Green Deployment between v6 and v7
+==== v6와 v7 간의 Blue-Green 배포
 
-Now, let's redirect traffic to v7:
+이제 트래픽을 v7로 리디렉션해 봅시다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
 istioctl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v7.yml[istiofiles/virtual-service-recommendation-v7.yml] -n tutorial
 ----
 
-And apply some requests:
+요청을 몇 개 적용해 봅시다.
 
 [source, bash]
 ----
 curl customer-tutorial.$(minishift ip).nip.io
-recommendation v7 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War, Frozen, The Lord Of The Rings: The Fellowship of the Ring] from 'bb452a56-45tg2': 4
+recommendation v7 [스타워즈: 새로운 희망, 스타 트렉: 퍼스트 컨택트, 어벤져스: 인피니티 워, 겨울왕국, 반지의 제왕: 반지 원정대] from 'bb452a56-45tg2': 4
 
-curl -H "Content-type: text/plain" -X POST --data "Howl's Moving Castle" customer-tutorial.$(minishift ip).nip.io
+curl -H "Content-type: text/plain" -X POST --data "하울의 움직이는 성" customer-tutorial.$(minishift ip).nip.io
 6
 
 curl customer-tutorial.$(minishift ip).nip.io
-recommendation v7 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War, Frozen, The Lord Of The Rings: The Fellowship of the Ring, Howl's Moving Castle] from 'bb452a56-45tg2': 5
+recommendation v7 [스타워즈: 새로운 희망, 스타 트렉: 퍼스트 컨택트, 어벤져스: 인피니티 워, 겨울왕국, 반지의 제왕: 반지 원정대, 하울의 움직이는 성] from 'bb452a56-45tg2': 5
 ----
 
-What's happening if we find some problems in _v7_ ? We just need to redirect traffic back to v6.
+v7에서 문제가 발생하면 어떻게 해야 할까요? 단순히 트래픽을 v6로 다시 리디렉션하면 됩니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -687,13 +456,13 @@ istioctl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommen
 curl customer-tutorial.$(minishift ip).nip.io
 
 curl customer-tutorial.$(minishift ip).nip.io
-recommendation v6 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War, Frozen, The Lord Of The Rings: The Fellowship of the Ring, Howl's Moving Castle] from '98b29894-64g45': 6
+recommendation v6 [스타워즈: 새로운 희망, 스타 트렉: 퍼스트 컨택트, 어벤져스: 인피니티 워, 겨울왕국, 반지의 제왕: 반지 원정대, 하울의 움직이는 성] from '98b29894-64g45': 6
 
-curl -H "Content-type: text/plain" -X POST --data "The Pink Panther" customer-tutorial.$(minishift ip).nip.io
+curl -H "Content-type: text/plain" -X POST --data "핑크 팬더" customer-tutorial.$(minishift ip).nip.io
 7
 ----
 
-Now v7 is fixed and released again:
+이제 v7의 문제를 수정하고 다시 출시합니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -703,19 +472,19 @@ istioctl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommen
 [source, bash]
 ----
 curl customer-tutorial.$(minishift ip).nip.io
-recommendation v6 [Star Wars: A New Hope,Star Trek: First Contact, Avengers: Infinity War, Frozen, The Lord Of The Rings: The Fellowship of the Ring, Howl's Moving Castle, The Pink Panther] from '98b29894-64g45': 7
+recommendation v6 [스타워즈: 새로운 희망, 스타 트렉: 퍼스트 컨택트, 어벤져스: 인피니티 워, 겨울왕국, 반지의 제왕: 반지 원정대, 하울의 움직이는 성, 핑크 팬더] from '98b29894-64g45': 7
 ----
 
-So no data lose, every step we follow is safe, and at any time we are able to roll back to last known working version without any problem and when the new version is released again, everything still works.
+따라서 데이터 손실 없이 모든 단계를 안전하게 따를 수 있으며, 언제든지 마지막으로 작동했던 버전으로 롤백할 수 있습니다. 새 버전이 다시 출시되더라도 모든 것이 계속 정상적으로 작동합니다.
 
 [#finalstep]
-=== Final Step
+=== 최종 단계
 
-The final step that should be done by a DB administrator for example when maintenance window is set, and it is to delete the old column since the new version of the service is not using it anymore for reading nor for writing.
-Keep in mind that this is a destructive operation so, it should be taken with care.
+유지보수 창이 설정될 때 데이터베이스 관리자가 수행해야 할 최종 단계는 이전 열을 삭제하는 것입니다. 새로운 버전의 서비스는 더 이상 읽거나 쓰는 데 해당 열을 사용하지 않으므로 이를 제거할 수 있습니다. 
+이 작업은 파괴적인 작업이므로 주의해야 합니다.
 
 [#cleanup]
-== Cleanup
+== 정리
 
 [source, bash]
 ----
@@ -731,7 +500,7 @@ istioctl delete -f istiofiles/destination-rule-recommendation-v4-v5-v6-v7.yml -n
 istioctl create -f istiofiles/virtual-service-recommendation-v7.yml -n tutorial
 ----
 
-Then let's redeploy _recommendation_ v1 and v2.
+이제 recommendation v1 및 v2를 다시 배포합시다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -751,12 +520,11 @@ or
 kubectl create -f link:{github-repo}/{recommendation-repo}/kubernetes/Service.yml[../../kubernetes/Service.yml]
 kubectl get pods -w
 ----
+만약 _recommendation_ 서비스의 코드를 초기 단계로 롤백하고 싶다면, 다음의 변경 사항을 적용해야 합니다.
 
-If you want to rollback the code of _recommendation_ service to initial stages, you need to do next changes:
+* `RecommendationPersistenceVerticle` 클래스의 코드 변경 사항 롤백
 
-* Rollback code changes in `RecommendationPersistenceVerticle` class.
-
-From:
+변경 전:
 
 [source, java]
 .com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
@@ -765,7 +533,7 @@ From:
 final List<String> recommendations = findRecommendationNew(resultSet);
 ----
 
-To:
+변경 후:
 
 [source, java]
 .com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
@@ -774,7 +542,9 @@ final List<String> recommendations = findRecommendation(resultSet);
 // final List<String> recommendations = findRecommendationNew(resultSet);
 ----
 
-And from:
+또한 다음 부분도 변경해야 합니다.
+
+변경 전:
 
 [source, java]
 .com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
@@ -784,7 +554,7 @@ And from:
 router.post("/").handler(this::addRecommendationToNewColumn);
 ----
 
-To:
+변경 후:
 
 [source, java]
 .com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
@@ -794,7 +564,9 @@ router.post("/").handler(this::addRecommendationToBothColumns);
 // router.post("/").handler(this::addRecommendationToNewColumn);
 ----
 
-And from:
+그리고 다음 부분도 변경해야 합니다.
+
+변경 전:
 
 [source,java]
 .com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
@@ -802,7 +574,7 @@ And from:
 private static final String RESPONSE_STRING_FORMAT = "recommendation v7 from '%s': %d\n";
 ----
 
-To:
+변경 후:
 
 [source,java]
 .com.redhat.developer.demos.recommendation.RecommendationPersistenceVerticle
@@ -810,7 +582,7 @@ To:
 private static final String RESPONSE_STRING_FORMAT = "recommendation v4 from '%s': %d\n";
 ----
 
-* Remove next SQL scripts:
+* 다음 SQL 스크립트를 제거합니다.
 
 [source, bash]
 ----
@@ -819,9 +591,9 @@ rm src/main/resources/db/migration/V3__Update_recommendation_data.sql
 rm src/main/resources/db/migration/V4__Update_movie_name_constraints.sql
 ----
 
-* Set correct verticle:
+* 올바른 Verticle 설정
 
-From:
+변경 전:
 
 [source, xml]
 .pom.xml
@@ -831,7 +603,7 @@ From:
 </configuration>
 ----
 
-To:
+변경 후:
 
 [source, xml]
 .pom.xml

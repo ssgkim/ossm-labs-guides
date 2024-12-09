@@ -1,4 +1,4 @@
-.Module One - Design a Mesh
-* xref:intro.adoc[Designing Service Mesh Perimeter and Operating Model]
-* xref:walkthrough.adoc[Walkthrough]
-* xref:finish.adoc[Finish]
+.모듈 1 - 메시 설계
+* xref:intro.adoc[서비스 메시 경계 및 운영 모델 설계]
+* xref:walkthrough.adoc[절차 안내]
+* xref:finish.adoc[완료]

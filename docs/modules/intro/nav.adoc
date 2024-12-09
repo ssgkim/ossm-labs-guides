@@ -1,4 +1,4 @@
-.Introduction
-* xref:intro.adoc[Introduction]
-* xref:walkthrough.adoc[Walkthrough]
-* xref:finish.adoc[Finish]
+.소개
+* xref:intro.adoc[소개]
+* xref:walkthrough.adoc[절차 안내]
+* xref:finish.adoc[완료]

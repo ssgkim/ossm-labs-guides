@@ -1,11 +1,18 @@
-= Dark Launcher and Automatic Tests
+= 다크 론칭 및 자동화 테스트 (Dark Launch and Automatic Tests)
 include::_attributes.adoc[]
 
 [IMPORTANT]
 .Before Start
 ====
-You should have NO virtualservice nor destinationrule (in `tutorial` namespace) `kubectl get virtualservice` `kubectl get destinationrule` 
-if so run:
+`tutorial` 네임스페이스에 가상 서비스(virtualservice)나 대상 규칙(destinationrule)이 없어야 합니다. 다음 명령어로 확인할 수 있습니다.
+
+[source, bash]
+----
+kubectl get virtualservice
+kubectl get destinationrule
+----
+
+필요한 경우 다음 명령어로 정리할 수 있습니다.
 
 [source, bash]
 ----
@@ -14,73 +21,62 @@ if so run:
 ====
 
 [#preparation]
-== Preparation
+== 준비 작업 (Preparation)
 
-IMPORTANT: We are assuming that you have recommendation v1 and v2 deployed on `tutorial` namespace.
+[IMPORTANT]
+현재 `tutorial` 네임스페이스에 recommendation v1 및 v2가 배포되어 있다고 가정합니다.
 
-The first thing you need to do is to apply Istio resources to redirect all traffic to recommendation v1.
+먼저 Istio 리소스를 적용하여 모든 트래픽을 recommendation v1으로 리디렉션해야 합니다.
 
-From the main istio-tutorial directory,
+istio-tutorial의 메인 디렉터리에서 다음 명령을 실행합니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
-istioctl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial
-istioctl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1.yml[istiofiles/virtual-service-recommendation-v1.yml] -n tutorial
+istioctl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml -n tutorial
+istioctl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1.yml -n tutorial
 
 curl customer-tutorial.$(minishift ip).nip.io
 customer => preference => recommendation v1 from '2819441432-qsp25': 3
 ----
 
-Now you see that your _production_ traffic always goes to recommendation v1.
+이제 _프로덕션_ 트래픽이 항상 recommendation v1으로 전달되는 것을 확인할 수 있습니다.
 
 [#explanation]
-== Explanation
+== 설명 (Explanation)
 
-*Dark Launching* is a process where software is selectively or stealthily released to your users to validate that this new version behaves correctly and into expected parameters.
+*다크 론칭 (Dark Launching)*은 새로운 버전의 소프트웨어가 예상대로 작동하는지 확인하기 위해 사용자에게 선택적으로 또는 은밀하게 소프트웨어를 릴리스하는 프로세스입니다.
 
-There are many techniques under *Dark Launch* technique, you've seen one in this tutorial xref:ROOT:5advanced-routerules.adoc#mirroringtraffic[Mirroring Traffic], in this case, we are going to see how you can make that your tests (even BDD tests) can be used to test your new version without affecting your current users.
+*다크 론칭* 기술에는 여러 가지 방법이 있습니다. 이 튜토리얼에서 xref:ROOT:5advanced-routerules.adoc#mirroringtraffic[트래픽 미러링]에 대해 배웠습니다. 
+이번에는 *DarkLaunch* 문자열이 `user-agent` 헤더에 포함된 경우 트래픽이 _v2_로 리디렉션되도록 하는 방법을 보여줍니다.
 
-You might need to use this technique if, for example, you don't want to start stressing your new service with public traffic at first (like happens in _Mirroring Traffic_ technique at first.
+이 예제에서는 BDD 테스트와 같은 자동화 테스트를 _recommendation v2_에 대해 실행하면서도 일반 사용자는 여전히 _recommendation v1_에만 액세스하도록 설정합니다.
 
-To write these tests you can use http://www.arquillian.org/arquillian-cube[Arquillian Cube].
-
-image::arquillian_cube.png[]
-
-Arquillian Cube allows you to control Docker, Kubernetes and OpenShift containers in your tests with ease.
-As a side effect, it also supports Istio, so you can write tests that apply some Istio rules to configured cluster, runs the test, and finally restores the state of Istio.
-
-For this use case what you want is to execute an automatic test against _recommendation v2_ meanwhile public traffic still goes to _recommendation v1_.
-For this concrete example and for sake of simplicity, we set that if `user-agent` header contains *DarkLaunch* string then traffic is redirected to _v2_.
-
-_Recommendation_ project comes with a test that it is ready to be executed, but in the next section, you'll read how we have arrived at the given solution.
+_Recommendation_ 프로젝트는 실행할 준비가 된 테스트를 제공합니다. 다음 섹션에서는 이 솔루션에 도달하는 과정을 설명합니다.
 
 [#code]
-=== Code
+=== 코드 (Code)
 
-The first things you need to do is adding `Arquillian Cube` dependency in _recommendation_ project.
+먼저 _recommendation_ 프로젝트에 `Arquillian Cube` 종속성을 추가해야 합니다.
 
 [source, xml]
 .recommendation/java/vertx/pom.xml
 ----
 <dependency>
     <groupId>org.arquillian.cube</groupId>
-    <artifactId>arquillian-cube-openshift-starter</artifactId> <!--1-->
-    <version>${cube.version}</version> <!--2-->
+    <artifactId>arquillian-cube-openshift-starter</artifactId>
+    <version>${cube.version}</version>
     <scope>test</scope>
 </dependency>
 <dependency>
     <groupId>org.arquillian.cube</groupId>
-    <artifactId>arquillian-cube-istio-kubernetes</artifactId> <!--3-->
+    <artifactId>arquillian-cube-istio-kubernetes</artifactId>
     <version>${cube.version}</version>
     <scope>test</scope>
 </dependency>
 ----
-<1> Dependency for OpenShift. There is also the same for Kubernetes.
-<2> Version 1.18.2 or beyond.
-<3> Dependency for Istio integration.
 
-Then you need to configure the namespace of the project.
-For this purpose, you need to create an `arquillian.xml` file.
+그런 다음 프로젝트의 네임스페이스를 구성해야 합니다. 
+이를 위해 `arquillian.xml` 파일을 생성합니다.
 
 [source, xml]
 .recommendation/java/vertx/src/test/resources/arquillian.xml
@@ -90,40 +86,34 @@ For this purpose, you need to create an `arquillian.xml` file.
     xmlns="http://jboss.org/schema/arquillian"
     xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
-  <extension qualifier="openshift"> <!--1-->
-    <property name="namespace.use.existing">tutorial</property> <!--2-->
-    <property name="env.init.enabled">false</property> <!--3-->
+  <extension qualifier="openshift">
+    <property name="namespace.use.existing">tutorial</property>
+    <property name="env.init.enabled">false</property>
   </extension>
 
 </arquillian>
 ----
-<1> OpenShift cluster.
-<2> Use existing namespace named `tutorial`.
-<3> Do not initialize anything, application is already running.
 
-INFO: Arquillian Cube can also create a namespace and deploy any Kubernetes/OpenShift resource automatically. But since the application has been already deployed in xref:ROOT:2deploy-microservices.adoc[Deploy Microservices], this step is skipped.
-
-And finally, you need to create an automatic test that runs against _v2_.
-
-In this kind of tests you only want to validate _happy path_, just a quality gate that allows you to validate that everything is in place.
+이제 _v2_에 대한 자동 테스트를 생성해야 합니다. 
+이러한 테스트는 단순히 _정상 경로(happy path)_를 검증하는 품질 게이트로, 모든 것이 올바르게 작동하는지 확인합니다.
 
 [source, java]
 .recommendation/java/vertx/src/test/java/com/.../recommendation/DarkLaunchIT.java
 ----
-@RunWith(Arquillian.class) // <1>
-@IstioResource("classpath:dark-launch-redirect-traffic-to-new-version.yml") // <2>
-@RestoreIstioResource("classpath:virtual-service-recommendation-v1.yml") // <3>
+@RunWith(Arquillian.class)
+@IstioResource("classpath:dark-launch-redirect-traffic-to-new-version.yml")
+@RestoreIstioResource("classpath:virtual-service-recommendation-v1.yml")
 public class DarkLaunchIT {
 
     @RouteURL("customer")
     @AwaitRoute
-    private URL url; // <4>
+    private URL url;
 
     @ArquillianResource
-    IstioAssistant istioAssistant; // <5>
+    IstioAssistant istioAssistant;
 
     @Before
-    public void waitUntilIstioResourcesArePopulated() { // <6>
+    public void waitUntilIstioResourcesArePopulated() {
         istioAssistant.await(createRequestForRecommendationV2(), response -> {
             try {
                 return response.body().string().contains("v2");
@@ -134,27 +124,16 @@ public class DarkLaunchIT {
     }
 
     @Test
-    public void should_return_accessing_v2_message() throws IOException { // <7>
-
-        // Given
-        final Request request = createRequestForRecommendationV2(); // <8>
-
-        // When
+    public void should_return_accessing_v2_message() throws IOException {
+        final Request request = createRequestForRecommendationV2();
         final String content = makeRequest(request);
 
-        // Then
         assertThat(content)
-            .startsWith("customer => preference => recommendation v2 from"); // <9>
-
+            .startsWith("customer => preference => recommendation v2 from");
     }
 
     private String makeRequest(Request request) throws IOException {
-        final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
-
-        OkHttpClient client = new OkHttpClient.Builder()
-            .addNetworkInterceptor(interceptor)
-            .build();
+        OkHttpClient client = new OkHttpClient();
         try(Response response = client.newCall(request).execute()) {
             return response.body().string();
         }
@@ -166,34 +145,13 @@ public class DarkLaunchIT {
                 .addHeader("User-Agent", "Recommendation-v2-DarkLaunch-Test")
                 .build();
     }
-
 }
 ----
-<1> Arquillian JUnit runner.
-<2> Resource to apply *before* executing the test.
-<3> Resource to apply *after* executing the test.
-<4> Public `URL` of application.
-<5> `IstioAssistant` instance to interact with Istio ecosystem.
-<6> Waits until Istio resources are populated acorss the cluster.
-<7> Test to validate that _recommendation v2_ works as expected.
-<8> Creates a _request_ setting `user-agent` as *DarkLaunch*.
-<9> Validates the response.
-
-[TIP]
-====
-You've seen a simple example here, but you can use other strategies to get the same effect:
-
-. Instead of using `user-agent` you can create a custom header, or just use the request IP range.
-. `@IstioResource` and `@RestoreIstioResource` supports expressions like `$\{prop\}` resolving the property from environment variables or system properties.
-. Use `failsafe` plugin to run this kind of tests so they are not run all the time.
-. This example works with OpenShift route, but you can use `@PortForwarding` annotation in the test to do a port forwarding to given service.
-. It is so important to add a guard to wait until Istio resources are populated across the cluster. In case of minishift/kube it is almost instantly but in case of real clusters, it might take some tenths of seconds.
-====
-
-Test project can be found link:{github-repo}/{recommendation-repo}/{recommendation-java}/src/test/java/com/redhat/developer/demos/recommendation[here].
 
 [#restore]
-== Clean Up
+== 정리 작업 (Clean Up)
+
+모든 리소스를 삭제하여 클러스터를 초기 상태로 되돌립니다.
 
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -201,7 +159,7 @@ istioctl delete -f istiofiles/virtual-service-recommendation-v1.yml -n tutorial
 istioctl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial
 ----
 
-or you can run:
+또는 다음 명령어로도 정리할 수 있습니다.
 
 [source, bash]
 ----

@@ -22,16 +22,25 @@ xref:2build-microservices.adoc#buildrecommendationspringbootv2[Recommendation V2
 [IMPORTANT]
 ====
 Recommendation의 v2 버전을 관리하기 위해 두 번째 Deployment가 필요합니다.
+실습 과정 중 istioctl 도구가 필요하며, web-terminal을 사용할 경우 세션이 만료되면 다운로드 및 재설정이 필요합니다.
 ====
 
 이미지를 직접 빌드하지 않았다면, 이 튜토리얼에서 미리 빌드된 이미지를 사용하여 *Customer* Pod과 sidecar를 배포합니다.
 
 == 기존 이미지를 사용하여 Recommendation 마이크로서비스 V2 배포
+Pod의 상태가 "2/2"가 될 때까지 기다립니다. istio-proxy/envoy sidecar도 해당 Pod의 일부로 배포됩니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl apply -f <(istioctl kube-inject -f link:{github-repo}/{recommendation-repo}/kubernetes/Deployment-v2.yml[{recommendation-repo}/kubernetes/Deployment-v2.yml]) -n tutorial{namespace-suffix}
+curl -L https://github.com/istio/istio/releases/download/1.9.4/istio-1.9.4-linux-amd64.tar.gz | tar -xz -C /wto/bin/downloaded/
+ln -s /wto/bin/downloaded/istio-1.9.4/bin/istioctl /wto/bin/
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl apply -f recommendation/kubernetes/Deployment-v2.yml -n tutorial{namespace-suffix}
 ----
 
 === v2 배포 대기
@@ -81,6 +90,7 @@ customer => preference => recommendation v2 from 'recommendation-v2-2819441432-5
 include::generate_traffic.adoc[]
 
 Kubernetes/OpenShift의 기본 동작은 단일 서비스 뒤에 있는 모든 가용 Pod 간에 라운드 로빈 방식으로 부하를 분산합니다. recommendation-v2의 복제본을 추가합니다.
+현재 실습은 추가 실습 과정이 포함되어 트래픽을 발생 시키는 컨트롤 Pod로 인해 트래픽이 라운드 로빈으로 확인되지 않습니다. 
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]

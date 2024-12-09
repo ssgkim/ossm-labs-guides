@@ -1,11 +1,19 @@
-= Service Resiliency
+= 서비스 복원력 (Service Resiliency)
 include::_attributes.adoc[]
 
 [IMPORTANT]
-.Before Start
+.시작 전
 ====
-You should have NO virtualservice nor destinationrule (in `tutorial` namespace) `kubectl get virtualservice{namespace-suffix}` `kubectl get destinationrule{namespace-suffix}` 
-if so run:
+`tutorial` 네임스페이스에 `virtualservice`나 `destinationrule`이 없어야 합니다. 아래 명령어를 실행하여 확인하세요.
+
+[.console-input]
+[source, bash,subs="+macros,+attributes"]
+----
+kubectl get virtualservice{namespace-suffix}
+kubectl get destinationrule{namespace-suffix}
+----
+
+필요에 따라 다음 명령어로 정리(clean)할 수 있습니다.
 
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
@@ -15,19 +23,19 @@ if so run:
 ====
 
 [#retry]
-== Retry
+== 재시도 (Retry)
 
-Instead of failing immediately, retry the Service N more times
+서비스가 즉시 실패하지 않고 N번 더 재시도하게 합니다.
 
-We will make pod recommendation-v2 fail 100% of the time. Get one of the pod names from your system and replace on the following command accordingly:
+우리는 recommendation-v2 Pod가 100% 실패하도록 설정할 것입니다. 아래 명령을 실행하여 시스템에 있는 Pod의 이름을 가져오고, 적절히 명령어에 추가하세요.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix}|grep recommendation-v2|awk '{ print $1 }'|head -1) -c recommendation /bin/bash
+kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix} | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
 ----
 
-You will be inside the application container of your pod `recommendation-v2-2036617847-spdrb`. Now execute:
+Pod `recommendation-v2`의 애플리케이션 컨테이너 내부로 들어갑니다. 이제 아래 명령어를 실행합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -36,9 +44,9 @@ curl localhost:8080/misbehave
 exit
 ----
 
-This is a special endpoint that will make our application return only `503`s.
+이 명령어는 애플리케이션이 항상 `503`을 반환하게 만듭니다.
 
-You will see it works every time because Istio will retry the recommendation service *automatically* and it will land on v1 only.
+트래픽을 생성하여 결과를 확인합니다.
 
 include::generate_traffic.adoc[]
 
@@ -50,7 +58,7 @@ customer => preference => recommendation v1 from 'recommendation-v1-2036617847-m
 customer => preference => recommendation v1 from 'recommendation-v1-2036617847-m9glz': 198
 ----
 
-If you open Kiali, you will notice that v2 receives requests, but that failing request is never returned to the user as `preference` will retry to establish the connection with `recommendation`, and v1 will reply.
+Kiali를 열면, v2에 요청이 전송되었음을 알 수 있습니다. 그러나 이 실패한 요청은 사용자에게 반환되지 않습니다. 대신 `preference` 서비스가 `recommendation`과의 연결을 재시도하여 v1이 응답하게 됩니다.
 
 ifndef::workshop[]
 [tabs]
@@ -76,29 +84,19 @@ kubectl get route kiali -n istio-system --output 'jsonpath={.status.ingress[].ho
 ====
 endif::workshop[]
 
-ifdef::workshop[]
-So now we can access Kiali, so
-let's do it:
-
-[source, bash,subs="+macros,+attributes"]
-----
-open https://kiali-istio-system.{appdomain}/
-----
-endif::workshop[]
-
-In Kiali, go to `Graph`, select the `recommendation` square, and place the mouse over the red sign, like the picture bellow.
+Kiali의 `Graph`로 이동하여 `recommendation` 네모를 선택하고, 빨간색 표시 위에 마우스를 올려놓습니다.
 
 image:kiali-retry.png[Kiali Retry]
 
-Now, make the pod v2 behave well again
+이제 v2 Pod가 정상적으로 작동하도록 만듭니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix}|grep recommendation-v2|awk '{ print $1 }'|head -1) -c recommendation /bin/bash
+kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix} | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
 ----
 
-You will be inside the application container of your pod `recommendation-v2-2036617847-spdrb`. Now execute:
+Pod `recommendation-v2`의 애플리케이션 컨테이너 내부로 들어갑니다. 이제 아래 명령어를 실행합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -107,7 +105,7 @@ curl localhost:8080/behave
 exit
 ----
 
-The application is back to round-robin load-balancing between v1 and v2
+애플리케이션이 정상적으로 돌아오면 v1과 v2 사이에서 라운드 로빈 부하 분산이 다시 작동합니다.
 
 include::generate_traffic.adoc[]
 
@@ -119,21 +117,30 @@ customer => preference => recommendation v2 from 'recommendation-v2-2036617847-m
 customer => preference => recommendation v1 from 'recommendation-v1-2039379827-h58vw': 130
 ----
 
-// Needs a modified image
 [#timeout]
-== Timeout
+== 타임아웃 (Timeout)
 
-Wait only N seconds before giving up and failing. At this point, no other virtual service nor destination rule (in `tutorial` namespace) should be in effect. 
+정해진 시간(N초) 동안 응답이 없으면 실패로 처리합니다.
 
-To check it run `kubectl get virtualservice` and `kubectl get destinationrule` and if it is necessary run  `kubectl delete virtualservice virtualservicename -n tutorial{namespace-suffix}` and `kubectl delete destinationrule destinationrulename -n tutorial{namespace-suffix}`
+현재 `tutorial` 네임스페이스에 `virtualservice`나 `destinationrule`이 없어야 합니다. 확인 명령어는 다음과 같습니다.
 
-NOTE: You will deploy docker images that were previously built for this tutorial. If you want to build recommendation with Quarkus to add a timeout visit: xref:2build-microservices.adoc#buildrecommendationv2-timeout[Modify recommendation:v2 to have timeout]
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl get virtualservice
+kubectl get destinationrule
+----
 
-NOTE: You will deploy docker images that were previously built for this tutorial. If you want to build recommendation with Spring Boot to add a timeout visit: xref:2build-microservices.adoc#buildrecommendationspringbootv2-timeout[Modify recommendation:v2 Spring Boot to have timeout]
+필요에 따라 다음 명령어로 가상 서비스를 삭제할 수 있습니다.
 
-If you *have not built* the images on your own then let's deploy the customer pod with its sidecar using the already built images for this tutorial:
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl delete virtualservice virtualservicename -n tutorial{namespace-suffix}
+kubectl delete destinationrule destinationrulename -n tutorial{namespace-suffix}
+----
 
-First, introduce some wait time in `recommendation v2` by making it a slow performer with a 3 second delay by running the command
+우리는 `recommendation-v2`의 성능을 느리게 하여 응답 시간을 3초로 설정할 것입니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -141,11 +148,11 @@ First, introduce some wait time in `recommendation v2` by making it a slow perfo
 kubectl patch deployment recommendation-v2 -p '{"spec":{"template":{"spec":{"containers":[{"name":"recommendation", "image":"quay.io/rhdevelopers/istio-tutorial-recommendation:v2-timeout"}]}}}}' -n tutorial{namespace-suffix}
 ----
 
-Hit the customer endpoint a few times, to see the load-balancing between v1 and v2 but with v2 taking a bit of time to respond
+*customer* 엔드포인트에 여러 번 요청을 보내고, v1과 v2 사이의 라운드 로빈 부하 분산을 확인합니다.
 
 include::generate_traffic.adoc[]
 
-Then add the timeout rule
+이제 타임아웃 규칙을 추가합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -153,9 +160,10 @@ Then add the timeout rule
 kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-timeout.yml[istiofiles/virtual-service-recommendation-timeout.yml] -n tutorial{namespace-suffix}
 ----
 
-You will see it return v1 after waiting about 1 second. You don't see v2 anymore, because the response from v2 expires after the timeout period and it is never returned.
+v2는 응답 시간이 3초로 설정되었고, 타임아웃이 1초이기 때문에, v2의 응답이 반환되지 않고 v1의 응답이 반환됩니다.
 
 include::generate_traffic.adoc[]
+
 
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
@@ -164,14 +172,13 @@ customer => preference => recommendation v1 from 'recommendation-v1-6976858b48-c
 customer => preference => recommendation v1 from 'recommendation-v1-6976858b48-cs2rt': 2908
 customer => preference => recommendation v1 from 'recommendation-v1-6976858b48-cs2rt': 2909
 ----
+=== 정리 작업 (Clean up)
 
-=== Clean up
+NOTE: 이미 빌드된 Docker 이미지를 배포합니다. Quarkus를 사용하여 타임아웃을 제거하려면: xref:2build-microservices.adoc#timeout-clenup[recommendation:v2 타임아웃 제거하기]를 참조하세요.
 
-NOTE: You will deploy docker images that were previously built. If you want to build recommendation with Quarkus to remove the timeout visit: xref:2build-microservices.adoc#timeout-clenup[Modify recommendation:v2 to remove timeout]
+NOTE: 이미 빌드된 Docker 이미지를 배포합니다. Spring Boot를 사용하여 타임아웃을 제거하려면: xref:2build-microservices.adoc#timeoutspringboot-cleanup[recommendation:v2 타임아웃 제거하기]를 참조하세요.
 
-NOTE: You will deploy docker images that were previously built. If you want to build recommendation with Spring Boot to remove the timeout visit: xref:2build-microservices.adoc#timeoutspringboot-cleanup[Modify recommendation:v2 to remove timeout]
-
-Change the implementation of `v2` back to the image that responds without the delay of 3 seconds:
+`v2`의 구현을 원래의 지연 시간 없이 응답하는 이미지로 변경합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -179,7 +186,7 @@ Change the implementation of `v2` back to the image that responds without the de
 kubectl patch deployment recommendation-v2 -p '{"spec":{"template":{"spec":{"containers":[{"name":"recommendation", "image":"quay.io/rhdevelopers/istio-tutorial-recommendation:v2"}]}}}}' -n tutorial{namespace-suffix}
 ----
 
-Then delete the virtual service created for timeout by:
+그런 다음 타임아웃을 위해 생성된 가상 서비스를 삭제합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -187,7 +194,7 @@ Then delete the virtual service created for timeout by:
 kubectl delete -f istiofiles/virtual-service-recommendation-timeout.yml -n tutorial{namespace-suffix}
 ----
 
-or you can run:
+또는 다음 명령어로도 실행할 수 있습니다.
 
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
@@ -196,33 +203,34 @@ or you can run:
 ----
 
 [#failfast]
-== Fail Fast with Max Connections and Max Pending Requests
+== 빠른 실패 (Fail Fast) - 최대 연결 및 최대 대기 요청 설정
 
 [#nocircuitbreaker]
-=== Load test without circuit breaker
+=== 서킷 브레이커 없이 부하 테스트 (Load test without circuit breaker)
 
-Let's perform a load test in our system with `siege`. We'll have 10 clients sending 4 concurrent requests each:
+이제 `siege`를 사용하여 시스템에 부하 테스트를 수행합니다. 10명의 클라이언트가 4개의 동시 요청을 보냅니다.
 
 include::siege.adoc[]
 
-You should see an output similar to this:
+출력은 다음과 유사해야 합니다.
 
-image:siege_ok.png[siege output with all successful requests]
+image:siege_ok.png[siege 출력 - 모든 요청이 성공한 경우]
 
-All of the requests to our system were successful.
+시스템에 대한 모든 요청이 성공했습니다.
 
-Now let's make things a bit more interesting.
+이제 상황을 더 흥미롭게 만들어 보겠습니다.
 
-We will make pod `recommendation-v2` fail 100% of the time. 
-Get one of the pod names from your system and replace on the following command accordingly:
+`recommendation-v2` Pod가 100% 실패하도록 설정하겠습니다. 
+
+시스템에서 Pod 이름을 가져온 후 아래 명령어에 추가합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix}|grep recommendation-v2|awk '{ print $1 }'|head -1) -c recommendation /bin/bash
+kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix} | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
 ----
 
-You will be inside the application container of your pod `recommendation-v2-2036617847-spdrb`. Now execute:
+Pod `recommendation-v2`의 애플리케이션 컨테이너 내부로 들어갑니다. 이제 아래 명령어를 실행합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -231,9 +239,9 @@ curl localhost:8080/misbehave
 exit
 ----
 
-Open a new terminal window and run next command to inspect the logs of this failing pod:
+새 터미널 창을 열고 실패한 Pod의 로그를 확인합니다.
 
-First you need the pod name:
+먼저 Pod 이름을 가져옵니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -241,26 +249,27 @@ First you need the pod name:
 kubectl get pods -n tutorial
 ----
 
+이전 출력 예시:
+
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
 ----
 NAME                                  READY     STATUS    RESTARTS   AGE
 customer-3600192384-fpljb             2/2       Running   0          17m
-preference-243057078-8c5hz           2/2       Running   0          15m
-recommendation-v1-60483540-9snd9     2/2       Running   0          12m
-recommendation-v2-2815683430-vpx4p   2/2       Running   0         15s
+preference-243057078-8c5hz            2/2       Running   0          15m
+recommendation-v1-60483540-9snd9      2/2       Running   0          12m
+recommendation-v2-2815683430-vpx4p    2/2       Running   0          15s
 ----
 
-And get the pod name of `recommendation-v2`.
-In previous case, it is `recommendation-v2-2815683430-vpx4p`.
-
-Then check its log:
+Pod 이름 `recommendation-v2-2815683430-vpx4p`를 기록해 둡니다. 그런 다음 로그를 확인합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
 kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial{namespace-suffix}
 ----
+
+출력 예시:
 
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
@@ -271,7 +280,7 @@ recommendation request from 'recommendation-v2-2815683430-vpx4p': 12
 recommendation request from 'recommendation-v2-2815683430-vpx4p': 13
 ----
 
-Scale up the recommendation v2 service to two instances:
+이제 recommendation-v2 서비스를 두 인스턴스로 확장합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -279,43 +288,39 @@ Scale up the recommendation v2 service to two instances:
 kubectl scale deployment recommendation-v2 --replicas=2 -n tutorial{namespace-suffix}
 ----
 
-Now, you've got one instance of `recommendation-v2` that is misbehaving and another one that is working correctly.
-Let's redirect all traffic to `recommendation-v2`:
+이제 하나의 `recommendation-v2` 인스턴스는 올바르게 작동하고 다른 하나는 실패합니다. 모든 트래픽을 `recommendation-v2`로 리디렉션합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial{namespace-suffix}
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v2.yml[istiofiles/virtual-service-recommendation-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f istiofiles/virtual-service-recommendation-v2.yml -n tutorial{namespace-suffix}
 ----
 
-Let's perform a load test in our system with `siege`. 
-We'll have 10 clients sending 4 concurrent requests each:
+`siege`를 사용하여 시스템에 부하 테스트를 수행합니다. 10명의 클라이언트가 4개의 동시 요청을 보냅니다.
 
 include::siege.adoc[]
 
-You should see an output similar to this:
+출력 예시:
 
-image:siege_ok.png[siege output with all successful requests]
+image:siege_ok.png[siege 출력 - 모든 요청이 성공한 경우]
 
-All of the requests to our system were successful.
+시스템에 대한 모든 요청이 성공했습니다.
 
-So the *automatic* retries are working as expected.
-So far so good, the error is never send back to the client. 
-But inspect the logs of the failing pod again:
-
-IMPORTANT: Substitute the pod name to your pod name.
+이제 다시 실패한 Pod의 로그를 확인합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
 kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial{namespace-suffix}
 ----
+
+출력 예시:
 
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
@@ -326,32 +331,28 @@ recommendation request from 'recommendation-v2-2815683430-vpx4p': 37
 recommendation request from 'recommendation-v2-2815683430-vpx4p': 38
 ----
 
-Notice that the number of requests has been increased by an order of 20.
-The reason is that the requests are still able to reach the failing service, so even though all consecutive requests to failing pod will fail, Istio is still sending traffic to this failing pod.
-
-This is where the _Circuit Breaker_ comes into the scene.
+요청 수가 20배 증가한 것을 알 수 있습니다. 이는 실패한 서비스에 계속 요청이 전송되기 때문입니다. 
 
 [#circuitbreaker]
-=== Load test with circuit breaker
+=== 서킷 브레이커 사용한 부하 테스트 (Load test with circuit breaker)
 
-Circuit breaker and pool ejection are used to avoid reaching a failing pod for a specified amount of time.
-In this way when some consecutive errors are produced, the failing pod is ejected from eligible pods and all further requests are not sent anymore to that instance but to a healthy instance.
+서킷 브레이커는 지정된 시간 동안 실패한 Pod에 요청을 보내지 않도록 합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl replace -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation_cb_policy_version_v2.yml[istiofiles/destination-rule-recommendation_cb_policy_version_v2.yml] -n tutorial{namespace-suffix}
+kubectl replace -f istiofiles/destination-rule-recommendation_cb_policy_version_v2.yml -n tutorial{namespace-suffix}
 ----
 
 include::siege.adoc[]
 
-You should see an output similar to this:
+출력 예시:
 
-image:siege_ok.png[siege output with all successful requests]
+image:siege_ok.png[siege 출력 - 모든 요청이 성공한 경우]
 
-All of the requests to our system were successful.
+시스템에 대한 모든 요청이 성공했습니다.
 
-But now inspect again the logs of the failing pod:
+이제 다시 실패한 Pod의 로그를 확인합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -359,47 +360,4 @@ But now inspect again the logs of the failing pod:
 kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial{namespace-suffix}
 ----
 
-[.console-output]
-[source,bash,subs="+macros,+attributes"]
-----
-recommendation request from 'recommendation-v2-2815683430-vpx4p': 38
-recommendation request from 'recommendation-v2-2815683430-vpx4p': 39
-recommendation request from 'recommendation-v2-2815683430-vpx4p': 40
-----
-
-IMPORTANT: Substitute the pod name to your pod name.
-
-Now the request is only send to this pod once or twice until the circuit is tripped and pod is ejected.
-After this, no further request is send to failing pod.
-
-=== Clean up
-
-Remove Istio resources:
-
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
-kubectl delete -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation_cb_policy_version_v2.yml[istiofiles/destination-rule-recommendation_cb_policy_version_v2.yml] -n tutorial{namespace-suffix}
-----
-
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
-kubectl delete -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v2.yml[istiofiles/virtual-service-recommendation-v2.yml] -n tutorial{namespace-suffix}
-----
-
-Scale down to one instance of `recommendation-v2`.
-
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
-kubectl scale deployment recommendation-v2 --replicas=1 -n tutorial{namespace-suffix}
-----
-
-Restart `recommendation-v2` pod:
-
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
-kubectl delete pod -l app=recommendation,version=v2
-----
+이제 요청이 더 이상 실패한 Pod으로 전송되지 않음을 확인할 수 있습니다.

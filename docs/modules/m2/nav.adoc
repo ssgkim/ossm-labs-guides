@@ -1,5 +1,5 @@
-.Module Two - The Observability Stack
-* xref:intro.adoc[Service Mesh Development Environment & Observability Stack]
-* xref:walkthrough-1.adoc[Part I - Development Environment Setup]
-* xref:walkthrough-2.adoc[Part II - Service Mesh Observability]
-* xref:finish.adoc[Finish]
+.모듈 2 - 모니터링 스택
+* xref:intro.adoc[서비스 메시 개발 환경 및 모니터링 스택]
+* xref:walkthrough-1.adoc[1부 - 개발 환경 설정]
+* xref:walkthrough-2.adoc[2부 - 서비스 메시 모니터링]
+* xref:finish.adoc[완료]

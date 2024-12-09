@@ -12,7 +12,6 @@ include::_attributes.adoc[]
 
 [tabs, subs="attributes+,+macros"]	
 ====
---
 OpenShift::
 +
 --
@@ -43,10 +42,12 @@ OpenShift에서 Istio를 사용하려면 네 가지 오퍼레이터를 설치하
   * Kiali
   * OpenShift Service Mesh
 
-[NOTE]
+[IMPORTANT]
 ====
 *Web Terminal* 오퍼레이터를 설치하는 것이 권장되지만 선택 사항입니다. 이 오퍼레이터를 설치하면 이후 가이드에서 명령을 실행하는 것이 간편해집니다. 원한다면 OpenShift CLI(`oc`) 및 `kubectl`을 개발 머신에서 직접 사용할 수 있습니다. OpenShift CLI는 OpenShift 콘솔 오른쪽 상단의 도움말 아이콘에서 *Command line tools* 링크를 통해 다운로드할 수 있습니다.
+Web Terminal 오퍼레이터를 설치 합니다. 
 ====
+image::setup-webterminal.png[]
 
 설치가 완료되면 OpenShift 콘솔의 사이드 메뉴에서 *Installed Operators*를 선택하고 설치된 오퍼레이터가 목록에 있는지 확인합니다. 목록은 아래 스크린샷과 유사해야 합니다.
 

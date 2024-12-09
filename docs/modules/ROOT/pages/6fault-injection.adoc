@@ -1,13 +1,21 @@
-= Chaos Testing
+= 혼돈 테스트 (Chaos Testing)
 include::_attributes.adoc[]
 
-Apply some chaos engineering by throwing in some HTTP errors or network delays. Understanding failure scenarios is a critical aspect of microservices architecture (aka distributed computing)
+마이크로서비스 아키텍처(즉, 분산 컴퓨팅)의 중요한 측면 중 하나는 장애 시나리오를 이해하는 것입니다. 이를 위해 HTTP 오류 또는 네트워크 지연을 발생시키는 혼돈 엔지니어링을 적용합니다.
 
 [IMPORTANT]
 .Before Start
 ====
-You should have NO virtualservice nor destinationrule (in `tutorial` namespace) `kubectl get virtualservice{namespace-suffix}` `kubectl get destinationrule{namespace-suffix}` 
-if so run:
+`tutorial` 네임스페이스에 가상 서비스(virtualservice)나 대상 규칙(destinationrule)이 없어야 합니다. 다음 명령어로 확인할 수 있습니다.
+
+[.console-input]
+[source, bash,subs="+macros,+attributes"]
+----
+kubectl get virtualservice{namespace-suffix}
+kubectl get destinationrule{namespace-suffix}
+----
+
+필요한 경우 다음 명령어로 정리할 수 있습니다.
 
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
@@ -17,9 +25,9 @@ if so run:
 ====
 
 [#503error]
-== HTTP Error 503
+== HTTP 오류 503 시뮬레이션
 
-By default, recommendation v1 and v2 are being randomly load-balanced as that is the default behavior in Kubernetes/OpenShift
+기본적으로 recommendation v1 및 v2는 Kubernetes/OpenShift의 기본 동작에 따라 무작위 로드 밸런싱을 수행합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -35,19 +43,21 @@ recommendation-v1-3719512284-7mlzw   2/2       Running   6          18h
 recommendation-v2-2815683430-vn77w   2/2       Running   0          3h
 ----
 
-You can inject 503's, for approximately 50% of the requests
+대략 50%의 요청에 대해 503 오류를 주입할 수 있습니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml -n tutorial{namespace-suffix}
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-503.yml[istiofiles/virtual-service-recommendation-503.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-503.yml -n tutorial{namespace-suffix}
 ----
+
+고객 엔드포인트에 요청을 보냅니다.
 
 include::generate_traffic.adoc[]
 
@@ -60,7 +70,7 @@ customer => Error: 503 - preference => Error: 503 - fault filter abort
 customer => Error: 503 - preference => Error: 503 - fault filter abort
 ----
 
-Clean up
+=== 정리 작업 (Clean up)
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -69,28 +79,36 @@ kubectl delete -f istiofiles/virtual-service-recommendation-503.yml -n tutorial{
 ----
 
 [#delay]
-== Delay
+== 지연 시뮬레이션 (Delay)
 
-The most insidious of possible distributed computing faults is not a "down" service but a service that is responding slowly, potentially causing a cascading failure in your network of services.
-
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
-kubectl replace -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation.yml[istiofiles/destination-rule-recommendation.yml] -n tutorial{namespace-suffix}
-----
+분산 컴퓨팅 장애의 가장 교묘한 형태는 "다운"된 서비스가 아니라 느리게 응답하는 서비스입니다. 이는 서비스 네트워크 전체에 연속적인 장애를 일으킬 수 있습니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-delay.yml[istiofiles/virtual-service-recommendation-delay.yml] -n tutorial{namespace-suffix}
+kubectl replace -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation.yml -n tutorial{namespace-suffix}
 ----
 
-And hit the customer endpoint
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-delay.yml -n tutorial{namespace-suffix}
+----
+
+고객 엔드포인트에 요청을 보냅니다.
 
 include::generate_traffic.adoc[]
 
-You will notice many requests to the customer endpoint now have a delay.
-If you are monitoring the logs for recommendation v1 and v2, you will also see the delay happens BEFORE the recommendation service is actually called
+이제 고객 엔드포인트에 대한 많은 요청에 지연이 발생하는 것을 확인할 수 있습니다. 
+recommendation v1 및 v2의 로그를 모니터링하면 recommendation 서비스가 실제로 호출되기 전에 지연이 발생하는 것을 확인할 수 있습니다.
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+curl -L https://github.com/stern/stern/releases/download/v1.22.0/stern_1.22.0_linux_amd64.tar.gz | tar -xz -C /wto/bin/downloaded/
+----
+
+stern을 사용하여 recommendation 로그를 모니터링합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -98,7 +116,7 @@ If you are monitoring the logs for recommendation v1 and v2, you will also see t
 stern recommendation -n tutorial{namespace-suffix}
 ----
 
-=== Clean up
+=== 정리 작업 (Clean up)
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]

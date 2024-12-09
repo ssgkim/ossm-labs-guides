@@ -82,7 +82,7 @@ image:kiali-application-details.png[서비스 세부 정보]
 
 image:kiali-application-health.png[서비스 상태]
 
-`Outbound Metrics` 또는 `Inbound Metrics`를 클릭하면 애플리케이션의 메트릭도 확인할 수 있습니다.
+`Outbound Metrics` 또는 `Inbound Metrics` 를 클릭하면 애플리케이션의 메트릭도 확인할 수 있습니다.
 
 image:kiali-application-metrics.png[애플리케이션 메트릭]
 "customer" 애플리케이션을 클릭하여 해당 세부 정보를 확인합니다.
@@ -94,7 +94,7 @@ image:kiali-application-details.png[서비스 세부 정보]
 
 image:kiali-application-health.png[서비스 상태]
 
-`Outbound Metrics` 또는 `Inbound Metrics`를 클릭하면 애플리케이션의 메트릭도 확인할 수 있습니다.
+`Outbound Metrics` 또는 `Inbound Metrics` 를 클릭하면 애플리케이션의 메트릭도 확인할 수 있습니다.
 
 image:kiali-application-metrics.png[애플리케이션 메트릭]
 
@@ -111,7 +111,7 @@ image:kiali-workload-list.png[워크로드 목록]
 
 image:kiali-workload-details.png[워크로드 세부 정보]
 
-`Outbound Metrics` 및 `Inbound Metrics`를 클릭하여 워크로드에 대한 메트릭을 확인할 수 있습니다. 
+`Outbound Metrics` 및 `Inbound Metrics` 를 클릭하여 워크로드에 대한 메트릭을 확인할 수 있습니다. 
 이 메트릭은 `Application`에서 확인할 수 있는 메트릭과 동일합니다.
 
 [#services]

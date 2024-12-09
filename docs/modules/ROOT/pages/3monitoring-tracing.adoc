@@ -40,7 +40,7 @@ OpenShift::
 
 . OpenShift 웹 콘솔에 로그인합니다.
 . 사이드 메뉴에서 *Administrator* 관점을 선택합니다.
-. 사이드 메뉴에서 *Networking*을 확장하고 *Routes*를 선택합니다.
+. 사이드 메뉴에서 *Networking* 을 확장하고 *Routes* 를 선택합니다.
 . *Project* 드롭다운에서 `istio-system`이 선택되어 있는지 확인합니다. 라우트 목록에 Grafana 라우트가 표시됩니다.
 +
 image:grafana-openshift-route.png[Istio 시스템 네임스페이스의 OpenShift 라우트]
@@ -70,7 +70,7 @@ Grafana에 액세스하면 Istio에 의해 미리 구성된 메트릭 대시보�
 . `/dashboards` 페이지로 이동합니다. 아래 이미지와 유사한 화면이 표시됩니다.
 +
 image:grafana-dashboards.png[Grafana 대시보드 목록]
-. *Istio Mesh Dashboard*를 선택합니다. 메트릭 대시보드가 표시됩니다.
+. *Istio Mesh Dashboard* 를 선택합니다. 메트릭 대시보드가 표시됩니다.
 +
 image:grafana-istio-mesh-metrics.png[Grafana Istio Mesh 대시보드]
 
@@ -249,7 +249,7 @@ https://github.com/jaegertracing/jaeger-client-java/tree/master/jaeger-tracerres
 단, 특정 상황에서는 트레이서를 수동으로 구성하는 것이 적절할 수 있습니다. 
 트레이서를 수동으로 구성하는 방법에 대한 자세한 내용은 Jaeger 문서를 참조하세요.
 
-Jaeger 콘솔을 열고 서비스 목록에서 `customer`를 선택한 다음, 
+Jaeger 콘솔을 열고 서비스 목록에서 `customer` 를 선택한 다음, 
 `Find Traces` 버튼을 클릭하여 트레이스를 확인합니다.
 
 === Jaeger 대시보드에 액세스하기
@@ -264,7 +264,7 @@ OpenShift::
 --
 . OpenShift 웹 콘솔에 로그인합니다.
 . 사이드 메뉴에서 *Administrator* 관점을 선택합니다.
-. 사이드 메뉴에서 *Networking*을 확장하고 *Routes*를 선택합니다.
+. 사이드 메뉴에서 *Networking* 을 확장하고 *Routes* 를 선택합니다.
 . *Project* 드롭다운에서 `user1-dev-istio-system`이 선택되어 있는지 확인합니다. 라우트 목록에 Jaeger 라우트가 표시됩니다.
 . `jaeger` 목록 항목의 *Location* 열에 있는 URL을 클릭합니다. 그러면 다른 브라우저 창/탭에서 Jaeger 대시보드가 열립니다.
 . OpenShift 계정을 사용하여 로그인하라는 메시지가 표시됩니다. *Log in with OpenShift* 버튼을 클릭하고 화면에 표시되는 지침을 따라 Jaeger 대시보드에 액세스합니다.
@@ -299,7 +299,7 @@ Jaeger의 트레이스는 Istio 메쉬 네트워크의 트래픽을 기반으로
 트레이스를 보려면 검색을 수행합니다.
 
 . Jaeger 대시보드의 헤더에서 *Search* 화면을 선택합니다.
-. *Search* 패널의 *Service* 드롭다운에서 `istio-ingressgateway.user1-dev-istio-system`을 선택합니다.
+. *Search* 패널의 *Service* 드롭다운에서 `istio-ingressgateway.user1-dev-istio-system` 을 선택합니다.
 . 나머지 입력 값을 기본값으로 두고 *Find Traces* 버튼을 클릭합니다.
 
 HTTP 요청에 해당하는 트레이스의 플롯이 표시되며, 플롯에서 해당 항목의 목록도 함께 표시됩니다.
@@ -321,16 +321,16 @@ image:jaeger-search.png[Jaeger 검색 결과]
 
 image:jaeger-trace-details.png[Jaeger 트레이스 세부 정보]
 
-첫 번째 세그먼트는 `user1-dev-istio-system` 네임스페이스의 `istio-ingressgateway`를 통해 요청이 메쉬로 들어왔을 때를 나타냅니다. 
+첫 번째 세그먼트는 `user1-dev-istio-system` 네임스페이스의 `istio-ingressgateway` 를 통해 요청이 메쉬로 들어왔을 때를 나타냅니다. 
 그 후 요청은 `tutorial` 네임스페이스의 `customer` 서비스로 라우팅됩니다. 
 이 두 세그먼트에 나열된 IP 주소를 각 네임스페이스의 실행 중인 Pod와 연관시킬 수 있습니다. 
 세 번째 세그먼트는 고객 Java 애플리케이션의 `getCustomer` 메서드에서 요청이 처리되는 과정을 나타냅니다.
 
 === 요청 처리 시간 분석
 
-요청 처리에 지연이 발생한 경우, *Trace Flamegraph*를 사용하여 근본 원인 분석(Root Cause Analysis) 중에 더 면밀히 조사해야 할 후보를 식별할 수 있습니다.
+요청 처리에 지연이 발생한 경우, *Trace Flamegraph* 를 사용하여 근본 원인 분석(Root Cause Analysis) 중에 더 면밀히 조사해야 할 후보를 식별할 수 있습니다.
 
-. 오른쪽 상단에서 `Trace Flamegraph`를 선택합니다.
+. 오른쪽 상단에서 `Trace Flamegraph` 를 선택합니다.
 . 뷰 토글을 *Table* 모드로 설정합니다.
 
 image:jaeger-flamegraph.png[Jaeger Flamegraph]

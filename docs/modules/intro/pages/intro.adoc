@@ -36,7 +36,7 @@ ls -la
 
 [IMPORTANT]
 ====
-개발 및 운영 환경 모두에서 사용할 *전용 OpenShift 클러스터*를 사용하게 됩니다. 따라서 OpenShift 환경에서 Service Mesh를 다중 테넌트 모드로 설치할 예정입니다.
+개발 및 운영 환경 모두에서 사용할 *전용 OpenShift 클러스터* 를 사용하게 됩니다. 따라서 OpenShift 환경에서 Service Mesh를 다중 테넌트 모드로 설치할 예정입니다.
 ====
 
 

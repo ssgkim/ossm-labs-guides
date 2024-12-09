@@ -17,7 +17,7 @@ export SSO_CLIENT_SECRET=bcd06d5bdd1dbaaf81853d10a66aeb989a38dd51
 
 === 작업 1: Travel Control 대시보드에 접근하기
 
-* CLI를 사용하여 사용자 `emma`로 로그인하세요. 이 사용자는 `{openshift_cluster_user_name}-dev-istio-system`에 접근할 수 있습니다. 애플리케이션 비즈니스 대시보드의 URL을 가져와 브라우저에 붙여넣고 *Travel Control Dashboard*에 접근할 수 있는지 확인하세요.
+* CLI를 사용하여 사용자 `emma` 로 로그인하세요. 이 사용자는 `{openshift_cluster_user_name}-dev-istio-system`에 접근할 수 있습니다. 애플리케이션 비즈니스 대시보드의 URL을 가져와 브라우저에 붙여넣고 *Travel Control Dashboard*에 접근할 수 있는지 확인하세요.
 
 [source, shell, role=execute, subs=attributes]
 ----
@@ -42,7 +42,7 @@ image::01-travels-dashboard.png[]
 
 이 작업에서는 Service Mesh의 모니터링 스택 구성 요소들의 URL을 찾는 방법을 배우게 됩니다.
 
-* CLI를 통해 로그인합니다 (여기서는 사용자 `cristina`/`cristina`를 사용합니다). `OSSM` 모니터링 스택의 구성 요소(`Kiali`, `Jaeger`, `Prometheus`, `Grafana`)의 URL을 검색하려면 아래 명령을 실행하세요. 브라우저에서 링크를 열고 앞서 사용한 `cristina`의 자격 증명을 사용하여 로그인합니다.
+* CLI를 통해 로그인합니다 (여기서는 사용자 `cristina`/`cristina` 를 사용합니다). `OSSM` 모니터링 스택의 구성 요소(`Kiali`, `Jaeger`, `Prometheus`, `Grafana`)의 URL을 검색하려면 아래 명령을 실행하세요. 브라우저에서 링크를 열고 앞서 사용한 `cristina`의 자격 증명을 사용하여 로그인합니다.
 +
 [source, shell, role=execute, subs=attributes]
 ----
@@ -57,7 +57,7 @@ echo "https://$(oc get route prometheus -o jsonpath='{.spec.host}' -n {openshift
 echo "https://$(oc get route grafana -o jsonpath='{.spec.host}' -n {openshift_cluster_user_name}-dev-istio-system)"
 ----
 
-* 구성 요소에 접근하는 또 다른 방법은 `Kiali`에 로그인한 후 이름 옆의 *?* (오른쪽 상단 Kiali 코너)를 클릭하고 *About*을 선택하면 `Grafana`와 `Jaeger`의 URL이 표시됩니다.
+* 구성 요소에 접근하는 또 다른 방법은 `Kiali`에 로그인한 후 이름 옆의 *?* (오른쪽 상단 Kiali 코너)를 클릭하고 *About* 을 선택하면 `Grafana`와 `Jaeger`의 URL이 표시됩니다.
 
 [link=_images/02-about.png,window=_blank]
 image::02-about.png[200,200]
@@ -65,16 +65,16 @@ image::02-about.png[200,200]
 
 `Kiali` URL에 접근합니다 (CLI 출력 참조) 그리고 사용자 이름/비밀번호 *`mus`*/*`mus`* (역할: `Application Viewer`)로 로그인합니다.
 
-왼쪽 메뉴에서 _Graph_를 선택합니다. `Product Owner`로서 *view* 권한으로 모든 3개의 _데이터 플레인_ 네임스페이스와 _컨트롤 플레인_ 네임스페이스를 확인할 수 있습니다.
+왼쪽 메뉴에서 _Graph_를 선택합니다. `Product Owner` 로서 *view* 권한으로 모든 3개의 _데이터 플레인_ 네임스페이스와 _컨트롤 플레인_ 네임스페이스를 확인할 수 있습니다.
 
 [link=_images/02-mus-kiali-view.png,window=_blank]
 image::02-mus-kiali-view.png[]
 
 수행 가능한 작업은 다음과 같습니다:
 
-1. 전체 솔루션에 대한 추적 보기: `Kiali` 메뉴에서 왼쪽의 `Distributed Tracing`으로 이동하여 OpenShift 자격 증명 (`mus/mus`)으로 로그인합니다 (액세스 승인). 그런 다음 서비스 드롭다운 목록에서 `istio-ingressgateway`를 선택합니다.
+1. 전체 솔루션에 대한 추적 보기: `Kiali` 메뉴에서 왼쪽의 `Distributed Tracing`으로 이동하여 OpenShift 자격 증명 (`mus/mus`)으로 로그인합니다 (액세스 승인). 그런 다음 서비스 드롭다운 목록에서 `istio-ingressgateway` 를 선택합니다.
 
-2. 전체 솔루션에 대한 메트릭 보기: `Kiali`에서 `Workloads`로 이동하여 `cars-v1` 애플리케이션 워크로드를 선택합니다. `inbound` 또는 `outbound` 메트릭을 사용하세요.
+2. 전체 솔루션에 대한 메트릭 보기: `Kiali`에서 `Workloads` 로 이동하여 `cars-v1` 애플리케이션 워크로드를 선택합니다. `inbound` 또는 `outbound` 메트릭을 사용하세요.
 +
 [link=_images/02-mus-kiali-metrics.png,window=_blank]
 image::02-mus-kiali-metrics.png[]
@@ -83,7 +83,7 @@ image::02-mus-kiali-metrics.png[]
 image::02-mus-kiali-inbound-metrics.png[]
 
 3. *대안*, `Prometheus` (위에서 식별된 URL)에 접근하여 자격 증명 (*`mus`*/*`mus`*)으로 로그인합니다. `Graph` 뷰에서 아래 메트릭 중 하나를 적용합니다:
-*** `istio_requests_total{destination_workload="discounts-v1", app="discounts"}`: `discounts-v1`로의 요청 시각화
+*** `istio_requests_total{destination_workload="discounts-v1", app="discounts"}`: `discounts-v1` 로의 요청 시각화
 *** `istio_request_duration_milliseconds_count{app="discounts"}`
 *** `istio_response_bytes_bucket`
 
@@ -101,15 +101,15 @@ image::02-grafana-performance.png[]
 ==== `Product Owner`의 RBAC 제한 확인
 [WARNING]
 ====
-`Product Owner`로서 Istio 구성을 수정하거나 Istio 로그를 보는 것이 허용되지 않습니다.
+`Product Owner` 로서 Istio 구성을 수정하거나 Istio 로그를 보는 것이 허용되지 않습니다.
 ====
 
-* 사용자 *`mus`*로서 `Kiali`에서 구성(config)을 수정할 수 없습니다. 왼쪽 메뉴에서 `Istio Config`를 선택한 다음 상단 드롭다운에서 네임스페이스 `{openshift_cluster_user_name}-dev-istio-system`을 선택하고, _Istio Type_ `Gateway`로 필터링한 뒤 `control-gateway` 구성을 선택하면 사용자가 구성을 수정할 수 없다는 메시지가 표시됩니다.
+* 사용자 *`mus`*로서 `Kiali`에서 구성(config)을 수정할 수 없습니다. 왼쪽 메뉴에서 `Istio Config` 를 선택한 다음 상단 드롭다운에서 네임스페이스 `{openshift_cluster_user_name}-dev-istio-system` 을 선택하고, _Istio Type_ `Gateway` 로 필터링한 뒤 `control-gateway` 구성을 선택하면 사용자가 구성을 수정할 수 없다는 메시지가 표시됩니다.
 +
 [link=_images/02-mus-view-config.png,window=_blank]
 image::02-mus-view-config.png[]
 
-* *`mus`*로서 `Kiali`에서 어떤 워크로드의 로그도 접근할 수 없습니다. 이는 `istio-proxy`나 주요 워크로드 컨테이너 모두 마찬가지입니다. 왼쪽 메뉴에서 `Workloads`로 이동하여 `cars-v1` 워크로드를 클릭한 뒤 `logs` 탭으로 이동하면 로그가 표시되지 않고 다음과 유사한 메시지가 표시됩니다:
+* *`mus`*로서 `Kiali`에서 어떤 워크로드의 로그도 접근할 수 없습니다. 이는 `istio-proxy`나 주요 워크로드 컨테이너 모두 마찬가지입니다. 왼쪽 메뉴에서 `Workloads` 로 이동하여 `cars-v1` 워크로드를 클릭한 뒤 `logs` 탭으로 이동하면 로그가 표시되지 않고 다음과 유사한 메시지가 표시됩니다:
 +
 `Failed to fetch workload logs: pods "cars-v1-7b85d9b99b-l4hjg" is forbidden: User "mus" cannot get resource "pods/log" in API group "" in the namespace "userx-dev-travel-agency"`
 
@@ -117,7 +117,7 @@ image::02-mus-view-config.png[]
 
 1. 사용자 이름/비밀번호 *`farid`*/*`farid`* (역할: `Mesh Developer`)로 `Kiali` URL에 접근합니다.
 
-* _Travel Services_ 도메인의 `Domain Owner`로서 다음 네임스페이스에 *view* 권한을 가집니다:
+* _Travel Services_ 도메인의 `Domain Owner` 로서 다음 네임스페이스에 *view* 권한을 가집니다:
 ** _데이터 플레인_ 네임스페이스: `{openshift_cluster_user_name}-dev-travel-agency`
 ** _컨트롤 플레인_ 네임스페이스: `{openshift_cluster_user_name}-dev-istio-system`
 +
@@ -125,7 +125,7 @@ image::02-mus-view-config.png[]
 image::02-travel-services-domain.png[]
 
 * 허용된 작업:
-2. 전체 솔루션에 대한 추적 보기: `Kiali` 메뉴에서 왼쪽의 `Distributed Tracing`으로 이동하여 *`farid`* 자격 증명으로 로그인하여 추적 콘솔을 확인합니다. 드롭다운 메뉴에서 서비스 `istio-ingressgateway.{openshift_cluster_user_name}-dev-istio-system`를 선택합니다.
+2. 전체 솔루션에 대한 추적 보기: `Kiali` 메뉴에서 왼쪽의 `Distributed Tracing`으로 이동하여 *`farid`* 자격 증명으로 로그인하여 추적 콘솔을 확인합니다. 드롭다운 메뉴에서 서비스 `istio-ingressgateway.{openshift_cluster_user_name}-dev-istio-system` 를 선택합니다.
 +
 [link=_images/02-jaege-traces.png,window=_blank]
 image::02-jaege-traces.png[]
@@ -135,13 +135,13 @@ image::02-jaege-traces.png[]
 [link=_images/02-hotels-prometheus-metrics.png,window=_blank]
 image::02-hotels-prometheus-metrics.png[]
 
-4. 도메인 내 워크로드의 로그 보기: `Kiali`에서 네임스페이스 드롭다운 메뉴에서 `{openshift_cluster_user_name}-dev-travel-agency`를 선택합니다. 왼쪽 메뉴에서 `Workloads`로 이동하고 워크로드 중 하나를 선택한 뒤 `Logs` 탭에서 프록시와 Pod 로그를 확인할 수 있습니다.
+4. 도메인 내 워크로드의 로그 보기: `Kiali`에서 네임스페이스 드롭다운 메뉴에서 `{openshift_cluster_user_name}-dev-travel-agency` 를 선택합니다. 왼쪽 메뉴에서 `Workloads` 로 이동하고 워크로드 중 하나를 선택한 뒤 `Logs` 탭에서 프록시와 Pod 로그를 확인할 수 있습니다.
 +
 [link=_images/02-workloads.png,window=_blank]
 image::02-workloads.png[]
 
 5. 도메인 내 Istio 구성 확인 및 수정:
-** `Kiali` 메뉴에서 왼쪽의 `Istio Config`로 이동합니다.
+** `Kiali` 메뉴에서 왼쪽의 `Istio Config` 로 이동합니다.
 ** 사용자 *`farid`*/*`farid`*로 로그인한 경우 `{openshift_cluster_user_name}-dev-istio-system` 네임스페이스에서 구성을 확인할 수 있지만, _쓰기_ 권한이 없으므로 수정할 수 없습니다.
 +
 [link=_images/02-view-config-but-no-modify.png,window=_blank]
@@ -173,7 +173,7 @@ image::02-grafana-cars-workload-outbound-dashboard.png[400,1000]
 
 1. 사용자 이름/비밀번호 *`mia`*/*`mia`* (역할: `Application Viewer`)로 `Kiali` URL에 접근합니다.
 
-* _Travel Services_ 도메인의 `Developer`로서 *mia*는 `dev-travel-agency` 내 워크로드에서 기능, 성능 또는 구성 문제를 확인하는 데 관심이 있습니다. 따라서 해당 서비스 메쉬 네임스페이스에 대한 접근 권한이 부여되며, _Travel Portal_ 도메인 네임스페이스와 서비스 메쉬 컨트롤 플레인 네임스페이스는 제한됩니다(잠금 아이콘 표시).
+* _Travel Services_ 도메인의 `Developer` 로서 *mia*는 `dev-travel-agency` 내 워크로드에서 기능, 성능 또는 구성 문제를 확인하는 데 관심이 있습니다. 따라서 해당 서비스 메쉬 네임스페이스에 대한 접근 권한이 부여되며, _Travel Portal_ 도메인 네임스페이스와 서비스 메쉬 컨트롤 플레인 네임스페이스는 제한됩니다(잠금 아이콘 표시).
 +
 [link=_images/02-mia-graph-restricted-view.png,window=_blank]
 image::02-mia-graph-restricted-view.png[]
@@ -184,10 +184,10 @@ image::02-mia-graph-restricted-view.png[]
 
 1. 사용자 이름/비밀번호 *`emma`*/*`emma`* (역할: `Mesh Operator`)로 `Kiali` URL에 접근합니다.
 
-* `Mesh Operator`로서 모든 3개의 _데이터 플레인_ 네임스페이스와 _컨트롤 플레인_에 *전체* 접근 권한을 가집니다.
-** `Kiali`에서 *Graphs -> App Graph*로 이동하여 *Display*에서 `Request Distribution`, `Namespace Boxes`, `Traffic Animation`, `Security`를 선택하여 Mesh Operator 뷰를 확인합니다.
-** 또한, 왼쪽 `Kiali` 메뉴에서 `Istio Config`로 이동합니다. 이 메쉬의 관리자로서 모든 구성을 접근하거나 수정할 수 있습니다.
-** 워크로드의 로그에도 접근할 수 있습니다. 왼쪽 `Kiali` 메뉴에서 `Workloads`로 이동하고 워크로드 중 하나를 선택하면 프록시와 Pod 로그가 모두 표시됩니다.
+* `Mesh Operator` 로서 모든 3개의 _데이터 플레인_ 네임스페이스와 _컨트롤 플레인_에 *전체* 접근 권한을 가집니다.
+** `Kiali`에서 *Graphs -> App Graph*로 이동하여 *Display*에서 `Request Distribution`, `Namespace Boxes`, `Traffic Animation`, `Security` 를 선택하여 Mesh Operator 뷰를 확인합니다.
+** 또한, 왼쪽 `Kiali` 메뉴에서 `Istio Config` 로 이동합니다. 이 메쉬의 관리자로서 모든 구성을 접근하거나 수정할 수 있습니다.
+** 워크로드의 로그에도 접근할 수 있습니다. 왼쪽 `Kiali` 메뉴에서 `Workloads` 로 이동하고 워크로드 중 하나를 선택하면 프록시와 Pod 로그가 모두 표시됩니다.
 ** 마지막으로, 이전 사용자와 마찬가지로 `Prometheus`, `Jaeger`, 및 `Grafana`에 접근할 수 있습니다. `Grafana`에서는 서비스 메쉬 _컨트롤 플레인_ 상태를 시각화하는 대시보드도 사용할 수 있습니다.
 *** *Dashboards -> Manage-> Istio -> Istio Control Plane Dashboard* 대시보드
 

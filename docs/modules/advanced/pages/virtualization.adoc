@@ -23,7 +23,7 @@ kubectl get destinationrule
 
 서비스 가상화는 클래스(components)를 목(mock)으로 대체하는 대신 원격 서비스를 가상화하는 개념으로 볼 수 있습니다.
 
-이 예시에서는 recommendation 가상화 서비스가 `recommendation v2 from 'virtualized': 2`를 반환합니다.
+이 예시에서는 recommendation 가상화 서비스가 `recommendation v2 from 'virtualized': 2` 를 반환합니다.
 
 [#deploypreferencev2]
 == Preference:v2 배포

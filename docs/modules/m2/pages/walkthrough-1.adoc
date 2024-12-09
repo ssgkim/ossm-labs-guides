@@ -19,7 +19,7 @@ link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/tree/helm/helm/os
 
 1. 플랫폼 관리자(역할: `Cluster Admin`)로서 OCP 클러스터에 `Service Mesh` 오퍼레이터를 추가합니다.
 2. 플랫폼 관리자(역할: `Cluster Admin`)로서 오퍼레이터가 성공적으로 설치되면 필요한 _Travel Agency_ 네임스페이스를 생성합니다.
-3. 플랫폼 관리자(역할: `Cluster Admin`)로서 `Service Mesh Roles`를 생성합니다.
+3. 플랫폼 관리자(역할: `Cluster Admin`)로서 `Service Mesh Roles` 를 생성합니다.
 4. 플랫폼 관리자(역할: `Cluster Admin`)로서 Service Mesh 사용자를 생성하고 역할을 할당합니다.
 
 === Mesh Operator 역할의 작업
@@ -28,11 +28,11 @@ link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/tree/helm/helm/os
 === Mesh Developer 역할의 작업
 
 1. *farid* (역할: `Mesh Developer`) _Travel Services 도메인 소유자 (Tech Lead)_로서:
-** 네임스페이스 `dev-travel-agency`를 `dev-basic` Service Mesh에 온보딩하기 위해 `ServiceMeshMember (SMM)` 리소스를 `dev-travel-agency`에 추가합니다.
+** 네임스페이스 `dev-travel-agency` 를 `dev-basic` Service Mesh에 온보딩하기 위해 `ServiceMeshMember (SMM)` 리소스를 `dev-travel-agency`에 추가합니다.
 ** `dev-travel-agency` 네임스페이스에 애플리케이션을 배포합니다.
 
 2. *cristina* (역할: `Mesh Developer`) _Travel Portal 도메인 소유자 (Tech Lead)_로서:
-** 네임스페이스 `dev-travel-control` 및 `dev-travel-portal`을 `dev-basic` Service Mesh에 온보딩하기 위해 각 네임스페이스에 `dev-basic` 멤버십을 위한 `ServiceMeshMember (SMM)` 리소스를 추가합니다.
+** 네임스페이스 `dev-travel-control` 및 `dev-travel-portal` 을 `dev-basic` Service Mesh에 온보딩하기 위해 각 네임스페이스에 `dev-basic` 멤버십을 위한 `ServiceMeshMember (SMM)` 리소스를 추가합니다.
 ** `dev-travel-control`, `dev-travel-portal` 네임스페이스에 애플리케이션과 Service Mesh 서비스를 노출하기 위한 `Istio` 구성을 배포합니다.
 
 === Mesh Operator 역할의 최종 작업
@@ -41,7 +41,7 @@ link:https://github.com/redhat-gpte-devopsautomation/ossm-labs/tree/helm/helm/os
 
 [IMPORTANT]
 ====
-`OpenShift Service Mesh`는 Istio와 마찬가지로 데이터 플레인에서 *_Ingress Gateway_*를 주입할 수 있는 기능을 제공합니다.  
+`OpenShift Service Mesh` 는 Istio와 마찬가지로 데이터 플레인에서 *_Ingress Gateway_* 를 주입할 수 있는 기능을 제공합니다.  
 그러나 DEV 환경에서의 _Travel Agency_ 사용 사례에서는 아키텍트들이 *_Self-Service_* xref:m1:walkthrough.adoc#_user_governance_model[사용자 거버넌스 모델]을 선택했으며, 이에 따라 `Mesh Operator`가 Ingress/Egress 리소스 구성을 담당합니다.
 
 *_Gateway Injection_*은 이후 xref:m4:walkthrough.adoc#_user_governance_model[랩 모듈 4]에서 사용하게 됩니다.

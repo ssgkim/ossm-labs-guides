@@ -31,7 +31,7 @@ cd ~/ossm-labs/lab-3
 
 == 작업 2: 외부 Jaeger 구성이 포함된 기본 Service Mesh Control Plane 설치
 
-운영 환경을 위한 기본 Service Mesh Control Plane을 생성합니다. 추적(Tracing) 구성을 위해 `Red Hat Openshift Service Mesh (OSSM)`는 운영 환경에서 다음 두 가지 설정 옵션을 제안합니다. 운영 설정에는 _Option 2_ (완전 사용자 정의 옵션)이 선택되었습니다.
+운영 환경을 위한 기본 Service Mesh Control Plane을 생성합니다. 추적(Tracing) 구성을 위해 `Red Hat Openshift Service Mesh (OSSM)` 는 운영 환경에서 다음 두 가지 설정 옵션을 제안합니다. 운영 설정에는 _Option 2_ (완전 사용자 정의 옵션)이 선택되었습니다.
 
 - Option 1: link:https://docs.openshift.com/container-platform/4.14/service_mesh/v2x/ossm-reference-jaeger.html#ossm-deploying-jaeger-production-min_jaeger-config-reference[운영용 분산 추적 플랫폼 배포(최소) - SMCP 리소스를 통해,window=_blank]
 - Option 2: link:https://docs.openshift.com/container-platform/4.14/service_mesh/v2x/ossm-reference-jaeger.html#ossm-deploying-jaeger-production_jaeger-config-reference[운영용 분산 추적 플랫폼 배포(완전 사용자 정의),window=_blank]
@@ -50,7 +50,7 @@ cd ~/ossm-labs/lab-3
 ./create-prod-smcp-1-tracing.sh {openshift_cluster_user_name}-prod-istio-system {openshift_cluster_user_name}-production {openshift_cluster_user_name}-jaeger-small-production
 ----
 
-* `Jaeger Operator`는 `{openshift_cluster_user_name}-prod-istio-system` 네임스페이스에 다음 리소스를 생성합니다:
+* `Jaeger Operator` 는 `{openshift_cluster_user_name}-prod-istio-system` 네임스페이스에 다음 리소스를 생성합니다:
 - `Jaeger Collector`
 - `Jaeger Query`
 - `Elastic Search` 배포
@@ -92,7 +92,7 @@ spec:
 ** *(4)* Elastic Search는 단일 Elastic 노드에서 호스팅됩니다.  
 ** *(5)* 총 Elastic Search 인덱스 크기는 _`1Gi`_로 설정됩니다.  
 ** *(6)* 노드의 리소스 요청 및 제한이 지정됩니다.  
-** *(7)* Elastic Search가 단일 노드로 구성되므로 Jaeger 인덱스의 중복성은 `ZeroRedundancy`로 설정됩니다.  
+** *(7)* Elastic Search가 단일 노드로 구성되므로 Jaeger 인덱스의 중복성은 `ZeroRedundancy` 로 설정됩니다.  
 
 * 외부 Jaeger 인스턴스를 사용하도록 구성된 SMCP 리소스는 다음과 같습니다:
 +
@@ -171,9 +171,9 @@ image::03-prod-istio-system.png[]
 이 작업에서는 새로 생성된 Service Mesh에 애플리케이션 네임스페이스를 추가하고, 운영 환경을 위한 애플리케이션을 배포합니다. 또한, 두 개의 `sidecar` 컨테이너를 지정하여 Service Mesh 내에서 애플리케이션을 구성합니다:
 
 1. `istio-proxy` 사이드카 컨테이너: 메인 애플리케이션 컨테이너의 모든 통신(입출력)을 프록시하고 `Service Mesh` 구성을 적용합니다.
-2. `jaeger-agent` 사이드카 컨테이너: `Service Mesh` 문서 link:https://docs.openshift.com/container-platform/4.14/service_mesh/v2x/ossm-reference-jaeger.html#distr-tracing-deployment-best-practices_jaeger-config-reference[Jaeger Agent Deployment Best Practices,window=_blank]에 따르면 `jaeger-agent`를 사이드카 또는 `DaemonSet`으로 배포할 수 있습니다. 이 OpenShift 클러스터에서 다중 테넌시를 허용하기 위해 전자가 선택되었습니다.
+2. `jaeger-agent` 사이드카 컨테이너: `Service Mesh` 문서 link:https://docs.openshift.com/container-platform/4.14/service_mesh/v2x/ossm-reference-jaeger.html#distr-tracing-deployment-best-practices_jaeger-config-reference[Jaeger Agent Deployment Best Practices,window=_blank]에 따르면 `jaeger-agent` 를 사이드카 또는 `DaemonSet`으로 배포할 수 있습니다. 이 OpenShift 클러스터에서 다중 테넌시를 허용하기 위해 전자가 선택되었습니다.
 
-모든 애플리케이션 `Deployment`는 다음과 같이 패치되어 사이드카를 포함합니다 (*경고:* 스크립트 `deploy-travel-services-domain.sh`에서 이를 수행하므로 직접 적용하지 마십시오):
+모든 애플리케이션 `Deployment` 는 다음과 같이 패치되어 사이드카를 포함합니다 (*경고:* 스크립트 `deploy-travel-services-domain.sh`에서 이를 수행하므로 직접 적용하지 마십시오):
 
 
 [source,shell,subs=attributes]
@@ -183,7 +183,7 @@ oc patch deployment/voyages -p '{"spec":{"template":{"metadata":{"annotations":{
 ----
 이제 시작해봅시다.
 
-* `Travel Agency` 서비스 담당자인 `Mesh Developer`로 로그인합니다 (자격 증명: `farid/farid`)  
+* `Travel Agency` 서비스 담당자인 `Mesh Developer` 로 로그인합니다 (자격 증명: `farid/farid`)  
   그런 다음 `{openshift_cluster_user_name}-prod-travel-agency` 애플리케이션 네임스페이스의 레이블(Label)을 확인합니다.
 +
 
@@ -235,13 +235,13 @@ oc patch deployment/voyages -p '{"spec":{"template":{"metadata":{"annotations":{
 ./deploy-travel-services-domain.sh prod prod-istio-system {openshift_cluster_user_name}
 ----
 +
-또한 link:{openshift_cluster_console_url}[OpenShift 콘솔,window=_blank]에 `farid/farid`로 로그인하여 `{openshift_cluster_user_name}-prod-travel-agency` 네임스페이스에서 애플리케이션 POD들이 시작되었는지 확인할 수 있습니다. (*`Administrator`* -> *`Workloads`* -> *`Pods`* 경로로 이동). 결과는 다음과 유사하게 표시될 것입니다:
+또한 link:{openshift_cluster_console_url}[OpenShift 콘솔,window=_blank]에 `farid/farid` 로 로그인하여 `{openshift_cluster_user_name}-prod-travel-agency` 네임스페이스에서 애플리케이션 POD들이 시작되었는지 확인할 수 있습니다. (*`Administrator`* -> *`Workloads`* -> *`Pods`* 경로로 이동). 결과는 다음과 유사하게 표시될 것입니다:
 
 +
 [link=_images/03-travel-agency-expected-3-container-pods.png,window=_blank]
 image::03-travel-agency-expected-3-container-pods.png[]
 
-* 다음 단계에서는 책임 사용자 `cristina/cristina`로 Travel Control 및 Travel Portal 애플리케이션을 설치합니다.
+* 다음 단계에서는 책임 사용자 `cristina/cristina` 로 Travel Control 및 Travel Portal 애플리케이션을 설치합니다.
 +
 
 [source,shell,subs=attributes,role=execute]
@@ -275,7 +275,7 @@ image::03-travel-agency-expected-3-container-pods.png[]
 ./deploy-travel-portal-domain.sh prod prod-istio-system {openshift_cluster_ingress_domain} {openshift_cluster_user_name}
 ----
 
-* `cristina/cristina`로 link:{openshift_cluster_console_url}[OpenShift 콘솔,window=_blank]에 로그인하여 두 네임스페이스에서 애플리케이션이 생성되고 실행 중인지 확인합니다:
+* `cristina/cristina` 로 link:{openshift_cluster_console_url}[OpenShift 콘솔,window=_blank]에 로그인하여 두 네임스페이스에서 애플리케이션이 생성되고 실행 중인지 확인합니다:
 ** `{openshift_cluster_user_name}-prod-travel-control`
 +
 
@@ -296,7 +296,7 @@ image::03-travel-portal-expected-3-container-pods.png[]
 * OpenShift에서 패스스루 라우트를 생성하여 트래픽을 Istio 인그레스 게이트웨이로 전달합니다.
 * 생성한 TLS 인증서로 구성된 Istio 게이트웨이 리소스를 생성합니다.
 
-현재, *운영* link:https://kiali-{openshift_cluster_user_name}-prod-istio-system.{openshift_cluster_ingress_domain}/[Kiali 대시보드,window=_blank]에 사용자 `emma/emma`로 로그인한 경우 (*Istio Config* -> `VirtualService`로 필터링), `control`이라는 `VirtualService` 리소스에 문제가 있으며 아직 `Gateway`가 존재하지 않기 때문에 Kiali에 오류가 표시됩니다.
+현재, *운영* link:https://kiali-{openshift_cluster_user_name}-prod-istio-system.{openshift_cluster_ingress_domain}/[Kiali 대시보드,window=_blank]에 사용자 `emma/emma` 로 로그인한 경우 (*Istio Config* -> `VirtualService` 로 필터링), `control`이라는 `VirtualService` 리소스에 문제가 있으며 아직 `Gateway`가 존재하지 않기 때문에 Kiali에 오류가 표시됩니다.
 
 
 [link=_images/03-no-gw-for-travel-control-ui-vs.png,window=_blank]
@@ -325,21 +325,21 @@ image::03-Travel-Control-Dashboard-https.png[Travel Control Dashboard]
 
 == 작업 5: 운영 환경 모니터링 설정하기
 
-현재(기본값으로) `mesh operator`는 `{openshift_cluster_user_name}-production` 컨트롤 플레인의 일부로 모든 모니터링 애드온을 배포하고 관리합니다.
+현재(기본값으로) `mesh operator` 는 `{openshift_cluster_user_name}-production` 컨트롤 플레인의 일부로 모든 모니터링 애드온을 배포하고 관리합니다.
 
 [link=_images/03-smcp-monitoring-stack.png,window=_blank]
 image::03-smcp-monitoring-stack.png[]
 
-운영 환경에서 메트릭 수집을 위한 전용 Prometheus 인스턴스로 이동하는 경우, `mesh operator`는 `Openshift Service Mesh Operator`를 확장하여 운영 메트릭의 장기 저장을 위한 회복성을 제공할 책임이 있습니다. 운영 환경에서 Prometheus를 설정하기 위한 몇 가지 옵션이 있습니다:
+운영 환경에서 메트릭 수집을 위한 전용 Prometheus 인스턴스로 이동하는 경우, `mesh operator` 는 `Openshift Service Mesh Operator` 를 확장하여 운영 메트릭의 장기 저장을 위한 회복성을 제공할 책임이 있습니다. 운영 환경에서 Prometheus를 설정하기 위한 몇 가지 옵션이 있습니다:
 
 Option 1: `SMCP`에서 생성된 `Prometheus` 리소스를 위한 `PersistentVolume` 생성::
-이 옵션에서 `mesh operator`는 `SMCP`가 관리하는 `Prometheus Deployment` 리소스를 확장하여 다음을 수행합니다:
+이 옵션에서 `mesh operator` 는 `SMCP`가 관리하는 `Prometheus Deployment` 리소스를 확장하여 다음을 수행합니다:
 * 메트릭 보유 기간을 7일(`7d`)로 확장하고,
 * 배포에 지속 볼륨을 추가하여 메트릭의 장기 지속성을 가능하게 합니다.
 
-Option 2: `prometheus-operator`를 통한 외부 `Prometheus` 설정::
+Option 2: `prometheus-operator` 를 통한 외부 `Prometheus` 설정::
 이 옵션에서 `클러스터 관리자` 사용자는 다음 작업을 수행합니다:
-a. `prod-istio-system`에 추가적인 `Prometheus Operator`를 배포합니다.
+a. `prod-istio-system`에 추가적인 `Prometheus Operator` 를 배포합니다.
 b. 2개의 복제본을 가진 `StatefulSet` 기반의 `Prometheus` 리소스를 배포합니다.
 c. Prometheus 복제본을 구성하여 `prod-istio-system` 및 모든 데이터 플레인 네임스페이스의 구성 요소를 모니터링합니다.
 
@@ -353,7 +353,7 @@ Option 4: 외부 `모니터링` 도구와 통합::
 
 * _데이터 플레인_ 메트릭의 경우 이전에 설명한 Option 3의 접근 방식을 따릅니다.
 
-이 랩에서는 운영 설정에서 *Option 3*을 적용합니다.
+이 랩에서는 운영 설정에서 *Option 3* 을 적용합니다.
 
 첫 번째 단계로 Red Hat Openshift 콘솔에 link:https://docs.openshift.com/container-platform/4.14/service_mesh/v2x/ossm-kiali-ossmc-plugin.html[OpenShift Service Mesh 콘솔 플러그인,window=_blank]을 추가하여 Openshift 콘솔 *Service Mesh* 메뉴에서 운영 Kiali UI를 직접 볼 수 있도록 수정합니다.  
 플러그인을 적용한 후 link:{openshift_cluster_console_url}[Openshift Console,window=_blank]에 로그인하면 몇 분 후 새로고침 알림이 표시됩니다.  
@@ -665,7 +665,7 @@ increase(pilot_proxy_convergence_time_sum[10m])/increase(pilot_proxy_convergence
 * _Istio Ingress/Egress Gateways:_  (2개 인스턴스로 확장)
 * _Istiod Controlplane:_ (2개 인스턴스로 확장)
 
-최종 운영 환경 `SMCP` 조정을 적용하려면, `Mesh Operator` 자격 증명(`emma/emma`)으로 로그인하고 최종 업데이트 스크립트를 실행하세요. 스크립트 로그를 따라가며 적용된 변경 사항을 이해합니다. 추가적으로, `oc get pods -w -n {openshift_cluster_user_name}-prod-istio-system`을 실행하여 POD 확장을 추적할 수 있습니다.
+최종 운영 환경 `SMCP` 조정을 적용하려면, `Mesh Operator` 자격 증명(`emma/emma`)으로 로그인하고 최종 업데이트 스크립트를 실행하세요. 스크립트 로그를 따라가며 적용된 변경 사항을 이해합니다. 추가적으로, `oc get pods -w -n {openshift_cluster_user_name}-prod-istio-system` 을 실행하여 POD 확장을 추적할 수 있습니다.
 
 
 [source,shell,subs=attributes,role=execute]

@@ -44,7 +44,7 @@ curl localhost:8080/misbehave
 exit
 ----
 
-이 명령어는 애플리케이션이 항상 `503`을 반환하게 만듭니다.
+이 명령어는 애플리케이션이 항상 `503` 을 반환하게 만듭니다.
 
 트래픽을 생성하여 결과를 확인합니다.
 
@@ -84,7 +84,7 @@ kubectl get route kiali -n istio-system --output 'jsonpath={.status.ingress[].ho
 ====
 endif::workshop[]
 
-Kiali의 `Graph`로 이동하여 `recommendation` 네모를 선택하고, 빨간색 표시 위에 마우스를 올려놓습니다.
+Kiali의 `Graph` 로 이동하여 `recommendation` 네모를 선택하고, 빨간색 표시 위에 마우스를 올려놓습니다.
 
 image:kiali-retry.png[Kiali Retry]
 
@@ -208,7 +208,7 @@ kubectl delete -f istiofiles/virtual-service-recommendation-timeout.yml -n tutor
 [#nocircuitbreaker]
 === 서킷 브레이커 없이 부하 테스트 (Load test without circuit breaker)
 
-이제 `siege`를 사용하여 시스템에 부하 테스트를 수행합니다. 10명의 클라이언트가 4개의 동시 요청을 보냅니다.
+이제 `siege` 를 사용하여 시스템에 부하 테스트를 수행합니다. 10명의 클라이언트가 4개의 동시 요청을 보냅니다.
 
 include::siege.adoc[]
 
@@ -261,7 +261,7 @@ recommendation-v1-60483540-9snd9      2/2       Running   0          12m
 recommendation-v2-2815683430-vpx4p    2/2       Running   0          15s
 ----
 
-Pod 이름 `recommendation-v2-2815683430-vpx4p`를 기록해 둡니다. 그런 다음 로그를 확인합니다.
+Pod 이름 `recommendation-v2-2815683430-vpx4p` 를 기록해 둡니다. 그런 다음 로그를 확인합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -288,7 +288,7 @@ recommendation request from 'recommendation-v2-2815683430-vpx4p': 13
 kubectl scale deployment recommendation-v2 --replicas=2 -n tutorial{namespace-suffix}
 ----
 
-이제 하나의 `recommendation-v2` 인스턴스는 올바르게 작동하고 다른 하나는 실패합니다. 모든 트래픽을 `recommendation-v2`로 리디렉션합니다.
+이제 하나의 `recommendation-v2` 인스턴스는 올바르게 작동하고 다른 하나는 실패합니다. 모든 트래픽을 `recommendation-v2` 로 리디렉션합니다.
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -302,7 +302,7 @@ kubectl create -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutori
 kubectl create -f istiofiles/virtual-service-recommendation-v2.yml -n tutorial{namespace-suffix}
 ----
 
-`siege`를 사용하여 시스템에 부하 테스트를 수행합니다. 10명의 클라이언트가 4개의 동시 요청을 보냅니다.
+`siege` 를 사용하여 시스템에 부하 테스트를 수행합니다. 10명의 클라이언트가 4개의 동시 요청을 보냅니다.
 
 include::siege.adoc[]
 

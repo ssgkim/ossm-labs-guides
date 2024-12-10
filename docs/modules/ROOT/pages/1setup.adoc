@@ -10,17 +10,16 @@ include::_attributes.adoc[]
 [#istioinstallation]
 == Istio Installation
 
-[tabs, subs="attributes+,+macros"]	
+[subs="attributes+,+macros"]	
 ====
 OpenShift::
 +
---
+
 Istio는 https://www.redhat.com/en/technologies/cloud-computing/openshift/what-is-openshift-service-mesh[Red Hat OpenShift Service Mesh] 오퍼레이터를 통해 OpenShift에서 지원됩니다. 이 섹션에서는 OpenShift 4.9 이상 클러스터와 관리자 액세스 권한이 있는 계정을 가지고 있다고 가정합니다.
 
 [NOTE]
-====
 아래 단계는 Red Hat OpenShift Service Mesh 설치 절차에 대한 요약을 제공합니다. 자세한 지침은 https://access.redhat.com/documentation/en-us/openshift_container_platform/4.9/html/service_mesh/index[OpenShift 문서]에서 확인할 수 있습니다.
-====
+
 
 OpenShift에서 Istio를 사용하려면 네 가지 오퍼레이터를 설치하고 *Mesh Control Plane* 을 구성하며, *Mesh Member Roll* 을 사용하여 네임스페이스를 메쉬에 등록해야 합니다. 필요한 오퍼레이터는 다음과 같습니다:
 
@@ -43,10 +42,10 @@ OpenShift에서 Istio를 사용하려면 네 가지 오퍼레이터를 설치하
   * OpenShift Service Mesh
 
 [IMPORTANT]
-====
+
 *Web Terminal* 오퍼레이터를 설치하는 것이 권장되지만 선택 사항입니다. 이 오퍼레이터를 설치하면 이후 가이드에서 명령을 실행하는 것이 간편해집니다. 원한다면 OpenShift CLI(`oc`) 및 `kubectl` 을 개발 머신에서 직접 사용할 수 있습니다. OpenShift CLI는 OpenShift 콘솔 오른쪽 상단의 도움말 아이콘에서 *Command line tools* 링크를 통해 다운로드할 수 있습니다.
 Web Terminal 오퍼레이터를 설치 합니다. 
-====
+
 image::setup-webterminal.png[]
 
 설치가 완료되면 OpenShift 콘솔의 사이드 메뉴에서 *Installed Operators* 를 선택하고 설치된 오퍼레이터가 목록에 있는지 확인합니다. 목록은 아래 스크린샷과 유사해야 합니다.
@@ -129,5 +128,4 @@ jaeger-c78d79786-hmm7q                 2/2     Running   0          57m
 kiali-774f655f6c-sv7nv                 1/1     Running   0          18m
 prometheus-9db548fb6-vhwhc             3/3     Running   0          57m
 ----
---
 ====

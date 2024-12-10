@@ -69,9 +69,6 @@ kubectl config current-context
 oc new-project tutorial ; oc project tutorial
 ----
 
-// 이 파일 상단에 선언된 `tutorial-url` 및 `folder` 변수 사용
-include::https://raw.githubusercontent.com/redhat-developer-demos/rhd-tutorial-common/master/download-sources.adoc[]
-
 [IMPORTANT]
 ====
 OpenShift Web Terminal은 지속적인 환경이 아닙니다. OpenShift Web Terminal이 닫히거나 몇 분간 비활성화되면 `istio-tutorial` 폴더, `TUTORIAL_HOME`, 및 설정된 환경 변수는 손실됩니다. Web Terminal 세션을 다시 구성해야 할 경우 이 섹션으로 돌아가서 `git clone`, `export`, 및 `cd` 명령어를 다시 실행하세요.

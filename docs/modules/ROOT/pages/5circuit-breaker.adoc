@@ -18,7 +18,7 @@ kubectl get destinationrule{namespace-suffix}
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 ====
 
@@ -32,7 +32,7 @@ kubectl get destinationrule{namespace-suffix}
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix} | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
+kubectl exec -it -n tutorial $(kubectl get pods -n tutorial | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
 ----
 
 Pod `recommendation-v2`의 애플리케이션 컨테이너 내부로 들어갑니다. 이제 아래 명령어를 실행합니다.
@@ -93,7 +93,7 @@ image:kiali-retry.png[Kiali Retry]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix} | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
+kubectl exec -it -n tutorial $(kubectl get pods -n tutorial | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
 ----
 
 Pod `recommendation-v2`의 애플리케이션 컨테이너 내부로 들어갑니다. 이제 아래 명령어를 실행합니다.
@@ -136,8 +136,8 @@ kubectl get destinationrule
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete virtualservice virtualservicename -n tutorial{namespace-suffix}
-kubectl delete destinationrule destinationrulename -n tutorial{namespace-suffix}
+kubectl delete virtualservice virtualservicename -n tutorial
+kubectl delete destinationrule destinationrulename -n tutorial
 ----
 
 우리는 `recommendation-v2`의 성능을 느리게 하여 응답 시간을 3초로 설정할 것입니다.
@@ -145,7 +145,7 @@ kubectl delete destinationrule destinationrulename -n tutorial{namespace-suffix}
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl patch deployment recommendation-v2 -p '{"spec":{"template":{"spec":{"containers":[{"name":"recommendation", "image":"quay.io/rhdevelopers/istio-tutorial-recommendation:v2-timeout"}]}}}}' -n tutorial{namespace-suffix}
+kubectl patch deployment recommendation-v2 -p '{"spec":{"template":{"spec":{"containers":[{"name":"recommendation", "image":"quay.io/rhdevelopers/istio-tutorial-recommendation:v2-timeout"}]}}}}' -n tutorial
 ----
 
 *customer* 엔드포인트에 여러 번 요청을 보내고, v1과 v2 사이의 라운드 로빈 부하 분산을 확인합니다.
@@ -157,7 +157,7 @@ include::generate_traffic.adoc[]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-timeout.yml[istiofiles/virtual-service-recommendation-timeout.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-timeout.yml[istiofiles/virtual-service-recommendation-timeout.yml] -n tutorial
 ----
 
 v2는 응답 시간이 3초로 설정되었고, 타임아웃이 1초이기 때문에, v2의 응답이 반환되지 않고 v1의 응답이 반환됩니다.
@@ -183,7 +183,7 @@ NOTE: 이미 빌드된 Docker 이미지를 배포합니다. Spring Boot를 사�
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl patch deployment recommendation-v2 -p '{"spec":{"template":{"spec":{"containers":[{"name":"recommendation", "image":"quay.io/rhdevelopers/istio-tutorial-recommendation:v2"}]}}}}' -n tutorial{namespace-suffix}
+kubectl patch deployment recommendation-v2 -p '{"spec":{"template":{"spec":{"containers":[{"name":"recommendation", "image":"quay.io/rhdevelopers/istio-tutorial-recommendation:v2"}]}}}}' -n tutorial
 ----
 
 그런 다음 타임아웃을 위해 생성된 가상 서비스를 삭제합니다.
@@ -191,7 +191,7 @@ kubectl patch deployment recommendation-v2 -p '{"spec":{"template":{"spec":{"con
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/virtual-service-recommendation-timeout.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/virtual-service-recommendation-timeout.yml -n tutorial
 ----
 
 또는 다음 명령어로도 실행할 수 있습니다.
@@ -199,7 +199,7 @@ kubectl delete -f istiofiles/virtual-service-recommendation-timeout.yml -n tutor
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 
 [#failfast]
@@ -227,7 +227,7 @@ image:siege_ok.png[siege 출력 - 모든 요청이 성공한 경우]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl exec -it -n tutorial{namespace-suffix} $(kubectl get pods -n tutorial{namespace-suffix} | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
+kubectl exec -it -n tutorial $(kubectl get pods -n tutorial | grep recommendation-v2 | awk '{ print $1 }' | head -1) -c recommendation /bin/bash
 ----
 
 Pod `recommendation-v2`의 애플리케이션 컨테이너 내부로 들어갑니다. 이제 아래 명령어를 실행합니다.
@@ -266,7 +266,7 @@ Pod 이름 `recommendation-v2-2815683430-vpx4p` 를 기록해 둡니다. 그런 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial{namespace-suffix}
+kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial
 ----
 
 출력 예시:
@@ -285,7 +285,7 @@ recommendation request from 'recommendation-v2-2815683430-vpx4p': 13
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl scale deployment recommendation-v2 --replicas=2 -n tutorial{namespace-suffix}
+kubectl scale deployment recommendation-v2 --replicas=2 -n tutorial
 ----
 
 이제 하나의 `recommendation-v2` 인스턴스는 올바르게 작동하고 다른 하나는 실패합니다. 모든 트래픽을 `recommendation-v2` 로 리디렉션합니다.
@@ -293,13 +293,13 @@ kubectl scale deployment recommendation-v2 --replicas=2 -n tutorial{namespace-su
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial{namespace-suffix}
+kubectl create -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f istiofiles/virtual-service-recommendation-v2.yml -n tutorial{namespace-suffix}
+kubectl create -f istiofiles/virtual-service-recommendation-v2.yml -n tutorial
 ----
 
 `siege` 를 사용하여 시스템에 부하 테스트를 수행합니다. 10명의 클라이언트가 4개의 동시 요청을 보냅니다.
@@ -317,7 +317,7 @@ image:siege_ok.png[siege 출력 - 모든 요청이 성공한 경우]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial{namespace-suffix}
+kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial
 ----
 
 출력 예시:
@@ -341,7 +341,7 @@ recommendation request from 'recommendation-v2-2815683430-vpx4p': 38
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl replace -f istiofiles/destination-rule-recommendation_cb_policy_version_v2.yml -n tutorial{namespace-suffix}
+kubectl replace -f istiofiles/destination-rule-recommendation_cb_policy_version_v2.yml -n tutorial
 ----
 
 include::siege.adoc[]
@@ -357,7 +357,7 @@ image:siege_ok.png[siege 출력 - 모든 요청이 성공한 경우]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial{namespace-suffix}
+kubectl logs recommendation-v2-2815683430-vpx4p -c recommendation -n tutorial
 ----
 
 이제 요청이 더 이상 실패한 Pod으로 전송되지 않음을 확인할 수 있습니다.

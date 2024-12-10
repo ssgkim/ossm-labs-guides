@@ -10,7 +10,7 @@ if so run:
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 ====
 
@@ -82,6 +82,6 @@ or you can run:
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 

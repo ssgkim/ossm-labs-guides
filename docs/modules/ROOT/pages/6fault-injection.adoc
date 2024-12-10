@@ -20,7 +20,7 @@ kubectl get destinationrule{namespace-suffix}
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 ====
 
@@ -32,7 +32,7 @@ kubectl get destinationrule{namespace-suffix}
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl get pods -l app=recommendation -n tutorial{namespace-suffix}
+kubectl get pods -l app=recommendation -n tutorial
 ----
 
 [.console-output]
@@ -48,13 +48,13 @@ recommendation-v2-2815683430-vn77w   2/2       Running   0          3h
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-503.yml -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-503.yml -n tutorial
 ----
 
 고객 엔드포인트에 요청을 보냅니다.
@@ -75,7 +75,7 @@ customer => Error: 503 - preference => Error: 503 - fault filter abort
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/virtual-service-recommendation-503.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/virtual-service-recommendation-503.yml -n tutorial
 ----
 
 [#delay]
@@ -86,13 +86,13 @@ kubectl delete -f istiofiles/virtual-service-recommendation-503.yml -n tutorial{
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl replace -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation.yml -n tutorial{namespace-suffix}
+kubectl replace -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation.yml -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-delay.yml -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-delay.yml -n tutorial
 ----
 
 고객 엔드포인트에 요청을 보냅니다.
@@ -113,7 +113,7 @@ stern을 사용하여 recommendation 로그를 모니터링합니다.
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-stern recommendation -n tutorial{namespace-suffix}
+stern recommendation -n tutorial
 ----
 
 === 정리 작업 (Clean up)
@@ -121,11 +121,11 @@ stern recommendation -n tutorial{namespace-suffix}
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/destination-rule-recommendation.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/destination-rule-recommendation.yml -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/virtual-service-recommendation-delay.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/virtual-service-recommendation-delay.yml -n tutorial
 ----

@@ -10,7 +10,7 @@ if so run:
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 ====
 
@@ -35,7 +35,7 @@ Let's start by denying any request that occurs on our application:
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl apply -f link:{github-repo}/{istiofiles-dir}/authorization-policy-deny-all.yaml[istiofiles/authorization-policy-deny-all.yaml] -n tutorial{namespace-suffix}
+kubectl apply -f link:{github-repo}/{istiofiles-dir}/authorization-policy-deny-all.yaml[istiofiles/authorization-policy-deny-all.yaml] -n tutorial
 ----
 
 Then if you do:
@@ -57,7 +57,7 @@ Let's permit the interaction to customer service:
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl apply -f link:{github-repo}/{istiofiles-dir}/authorization-policy-allow-customer.yaml[istiofiles/authorization-policy-allow-customer.yaml] -n tutorial{namespace-suffix}
+kubectl apply -f link:{github-repo}/{istiofiles-dir}/authorization-policy-allow-customer.yaml[istiofiles/authorization-policy-allow-customer.yaml] -n tutorial
 ----
 
 Then if you do:
@@ -79,7 +79,7 @@ Let's permit it:
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl apply -f link:{github-repo}/{istiofiles-dir}/authorization-policy-allow-preference.yaml[istiofiles/authorization-policy-allow-preference.yaml] -n tutorial{namespace-suffix}
+kubectl apply -f link:{github-repo}/{istiofiles-dir}/authorization-policy-allow-preference.yaml[istiofiles/authorization-policy-allow-preference.yaml] -n tutorial
 ----
 
 Then if you do:
@@ -101,7 +101,7 @@ Let's end up by allowing all the path:
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl apply -f link:{github-repo}/{istiofiles-dir}/authorization-policy-allow-recommendation.yaml[istiofiles/authorization-policy-allow-recommendation.yaml] -n tutorial{namespace-suffix}
+kubectl apply -f link:{github-repo}/{istiofiles-dir}/authorization-policy-allow-recommendation.yaml[istiofiles/authorization-policy-allow-recommendation.yaml] -n tutorial
 ----
 
 Then if you do:

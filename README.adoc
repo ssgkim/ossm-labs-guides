@@ -12,8 +12,8 @@ podman run --rm -d -p 4000:8080 localhost/ossm-labs-guides
 
 [source,bash]
 ----
-oc new-app https://github.com/ssgkim/ossm-labs-guides.git --strategy=docker
- oc create route edge ossm-labs-guides --service=ossm-labs-guides
+oc new-app https://github.com/ssgkim/ossm-labs-guides.git --strategy=docker -n guides
+ oc create route edge ossm-labs-guides --service=ossm-labs-guides -n guides
 # To rebuild after changes pushed to git
-oc start-build ossm-labs-guides --follow
+oc start-build ossm-labs-guides --follow -n guides
 ----

@@ -18,7 +18,7 @@ kubectl get destinationrule{namespace-suffix}
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 ====
 
@@ -43,13 +43,13 @@ https://www.whoishostingthis.com/tools/user-agent/[https://www.whoishostingthis.
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1.yml[istiofiles/virtual-service-recommendation-v1.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1.yml[istiofiles/virtual-service-recommendation-v1.yml] -n tutorial
 ----
 
 [#safaritov2]
@@ -58,13 +58,13 @@ kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommenda
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-safari-recommendation-v2.yml[istiofiles/virtual-service-safari-recommendation-v2.yml] -n tutorial{namespace-suffix}
+kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-safari-recommendation-v2.yml[istiofiles/virtual-service-safari-recommendation-v2.yml] -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl get virtualservice -n tutorial{namespace-suffix}
+kubectl get virtualservice -n tutorial
 ----
 
 Safari (또는 문자열에 Safari가 포함되어 있는 Mac의 Chrome 브라우저)로 테스트하면, Recommendation의 v2 응답만 표시됩니다.
@@ -84,7 +84,7 @@ include::curl_params.adoc[]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl get virtualservice -o yaml -n tutorial{namespace-suffix}
+kubectl get virtualservice -o yaml -n tutorial
 ----
 
 ==== Safari 규칙 제거하기
@@ -92,7 +92,7 @@ kubectl get virtualservice -o yaml -n tutorial{namespace-suffix}
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/virtual-service-safari-recommendation-v2.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/virtual-service-safari-recommendation-v2.yml -n tutorial
 ----
 
 [#mobiletov2]
@@ -101,7 +101,7 @@ kubectl delete -f istiofiles/virtual-service-safari-recommendation-v2.yml -n tut
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-mobile-recommendation-v2.yml[istiofiles/virtual-service-mobile-recommendation-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-mobile-recommendation-v2.yml[istiofiles/virtual-service-mobile-recommendation-v2.yml] -n tutorial
 ----
 
 다음 명령어를 사용하여 모바일 사용자 에이전트로 curl 요청을 보낼 수 있습니다.
@@ -113,13 +113,13 @@ include::curl_params.adoc[]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/virtual-service-mobile-recommendation-v2.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/virtual-service-mobile-recommendation-v2.yml -n tutorial
 ----
 
 또는 다음 명령을 실행할 수 있습니다.
@@ -127,7 +127,7 @@ kubectl delete -f istiofiles/virtual-service-mobile-recommendation-v2.yml -n tut
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 
 [#mirroringtraffic]
@@ -136,7 +136,7 @@ kubectl delete -f istiofiles/virtual-service-mobile-recommendation-v2.yml -n tut
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl get pods -l app=recommendation -n tutorial{namespace-suffix}
+kubectl get pods -l app=recommendation -n tutorial
 ----
 
 위 단계에 따라 recommendation Pod가 2개 있어야 합니다.
@@ -144,7 +144,7 @@ kubectl get pods -l app=recommendation -n tutorial{namespace-suffix}
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl get virtualservice -n tutorial{namespace-suffix}
+kubectl get virtualservice -n tutorial
 ----
 
 [.console-input]
@@ -159,7 +159,7 @@ kubectl get destinationrule
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 
 "istio-tutorial"의 메인 디렉터리에 있는지 확인합니다.
@@ -167,13 +167,13 @@ kubectl get destinationrule
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1-mirror-v2.yml[istiofiles/virtual-service-recommendation-v1-mirror-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1-mirror-v2.yml[istiofiles/virtual-service-recommendation-v1-mirror-v2.yml] -n tutorial
 ----
 
 include::curl.adoc[]
@@ -183,7 +183,7 @@ recommendation-v2의 로그를 확인합니다.
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl logs -f `kubectl get pods -n tutorial{namespace-suffix}|grep recommendation-v2|awk '{ print $1 }'` -c recommendation -n tutorial{namespace-suffix}
+kubectl logs -f `kubectl get pods -n tutorial|grep recommendation-v2|awk '{ print $1 }'` -c recommendation -n tutorial
 ----
 
 === 정리(Clean up)
@@ -191,13 +191,13 @@ kubectl logs -f `kubectl get pods -n tutorial{namespace-suffix}|grep recommendat
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/virtual-service-recommendation-v1-mirror-v2.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/virtual-service-recommendation-v1-mirror-v2.yml -n tutorial
 ----
 
 또는 다음 명령을 실행할 수 있습니다.
@@ -205,7 +205,7 @@ kubectl delete -f istiofiles/virtual-service-recommendation-v1-mirror-v2.yml -n 
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
 
 [#loadbalancer]
@@ -219,7 +219,7 @@ v2 Pod을 하나 더 추가합니다.
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl scale deployment recommendation-v2 --replicas=2 -n tutorial{namespace-suffix}
+kubectl scale deployment recommendation-v2 --replicas=2 -n tutorial
 ----
 
 조금 기다린 후 (`oc get pods -w` 명령어로 확인 가능) 
@@ -232,8 +232,8 @@ v2 Pod을 하나 더 추가하여 총 3개의 v2 Pod을 만듭니다.
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl scale deployment recommendation-v2 --replicas=3 -n tutorial{namespace-suffix}
-kubectl get pods -n tutorial{namespace-suffix}
+kubectl scale deployment recommendation-v2 --replicas=3 -n tutorial
+kubectl get pods -n tutorial
 ----
 
 [.console-output]
@@ -269,7 +269,7 @@ customer => preference => recommendation v2 from 'recommendation-v2-2819441432-b
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation_lb_policy_app.yml[istiofiles/destination-rule-recommendation_lb_policy_app.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation_lb_policy_app.yml[istiofiles/destination-rule-recommendation_lb_policy_app.yml] -n tutorial
 ----
 
 이제 어떤 Pod이 선택되는지에 대한 패턴이 변경된 것을 확인할 수 있습니다.
@@ -286,11 +286,11 @@ customer => preference => recommendation v2 from 'recommendation-v2-2819441432-5
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/destination-rule-recommendation_lb_policy_app.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/destination-rule-recommendation_lb_policy_app.yml -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl scale deployment recommendation-v2 --replicas=1 -n tutorial{namespace-suffix}
+kubectl scale deployment recommendation-v2 --replicas=1 -n tutorial
 ----

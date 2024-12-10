@@ -40,7 +40,7 @@ ln -s /wto/bin/downloaded/istio-1.9.4/bin/istioctl /wto/bin/
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl apply -f recommendation/kubernetes/Deployment-v2.yml -n tutorial{namespace-suffix}
+kubectl apply -f recommendation/kubernetes/Deployment-v2.yml -n tutorial
 ----
 
 === v2 배포 대기
@@ -50,7 +50,7 @@ Pod의 상태가 "2/2"가 될 때까지 기다립니다. istio-proxy/envoy sidec
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl get pods -w -n tutorial{namespace-suffix}
+kubectl get pods -w -n tutorial
 ----
 
 [.console-output]
@@ -95,7 +95,7 @@ Kubernetes/OpenShift의 기본 동작은 단일 서비스 뒤에 있는 모든 �
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl scale --replicas=2 deployment/recommendation-v2 -n tutorial{namespace-suffix}
+kubectl scale --replicas=2 deployment/recommendation-v2 -n tutorial
 ----
 
 이제 v2에 대한 요청 2개와 v1에 대한 요청 1개가 표시됩니다.
@@ -113,7 +113,7 @@ recommendation-v2의 Deployment를 단일 복제본으로 되돌립니다.
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl scale --replicas=1 deployment/recommendation-v2 -n tutorial{namespace-suffix}
+kubectl scale --replicas=1 deployment/recommendation-v2 -n tutorial
 ----
 
 [#istiorouting]
@@ -125,13 +125,13 @@ kubectl scale --replicas=1 deployment/recommendation-v2 -n tutorial{namespace-su
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/destination-rule-recommendation-v1-v2.yml[istiofiles/destination-rule-recommendation-v1-v2.yml] -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v2.yml[istiofiles/virtual-service-recommendation-v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v2.yml[istiofiles/virtual-service-recommendation-v2.yml] -n tutorial
 ----
 
 include::generate_traffic.adoc[]
@@ -144,7 +144,7 @@ v2만 반환되는 것을 확인할 수 있습니다.
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1.yml[istiofiles/virtual-service-recommendation-v1.yml] -n tutorial{namespace-suffix}
+kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1.yml[istiofiles/virtual-service-recommendation-v1.yml] -n tutorial
 ----
 
 [#alltorecommendationv1v2]
@@ -153,7 +153,7 @@ kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommend
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/virtual-service-recommendation-v1.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/virtual-service-recommendation-v1.yml -n tutorial
 ----
 
 include::generate_traffic.adoc[]
@@ -164,7 +164,7 @@ include::generate_traffic.adoc[]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1_and_v2.yml[istiofiles/virtual-service-recommendation-v1_and_v2.yml] -n tutorial{namespace-suffix}
+kubectl create -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1_and_v2.yml[istiofiles/virtual-service-recommendation-v1_and_v2.yml] -n tutorial
 ----
 
 include::generate_traffic.adoc[]
@@ -174,7 +174,7 @@ include::generate_traffic.adoc[]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1_and_v2_75_25.yml[istiofiles/virtual-service-recommendation-v1_and_v2_75_25.yml] -n tutorial{namespace-suffix}
+kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommendation-v1_and_v2_75_25.yml[istiofiles/virtual-service-recommendation-v1_and_v2_75_25.yml] -n tutorial
 ----
 
 정리 (Clean up)
@@ -182,13 +182,13 @@ kubectl replace -f link:{github-repo}/{istiofiles-dir}/virtual-service-recommend
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/virtual-service-recommendation-v1_and_v2_75_25.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/virtual-service-recommendation-v1_and_v2_75_25.yml -n tutorial
 ----
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial{namespace-suffix}
+kubectl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutorial
 ----
 
 또는 다음 명령을 실행할 수 있습니다.
@@ -196,5 +196,5 @@ kubectl delete -f istiofiles/destination-rule-recommendation-v1-v2.yml -n tutori
 [.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
-./scripts/clean.sh tutorial{namespace-suffix}
+./scripts/clean.sh tutorial
 ----
